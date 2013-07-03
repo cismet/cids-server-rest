@@ -115,17 +115,18 @@ public class EntitiesAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   domain      DOCUMENT ME!
-     * @param   classKey    DOCUMENT ME!
-     * @param   role        DOCUMENT ME!
-     * @param   limit       DOCUMENT ME!
-     * @param   offset      DOCUMENT ME!
-     * @param   expand      DOCUMENT ME!
-     * @param   level       DOCUMENT ME!
-     * @param   fields      DOCUMENT ME!
-     * @param   profile     DOCUMENT ME!
-     * @param   filter      DOCUMENT ME!
-     * @param   authString  DOCUMENT ME!
+     * @param   domain          DOCUMENT ME!
+     * @param   classKey        DOCUMENT ME!
+     * @param   role            DOCUMENT ME!
+     * @param   limit           DOCUMENT ME!
+     * @param   offset          DOCUMENT ME!
+     * @param   expand          DOCUMENT ME!
+     * @param   level           DOCUMENT ME!
+     * @param   fields          DOCUMENT ME!
+     * @param   profile         DOCUMENT ME!
+     * @param   filter          DOCUMENT ME!
+     * @param   omitNullValues  DOCUMENT ME!
+     * @param   authString      DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -183,6 +184,12 @@ public class EntitiesAPI extends APIBase {
             @QueryParam("filter")
             final String filter,
             @ApiParam(
+                value = "Omit properties that have 'null' as value",
+                defaultValue = "true"
+            )
+            @QueryParam("omitNullValues")
+            final boolean omitNullValues,
+            @ApiParam(
                 value = "Basic Auth Authorization String",
                 required = false
             )
@@ -195,7 +202,18 @@ public class EntitiesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             final List l = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
-                        .getAllObjects(user, classKey, role, limit, offset, expand, level, fields, profile, filter);
+                        .getAllObjects(
+                            user,
+                            classKey,
+                            role,
+                            limit,
+                            offset,
+                            expand,
+                            level,
+                            fields,
+                            profile,
+                            filter,
+                            omitNullValues);
             final CollectionResource result = new CollectionResource("/" + domain + "." + classKey,
                     offset,
                     limit,
@@ -215,6 +233,8 @@ public class EntitiesAPI extends APIBase {
             queryParams.add("level", level);
             queryParams.add("fields", fields);
             queryParams.add("profile", profile);
+            queryParams.add("filter", filter);
+            queryParams.add("omitNullValues", omitNullValues);
             final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
                         .path(domain + "." + classKey)
                         .header("Authorization", authString)
@@ -403,16 +423,17 @@ public class EntitiesAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   domain      DOCUMENT ME!
-     * @param   classKey    DOCUMENT ME!
-     * @param   objectId    DOCUMENT ME!
-     * @param   version     DOCUMENT ME!
-     * @param   role        DOCUMENT ME!
-     * @param   expand      DOCUMENT ME!
-     * @param   level       DOCUMENT ME!
-     * @param   fields      DOCUMENT ME!
-     * @param   profile     DOCUMENT ME!
-     * @param   authString  DOCUMENT ME!
+     * @param   domain          DOCUMENT ME!
+     * @param   classKey        DOCUMENT ME!
+     * @param   objectId        DOCUMENT ME!
+     * @param   version         DOCUMENT ME!
+     * @param   role            DOCUMENT ME!
+     * @param   expand          DOCUMENT ME!
+     * @param   level           DOCUMENT ME!
+     * @param   fields          DOCUMENT ME!
+     * @param   profile         DOCUMENT ME!
+     * @param   omitNullValues  DOCUMENT ME!
+     * @param   authString      DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -460,6 +481,12 @@ public class EntitiesAPI extends APIBase {
             @QueryParam("profile")
             final String profile,
             @ApiParam(
+                value = "Omit properties that have 'null' as value",
+                defaultValue = "true"
+            )
+            @QueryParam("omitNullValues")
+            final boolean omitNullValues,
+            @ApiParam(
                 value = "Basic Auth Authorization String",
                 required = false
             )
@@ -472,7 +499,17 @@ public class EntitiesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             final ObjectNode result = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
-                        .getObject(user, classKey, objectId, version, expand, level, fields, profile, role);
+                        .getObject(
+                            user,
+                            classKey,
+                            objectId,
+                            version,
+                            expand,
+                            level,
+                            fields,
+                            profile,
+                            role,
+                            omitNullValues);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -483,6 +520,7 @@ public class EntitiesAPI extends APIBase {
             queryParams.add("level", level);
             queryParams.add("fields", fields);
             queryParams.add("profile", profile);
+            queryParams.add("omitNullValues", omitNullValues);
 
             final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
                         .path(domain + "." + classKey)

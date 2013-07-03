@@ -72,7 +72,8 @@ public class FileSystemEntityCore implements EntityCore {
             final String level,
             final String fields,
             final String profile,
-            final String filter) {
+            final String filter,
+            final boolean ommitNullValues) {
         final File folder = new File(baseDir + SEP + "objects" + SEP + classKey + SEP);
         final ArrayList all = new ArrayList();
         for (final File fileEntry : folder.listFiles()) {
@@ -80,6 +81,9 @@ public class FileSystemEntityCore implements EntityCore {
                 try {
                     final ObjectNode on = (ObjectNode)mapper.readTree(fileEntry);
                     if ((filter == null) || filterMatch(on, filter)) {
+                        if (ommitNullValues) {
+                            omitNullValues(on);
+                        }
                         all.add(on);
                     }
                 } catch (IOException ex) {
@@ -149,15 +153,20 @@ public class FileSystemEntityCore implements EntityCore {
             final String level,
             final String fields,
             final String profile,
-            final String role) {
+            final String role,
+            final boolean omitNullValues) {
         try {
             // version,profile and role not supported
             if ((version != null) || (profile != null) || (role != null)) {
                 throw new UnsupportedOperationException("version,profile and role not supported yet.");
             }
-            final ObjectNode ret = (ObjectNode)(mapper.readTree(
+            final ObjectNode objectNode = (ObjectNode)(mapper.readTree(
                         new File(baseDir + SEP + "objects" + SEP + classKey + SEP + objectId + ".json")));
-            return applyFieldParameter(ret, fields);
+            final ObjectNode returnNode = applyFieldParameter(objectNode, fields);
+            if (omitNullValues) {
+                omitNullValues(returnNode);
+            }
+            return returnNode;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -264,6 +273,33 @@ public class FileSystemEntityCore implements EntityCore {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  on  DOCUMENT ME!
+     */
+    private void omitNullValues(final ObjectNode on) {
+        final ArrayList<String> nullFields = new ArrayList<String>();
+        final Iterator<String> it = on.fieldNames();
+        while (it.hasNext()) {
+            final String attrName = it.next();
+            if (on.get(attrName).isNull()) {
+                nullFields.add(attrName);
+            } else if (on.get(attrName).isObject()) {
+                omitNullValues((ObjectNode)on.get(attrName));
+            } else if (on.get(attrName).isArray()) {
+                final Iterator<JsonNode> iterator = on.get(attrName).elements();
+                while (iterator.hasNext()) {
+                    final ObjectNode arrayON = (ObjectNode)iterator.next();
+                    omitNullValues(arrayON);
+                }
+            }
+        }
+        for (final String nullField : nullFields) {
+            on.remove(nullField);
         }
     }
 }

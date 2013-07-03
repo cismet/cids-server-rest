@@ -31,16 +31,17 @@ public interface EntityCore {
     /**
      * DOCUMENT ME!
      *
-     * @param   user      DOCUMENT ME!
-     * @param   classkey  DOCUMENT ME!
-     * @param   role      DOCUMENT ME!
-     * @param   limit     DOCUMENT ME!
-     * @param   offset    DOCUMENT ME!
-     * @param   expand    DOCUMENT ME!
-     * @param   level     DOCUMENT ME!
-     * @param   fields    DOCUMENT ME!
-     * @param   profile   DOCUMENT ME!
-     * @param   filter    DOCUMENT ME!
+     * @param   user             DOCUMENT ME!
+     * @param   classkey         DOCUMENT ME!
+     * @param   role             DOCUMENT ME!
+     * @param   limit            DOCUMENT ME!
+     * @param   offset           DOCUMENT ME!
+     * @param   expand           DOCUMENT ME!
+     * @param   level            DOCUMENT ME!
+     * @param   fields           DOCUMENT ME!
+     * @param   profile          DOCUMENT ME!
+     * @param   filter           DOCUMENT ME!
+     * @param   ommitNullValues  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -53,7 +54,8 @@ public interface EntityCore {
             String level,
             String fields,
             String profile,
-            String filter);
+            String filter,
+            boolean ommitNullValues);
 
     /**
      * DOCUMENT ME!
@@ -107,15 +109,16 @@ public interface EntityCore {
     /**
      * DOCUMENT ME!
      *
-     * @param   user      DOCUMENT ME!
-     * @param   classKey  DOCUMENT ME!
-     * @param   objectId  DOCUMENT ME!
-     * @param   version   DOCUMENT ME!
-     * @param   expand    DOCUMENT ME!
-     * @param   level     DOCUMENT ME!
-     * @param   fields    DOCUMENT ME!
-     * @param   profile   DOCUMENT ME!
-     * @param   role      DOCUMENT ME!
+     * @param   user             DOCUMENT ME!
+     * @param   classKey         DOCUMENT ME!
+     * @param   objectId         DOCUMENT ME!
+     * @param   version          DOCUMENT ME!
+     * @param   expand           DOCUMENT ME!
+     * @param   level            DOCUMENT ME!
+     * @param   fields           DOCUMENT ME!
+     * @param   profile          DOCUMENT ME!
+     * @param   role             DOCUMENT ME!
+     * @param   ommitNullValues  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -127,7 +130,8 @@ public interface EntityCore {
             String level,
             String fields,
             String profile,
-            String role);
+            String role,
+            boolean ommitNullValues);
 
     /**
      * DOCUMENT ME!
