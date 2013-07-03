@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -8,67 +15,91 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
-import com.wordnik.swagger.core.Api;
-import com.wordnik.swagger.core.ApiError;
-import com.wordnik.swagger.core.ApiErrors;
-import com.wordnik.swagger.core.ApiOperation;
-import com.wordnik.swagger.jaxrs.JavaHelp;
+
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.ServletHolder;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.Context;
-
-import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
+ * DOCUMENT ME!
  *
- * @author thorsten
+ * @author   thorsten
+ * @version  $Revision$, $Date$
  */
-
 @Path("/")
-@Api(
-    value = "/GeoCPM",
-    description = "Service wrapper for the GeoCPM and the DYNA model component"
-)
-@Produces({ "application/json" })
-public class RestRegistry extends JavaHelp{
+public class RestRegistry {
+
+    //~ Static fields/initializers ---------------------------------------------
 
     static HashMap<String, CidsServerInfo> dns = new HashMap<String, CidsServerInfo>();
 
+    static {
+        dns.put("registry", new CidsServerInfo("registry", "http://localhost:8888"));
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  WebApplicationException  DOCUMENT ME!
+     */
     @GET
     @Path("/servers")
     @Produces("application/json")
-    @ApiOperation(value = "Find purchase order by ID", notes = "For valid response try integer IDs with value <= 5 or > 10. "
-    + "Other values will generated exceptions", responseClass = "com.wordnik.swagger.sample.model.Order")
-    @ApiErrors(value = {
-        @ApiError(code = 400, reason = "Invalid ID supplied"),
-        @ApiError(code = 404, reason = "Order not found")})
     public Collection<CidsServerInfo> getAllServer() {
-        if (dns.size()>0){
-        return new ArrayList<CidsServerInfo>(dns.values());
-        }
-        else {
+        if (dns.size() > 0) {
+            return new ArrayList<CidsServerInfo>(dns.values());
+        } else {
             throw new WebApplicationException(Response.status(Response.Status.NO_CONTENT).build());
         }
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   server  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     @PUT
+    @Path("/servers")
     @Consumes("application/json")
-    public Response addServer(CidsServerInfo server) {
+    @Produces("application/json")
+    public Response addServer(final CidsServerInfo server) {
         dns.put(server.getName(), server);
         System.out.println(dns);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    @Path("{servername}")
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   validate    DOCUMENT ME!
+     * @param   servername  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  WebApplicationException  DOCUMENT ME!
+     */
+    @Path("servers/{servername}")
     @GET
     @Produces("application/json")
-    public CidsServerInfo getServer(@DefaultValue("false") @QueryParam("validate") boolean validate, @PathParam("servername") String servername) {
-        CidsServerInfo server = dns.get(servername);
+    public CidsServerInfo getServer(@DefaultValue("false")
+            @QueryParam("validate")
+            final boolean validate,
+            @PathParam("servername") final String servername) {
+        final CidsServerInfo server = dns.get(servername);
         if (server != null) {
             if (validate) {
                 try {
@@ -84,11 +115,20 @@ public class RestRegistry extends JavaHelp{
         }
     }
 
-    private CidsServerInfo validateServer(CidsServerInfo server) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   server  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  WebApplicationException  DOCUMENT ME!
+     */
+    private CidsServerInfo validateServer(final CidsServerInfo server) {
         try {
-            Client c = Client.create();
-            WebResource r = c.resource(server.getUri());
-            ClientResponse cr = r.head();
+            final Client c = Client.create();
+            final WebResource r = c.resource(server.getUri());
+            final ClientResponse cr = r.head();
             if (cr.getClientResponseStatus().equals(ClientResponse.Status.OK)) {
                 return server;
             }
@@ -99,10 +139,17 @@ public class RestRegistry extends JavaHelp{
         throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).build());
     }
 
-    @Path("{servername}")
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   servername  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    @Path("servers/{servername}")
     @DELETE
-    public Response removeServer(@PathParam("servername") String servername) {
-        CidsServerInfo removed = dns.remove(servername);
+    public Response removeServer(@PathParam("servername") final String servername) {
+        final CidsServerInfo removed = dns.remove(servername);
         if (removed != null) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } else {
@@ -110,21 +157,28 @@ public class RestRegistry extends JavaHelp{
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   args  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public static void main(final String[] args) throws Exception {
         final Map<String, String> initParams = new HashMap<String, String>();
 
-        ServletHolder sh = new ServletHolder(ServletContainer.class);
+        final ServletHolder sh = new ServletHolder(ServletContainer.class);
         sh.setInitParameter("com.sun.jersey.config.property.packages",
-                "com.wordnik.swagger.jaxrs;de.cismet.cids.server.rest.registry");
+            "de.cismet.cids.server.rest.registry");
+//                "com.wordnik.swagger.jaxrs;de.cismet.cids.server.rest.registry");
         sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
-                "true");
-        Server server = new Server(8888);
-        Context context = new Context(server, "/", Context.SESSIONS);
+            "true");
+        final Server server = new Server(8888);
+        final Context context = new Context(server, "/", Context.SESSIONS);
         context.addServlet(sh, "/*");
         server.start();
         System.in.read();
         server.setStopAtShutdown(true);
         System.exit(0);
-
     }
 }

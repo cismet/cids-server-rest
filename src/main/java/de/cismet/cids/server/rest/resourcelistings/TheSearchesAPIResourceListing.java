@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -5,22 +12,27 @@
 package de.cismet.cids.server.rest.resourcelistings;
 
 import com.sun.jersey.spi.resource.Singleton;
+
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.jaxrs.JavaHelp;
+
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 /**
+ * DOCUMENT ME!
  *
- * @author thorsten
+ * @author   thorsten
+ * @version  $Revision$, $Date$
  */
 @Path("/resources/searches")
-@Api(value = "/searches",
-description = "Operations about pets",
-listingPath = "/resources/searches",
-listingClass = "de.cismet.cids.server.rest.domain.SearchesAPI")
+@Api(
+    value = "/searches",
+    description = "Operations about pets",
+    listingPath = "/resources/searches",
+    listingClass = "de.cismet.cids.server.rest.domain.SearchesAPI"
+)
 @Singleton
-@Produces({"application/json", "application/xml"})
-public class TheSearchesAPIResourceListing
-        extends JavaHelp {
+@Produces({ "application/json", "application/xml" })
+public class TheSearchesAPIResourceListing extends JavaHelp {
 }
