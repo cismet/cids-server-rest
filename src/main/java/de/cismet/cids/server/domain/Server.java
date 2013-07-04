@@ -29,7 +29,7 @@ import de.cismet.cids.server.cores.UserCore;
 
 public interface Server {
 
-    //~ Static fields/initializers ---------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
     String STANDALONE = "NO-REGISTRY-BECAUSE-OF-STANDALONE-SERVER";
 
