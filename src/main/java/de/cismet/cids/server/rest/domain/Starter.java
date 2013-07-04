@@ -45,6 +45,15 @@ public class Starter {
         } catch (final Exception e) {
             // unsatisfactory port settings
         }
+        String swaggerBasePath = null;
+        try
+        {
+            swaggerBasePath = args[1];
+        }catch(final Exception e)
+        {
+            // unsatisfactory swaggerbasepath setting
+        }
+        
         Server server = null;
         try {
             JaxrsApiReader.setFormatString("");
@@ -68,7 +77,7 @@ public class Starter {
                 "com.sun.jersey.spi.container.ContainerResponseFilters",
                 "de.cismet.cids.server.rest.CORSResponseFilter");
             sh.setInitParameter("swagger.version", "1.0");
-            sh.setInitParameter("swagger.api.basepath", "http://localhost:8890"); // no trailing slash please
+            sh.setInitParameter("swagger.api.basepath", swaggerBasePath == null ? "http://localhost:8890" : swaggerBasePath); // no trailing slash please
             server = new Server(port);
 
             final Client c = Client.create();
