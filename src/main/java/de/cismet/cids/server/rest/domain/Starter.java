@@ -58,6 +58,9 @@ public class Starter {
                 "de.cismet.cids.server.rest.domain;de.cismet.cids.server.rest.resourcelistings;com.fasterxml.jackson.jaxrs");
             sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
                 "true");
+            sh.setInitParameter(
+                "com.sun.jersey.spi.container.ContainerResponseFilters",
+                "de.cismet.cids.server.rest.CORSResponseFilter");
             sh.setInitParameter("swagger.version", "1.0");
             sh.setInitParameter("swagger.api.basepath", "http://localhost:8890"); // no trailing slash please
             server = new Server(8890);
