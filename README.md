@@ -3,14 +3,23 @@ Core API Preview
 
 What is this about
 ------------------
-This is a CORE API Preview for the CRISMA ICMS. 
+This is a CORE API Preview for the CRISMA ICMS infrastructure building block. With this API other components 
+can get infos about worldstates, about manipulation UI's and federated models.
 
-<cids Bezug> 
+You can find the model "behind" the api either in this document(Link zu Pascals UML Dokument) (or via calling ```/classe?domain=crisma``` ;-))
 
-What this is not
-----------------
+We set up a cids System that implements(besserer Begriff finden) that model.
 
-<kein Helper> 
+We implemented a restful API and tried to fulfill the rules SP3 set.
+
+The API is enriched by a cool documentation framework named Swagger. With this interactive API documentation 
+you can explore the API and play around with the resources and methods.
+
+What this is not about
+-----------------------
+The Swagger Site is not a UI for CRISMA. 
+The API is a core API. There will be some helpers to support CRISMA developers in their work. At the moment we are not sure if these helpers are
+a more client side component or if we enhance the API for this purpose.
 
 The API is divided in different Sub APIs.
 =========================================
