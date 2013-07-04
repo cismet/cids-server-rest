@@ -20,6 +20,8 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
+import java.io.File;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +32,10 @@ import java.util.Map;
  * @version  $Revision$, $Date$
  */
 public class Starter {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    public static String FS_CIDS_DIR;
 
     //~ Methods ----------------------------------------------------------------
 
@@ -45,15 +51,26 @@ public class Starter {
         } catch (final Exception e) {
             // unsatisfactory port settings
         }
-        String swaggerBasePath = null;
-        try
-        {
+        String swaggerBasePath = "http://localhost:8890";
+        try {
             swaggerBasePath = args[1];
-        }catch(final Exception e)
-        {
+        } catch (final Exception e) {
             // unsatisfactory swaggerbasepath setting
         }
-        
+
+        FS_CIDS_DIR = "/Users/thorsten/Desktop/crisma-api-demo";
+        try {
+            if ((args[2] != null) || new File(args[2]).isDirectory()) {
+                FS_CIDS_DIR = args[2];
+            }
+        } catch (final Exception e) {
+            // unsatisfactory fs cids dir
+        }
+
+        System.out.println("port=" + port);
+        System.out.println("swaggerpath=" + swaggerBasePath);
+        System.out.println("fs_cids_dir=" + FS_CIDS_DIR);
+
         Server server = null;
         try {
             JaxrsApiReader.setFormatString("");
@@ -77,7 +94,7 @@ public class Starter {
                 "com.sun.jersey.spi.container.ContainerResponseFilters",
                 "de.cismet.cids.server.rest.CORSResponseFilter");
             sh.setInitParameter("swagger.version", "1.0");
-            sh.setInitParameter("swagger.api.basepath", swaggerBasePath == null ? "http://localhost:8890" : swaggerBasePath); // no trailing slash please
+            sh.setInitParameter("swagger.api.basepath", swaggerBasePath); // no trailing slash please
             server = new Server(port);
 
             final Client c = Client.create();
