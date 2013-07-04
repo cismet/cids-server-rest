@@ -1,7 +1,7 @@
 Core API Preview
 ================
 
-What is this about
+What is this about?
 ------------------
 This is a CORE API Preview for the CRISMA ICMS infrastructure building block. With this API other components 
 can get infos about worldstates, about manipulation UI's and federated models.
