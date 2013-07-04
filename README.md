@@ -1,18 +1,25 @@
-Dies ist ein temporäres Projekt. Wenn das Design abgeschlossen ist, werden wahrscheinlich mehrere draus. Im Moment wird es nur für die CRISMA API Demo verwendet, deswegen hier die CRISMA API Demo Readme:
-
 Core API Preview
 ================
 
 What is this about
 ------------------
-This is a CORE API Preview for the CRISMA ICMS. 
+This is a CORE API Preview for the CRISMA ICMS infrastructure building block. With this API other components 
+can get infos about worldstates, about manipulation UI's and federated models.
 
-<cids Bezug> 
+You can find the model "behind" the api either in this document(Link zu Pascals UML Dokument) (or via calling ```/classe?domain=crisma``` ;-))
 
-What this is not
-----------------
+We set up a cids System that implements(besserer Begriff finden) that model.
 
-<kein Helper> 
+We implemented a restful API and tried to fulfill the rules SP3 set.
+
+The API is enriched by a cool documentation framework named Swagger. With this interactive API documentation 
+you can explore the API and play around with the resources and methods.
+
+What this is not about
+-----------------------
+The Swagger Site is not a UI for CRISMA. 
+The API is a core API. There will be some helpers to support CRISMA developers in their work. At the moment we are not sure if these helpers are
+a more client side component or if we enhance the API for this purpose.
 
 The API is divided in different Sub APIs.
 =========================================
@@ -86,45 +93,238 @@ Swagger:
 
 Get the description of the crisma.categories
 --------------------------------------------
+With curl:
+```bash
+curl http://localhost:8890/classes/crisma.categories
+```
+
+Result:
+```json
+{
+  "$self": "/crisma.categories",
+  "configuration": {
+    "name": "Categories",
+    "policy": "STANDARD",
+    "attributePolicy": "STANDARD",
+    "pK_Field": "id"
+  },
+  "attributes": {
+    "id": {
+      "$self": "/crisma.categories/id",
+      "name": "id",
+      "position": 0,
+      "javaclassname": "java.lang.Integer"
+    },
+    "key": {
+      "$self": "/crisma.categories/key",
+      "visible": true,
+      "name": "key",
+      "position": 1,
+      "javaclassname": "java.lang.String"
+    },
+    "classification": {
+      "$self": "/crisma.categories/classification",
+      "visible": true,
+      "optional": true,
+      "name": "classification",
+      "position": 2,
+      "foreignKey": true,
+      "referenceType": "/crisma.classifications"
+    }
+  }
+}
+```
+
+
 
 Get the description of a certain attribute
 ----------------
+With Swagger:
+![bildschirmfoto 2013-07-04 um 13 23 56](https://f.cloud.github.com/assets/837211/749037/4c564666-e49c-11e2-85d7-dd1241d3e9c0.png)
+
+Result:
+```json
+{
+  "$self": "/crisma.categories/key",
+  "visible": true,
+  "name": "key",
+  "position": 1,
+  "javaclassname": "java.lang.String"
+}
+```
 
 Get all categories
 -------------------
+With curl:
+```bash
+curl http://localhost:8890/crisma.categories
+```
 
 
 Get a certain category
 ----------------------
+With curl again:
+```bash
+curl http://localhost:8890/crisma.categories/1
+```
+
+Result:
+```json
+{
+  "$self": "/crisma.categories/1",
+  "id": 1,
+  "key": "critical_infrastructure",
+  "classification": {
+    "$self": "/crisma.classifications/1",
+    "id": 1,
+    "key": "worldstate_detail_component"
+  }
+}
+```
 
 Update a category
 ------------------
+With Swagger:
+![bildschirmfoto 2013-07-04 um 13 30 06](https://f.cloud.github.com/assets/837211/749058/201c2f1a-e49d-11e2-8e54-1017d139a5dd.png)
 
-Add a category
+Result:
+```json
+{
+  "$self": "/crisma.categories/1",
+  "id": 1,
+  "key": "critical_infrastructureXXX",
+  "classification": {
+    "$self": "/crisma.classifications/1",
+    "id": 1,
+    "key": "worldstate_detail_component"
+  }
+}
+```
+
+Add a classification
 --------------
+With Swagger:
+![bildschirmfoto 2013-07-04 um 13 34 19](https://f.cloud.github.com/assets/837211/749076/c0d12d66-e49d-11e2-907a-ad9161931f96.png)
 
+Result:
+```json
+{
+  "$self": "/crisma.classifications/6",
+  "id": 6,
+  "key": "DIY classification"
+}
+```
 
-Delete a category
+Delete a classification
 ------------------
+With curl again:
+```bash
+curl -X DELETE http://localhost:8890/crisma.classifications/6
+```
+Result:
 
+none :-)
 
-Get all categories with a certain classification key
+![bildschirmfoto 2013-07-04 um 13 40 49](https://f.cloud.github.com/assets/837211/749103/af61b2ca-e49e-11e2-8cb6-5e2d8bb7dc72.png)
+
+Get all categories with a certain classification key and omit all properties with null values in the result
 ----------------------------------------------------
-
-Execute an action
------------------
+With curl again:
+```bash
+curl http://localhost:8890/crisma.categories?filter=classification.key:worldstate.*&omitNullValues=true
+```
 
 Execute an action with parameters
 ---------------------------------
+With Swagger:
+![bildschirmfoto 2013-07-04 um 13 48 59](https://f.cloud.github.com/assets/837211/749131/c35da85a-e49f-11e2-90f2-31f2cca12581.png)
 
-Cancel a task
--------------
+Result:
+```json
+{
+  "key": "1372938604952",
+  "actionKey": "banner",
+  "description": null,
+  "parameters": {
+    "$message": "What a great tool"
+  },
+  "status": "STARTING"
+}
+```
 
-Get the result of an action
+List the tasks of an action
+-----------------------------
+With curl:
+```bash
+curl  http://localhost:8890/actions/crisma.calculate/tasks
+```
+
+Result:
+```json
+{
+  "$self": "http://localhost:8890/actions/crisma.calculate/tasks",
+  "$offset": 0,
+  "$limit": 100,
+  "$first": "http://localhost:8890/actions/crisma.calculate/tasks",
+  "$previous": null,
+  "$next": "not available",
+  "$last": "not available",
+  "$collection": [
+    {
+      "key": "1372364267827",
+      "actionKey": "calculate",
+      "description": null,
+      "parameters": {
+        "$": "49/23*7-5"
+      },
+      "status": "FINISHED"
+    }
+  ]
+}
+```
+
+
+List the results of a task
+--------------------------
+With curl again:
+```bash
+curl  http://localhost:8890/actions/crisma.calculate/tasks/1372364267827/results
+```
+
+Result:
+```json
+{
+  "$self": "http://localhost:8890/actions/crisma.calculate/tasks/1372364267827/results",
+  "$offset": 0,
+  "$limit": 100,
+  "$first": "http://localhost:8890/actions/crisma.calculate/tasks/1372364267827/results",
+  "$previous": null,
+  "$next": "not available",
+  "$last": "not available",
+  "$collection": [
+    {
+      "key": "stdout",
+      "name": "Result: stdout",
+      "description": null,
+      "contentType": "text/plain",
+      "additionalInfo": {}
+    }
+  ]
+}
+```
+
+Get a certain result of a task
 ---------------------------
+With Swagger:
+![bildschirmfoto 2013-07-04 um 13 56 52](https://f.cloud.github.com/assets/837211/749157/dd3f3e68-e4a0-11e2-83b2-7410b6d0d868.png)
 
+Result:
 
+```
+9.91304347826087
+```
 
+Play with it and find out more :-). Have fun. :-)
 
 
 
