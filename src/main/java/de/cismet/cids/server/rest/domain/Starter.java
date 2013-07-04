@@ -105,8 +105,8 @@ public class Starter {
             context.addServlet(sh, "/*");
 
             server.start();
-            System.out.println("\n\nServer started. Hit enter to shutdown.");
-            System.in.read();
+//            System.out.println("\n\nServer started. Hit enter to shutdown.");
+//            System.in.read();
 //            r.path("servers").path(servername).delete();
         } catch (Throwable e) {
             e.printStackTrace();
