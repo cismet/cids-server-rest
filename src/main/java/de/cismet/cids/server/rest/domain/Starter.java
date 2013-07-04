@@ -39,6 +39,12 @@ public class Starter {
      * @param  args  DOCUMENT ME!
      */
     public static void main(final String[] args) {
+        Integer port = 8890;
+        try {
+            port = Integer.parseInt(args[0]);
+        } catch (final Exception e) {
+            // unsatisfactory port settings
+        }
         Server server = null;
         try {
             JaxrsApiReader.setFormatString("");
@@ -63,7 +69,7 @@ public class Starter {
                 "de.cismet.cids.server.rest.CORSResponseFilter");
             sh.setInitParameter("swagger.version", "1.0");
             sh.setInitParameter("swagger.api.basepath", "http://localhost:8890"); // no trailing slash please
-            server = new Server(8890);
+            server = new Server(port);
 
             final Client c = Client.create();
 //            WebResource r = c.resource(registry);
