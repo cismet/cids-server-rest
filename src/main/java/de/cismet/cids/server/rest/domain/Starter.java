@@ -114,7 +114,7 @@ public class Starter {
             if (server != null) {
                 server.setStopAtShutdown(true);
             }
-            System.exit(0);
+//            System.exit(0);
         }
     }
 }
