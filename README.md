@@ -6,7 +6,10 @@ What is this about?
 This is a CORE API Preview for the CRISMA ICMS infrastructure building block. With this API other components 
 can get infos about worldstates, about manipulation UI's and federated models.
 
-You can find the model "behind" the api either in this document(Link zu Pascals UML Dokument) (or via calling ```/classe?domain=crisma``` ;-))
+You can find the model "behind" the api either in this [document](https://dl.dropboxusercontent.com/u/8114622/Core%20Control%20and%20Communication%20Information%20Model%20v1.2.rtf "document") (or via calling ```/classe?domain=crisma``` ;-))
+![core ccim complete](https://f.cloud.github.com/assets/837211/749892/6f40f9ac-e4b8-11e2-99d5-f5a089f00ea4.png)
+
+
 
 We set up a cids System that implements(besserer Begriff finden) that model.
 
