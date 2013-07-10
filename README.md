@@ -1,6 +1,8 @@
 ICMM Core API Preview
 ================
 
+
+
 What is this about?
 ------------------
 This is a CORE API Preview (basic API supporting mainly CRUD) for the CRISMA infrastructure building block the so called ICMM (Integrated Crisis Management Middleware). With this API other components 
@@ -15,6 +17,14 @@ Adhering to the CRISMA architecture rules we have implemented a restful API for 
 
 The API is enriched by a very cool documentation framework named Swagger (see e.g. http://blog.programmableweb.com/2013/02/19/swagger-the-interactive-api-documentation-framework-that-benefits-both-api-providers-and-consumers/). With this interactive API documentation 
 using swagger you can explore and test the API's resources and methods.
+
+Where can I find the API demo and swagger documentation?
+------------------
+http://crisma.cismet.de/icms/
+
+Where do I start to explore the API?
+------------------
+you might start using classes (http://crisma.cismet.de/icms/#!/classes) to get an overview on what is available and then us the respective entities (http://crisma.cismet.de/icms/#!/entities)
 
 What this is not about
 -----------------------
