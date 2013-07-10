@@ -1,4 +1,4 @@
-Core API Preview
+ICMM Core API Preview
 ================
 
 What is this about?
