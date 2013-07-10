@@ -19,7 +19,7 @@ using swagger you can explore and test the API's resources and methods.
 What this is not about
 -----------------------
 The Swagger Site is not a UI for CRISMA. 
-The API is a core API. There will be a number of helpers to provide a more convinient way to deal with world state data and federated models. At the moment we are not sure if these helpers will be client side components encapsulating the worldstate management logic or whether we will extend this API for this purpose.
+The API is a core API. There will be a number of helpers to provide a more convenient way to deal with world state data and federated models. At the moment we are not sure if these helpers will be client side components encapsulating the worldstate management logic or whether we will extend this API for this purpose.
 In a parallel activity we are developing a so called CRISMA reference application which will help us to find out what works best.
 
 The API is divided in different Sub APIs.
