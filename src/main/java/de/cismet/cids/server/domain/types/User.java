@@ -44,7 +44,9 @@ public class User {
     /**
      * Creates a new User object.
      *
-     * @param  authString  DOCUMENT ME!
+     * @param   authString  DOCUMENT ME!
+     *
+     * @throws  IllegalArgumentException  DOCUMENT ME!
      */
     public User(final String authString) {
         assert (authString != null);
@@ -53,10 +55,12 @@ public class User {
         final String login = parts[0];
         final String password = parts[1];
         final String[] loginParts = login.split("@");
-        final String userdomain = loginParts[1];
-        final String uname = loginParts[0];
-        user = uname;
-        domain = userdomain;
+        if (loginParts.length == 2) {
+            domain = loginParts[1];
+        } else if (loginParts.length < 1) {
+            throw new IllegalArgumentException("illegal auth string");
+        }
+        user = loginParts[0];
         pass = password;
     }
 
