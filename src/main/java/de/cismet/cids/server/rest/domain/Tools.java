@@ -46,7 +46,7 @@ public class Tools {
      * @return  DOCUMENT ME!
      */
     public static WebResource getDomainWebResource(final String domain) {
-        if (RuntimeContainer.getServer().getRegistry().equals(Server.STANDALONE)) {
+        if (RuntimeContainer.getServer().getRegistry().equals(ServerConstants.STANDALONE)) {
             final WebResource registryLookup = RuntimeContainer.getClient()
                         .resource(RuntimeContainer.getServer().getRegistry());
             final ClientResponse response = registryLookup.path(domain.toLowerCase())

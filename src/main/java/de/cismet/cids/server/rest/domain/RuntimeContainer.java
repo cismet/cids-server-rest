@@ -86,7 +86,7 @@ public class RuntimeContainer {
 
             @Override
             public String getRegistry() {
-                return Server.STANDALONE;
+                return ServerConstants.STANDALONE;
             }
         };
 

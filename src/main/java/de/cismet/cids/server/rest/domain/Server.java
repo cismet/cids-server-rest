@@ -25,10 +25,6 @@ import de.cismet.cids.server.rest.data.unused.CustomAttributeCore;
 
 public interface Server {
 
-    //~ Instance fields --------------------------------------------------------
-
-    String STANDALONE = "NO-REGISTRY-BECAUSE-OF-STANDALONE-SERVER";
-
     //~ Methods ----------------------------------------------------------------
 
     /**
