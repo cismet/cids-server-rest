@@ -5,10 +5,6 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -21,8 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import de.cismet.cids.server.domain.Server;
-import de.cismet.cids.server.domain.types.User;
+import de.cismet.cids.server.rest.domain.types.User;
 import de.cismet.cids.server.rest.registry.CidsServerInfo;
 
 /**
@@ -32,6 +27,14 @@ import de.cismet.cids.server.rest.registry.CidsServerInfo;
  * @version  $Revision$, $Date$
  */
 public class Tools {
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new Tools object.
+     */
+    private Tools() {
+    }
 
     //~ Methods ----------------------------------------------------------------
 

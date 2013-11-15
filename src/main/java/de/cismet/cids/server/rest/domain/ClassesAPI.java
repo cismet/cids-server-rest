@@ -5,10 +5,6 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -33,9 +29,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import de.cismet.cids.server.domain.types.User;
 import de.cismet.cids.server.rest.APIBase;
 import de.cismet.cids.server.rest.domain.data.CollectionResource;
+import de.cismet.cids.server.rest.domain.types.User;
 
 /**
  * DOCUMENT ME!

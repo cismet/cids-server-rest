@@ -5,13 +5,8 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -24,15 +19,23 @@ import com.wordnik.swagger.core.ApiParam;
 
 import java.util.List;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
-import de.cismet.cids.server.domain.types.User;
 import de.cismet.cids.server.rest.APIBase;
 import de.cismet.cids.server.rest.domain.data.CollectionResource;
+import de.cismet.cids.server.rest.domain.types.User;
 
 /**
  * DOCUMENT ME!
@@ -308,7 +311,7 @@ public class EntitiesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             ObjectNode body = null;
             try {
-                body = (ObjectNode)mapper.readTree(jsonBody);
+                body = (ObjectNode)MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
                 // ProblemHandling
             }
@@ -394,7 +397,7 @@ public class EntitiesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             ObjectNode body = null;
             try {
-                body = (ObjectNode)mapper.readTree(jsonBody);
+                body = (ObjectNode)MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
                 // ProblemHandling
             }

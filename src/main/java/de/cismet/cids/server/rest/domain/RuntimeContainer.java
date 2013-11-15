@@ -5,29 +5,22 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain;
 
 import com.sun.jersey.api.client.Client;
 
-import de.cismet.cids.server.cores.ActionCore;
-import de.cismet.cids.server.cores.CustomAttributeCore;
-import de.cismet.cids.server.cores.EntityCore;
-import de.cismet.cids.server.cores.EntityInfoCore;
-import de.cismet.cids.server.cores.NodeCore;
-import de.cismet.cids.server.cores.PermissionCore;
-import de.cismet.cids.server.cores.SearchCore;
-import de.cismet.cids.server.cores.UserCore;
-import de.cismet.cids.server.cores.dummy.DummyPermissionCore;
-import de.cismet.cids.server.cores.dummy.DummyUserCore;
-import de.cismet.cids.server.cores.filesystem.FileSystemActionCore;
-import de.cismet.cids.server.cores.filesystem.FileSystemEntityCore;
-import de.cismet.cids.server.cores.filesystem.FileSystemEntityInfoCore;
-import de.cismet.cids.server.cores.filesystem.FileSystemNodeCore;
-import de.cismet.cids.server.domain.Server;
+import de.cismet.cids.server.rest.cores.ActionCore;
+import de.cismet.cids.server.rest.cores.EntityCore;
+import de.cismet.cids.server.rest.cores.EntityInfoCore;
+import de.cismet.cids.server.rest.cores.NodeCore;
+import de.cismet.cids.server.rest.cores.PermissionCore;
+import de.cismet.cids.server.rest.cores.SearchCore;
+import de.cismet.cids.server.rest.cores.UserCore;
+import de.cismet.cids.server.rest.cores.dummy.DummyPermissionCore;
+import de.cismet.cids.server.rest.cores.dummy.DummyUserCore;
+import de.cismet.cids.server.rest.cores.filesystem.FileSystemActionCore;
+import de.cismet.cids.server.rest.cores.filesystem.FileSystemEntityCore;
+import de.cismet.cids.server.rest.data.unused.CustomAttributeCore;
 
 /**
  * DOCUMENT ME!
@@ -41,9 +34,6 @@ public class RuntimeContainer {
 
     static final String DIR = Starter.FS_CIDS_DIR;
     static FileSystemEntityCore fsec = new FileSystemEntityCore(DIR);
-    static FileSystemEntityInfoCore fseic = new FileSystemEntityInfoCore(
-            DIR);
-    static FileSystemNodeCore fsnc = new FileSystemNodeCore(DIR);
     static FileSystemActionCore fsac = new FileSystemActionCore(DIR);
     static DummyUserCore duc = new DummyUserCore();
     static DummyPermissionCore dpc = new DummyPermissionCore();
@@ -51,7 +41,7 @@ public class RuntimeContainer {
 
             @Override
             public EntityInfoCore getEntityInfoCore() {
-                return fseic;
+                throw new UnsupportedOperationException("Not supported yet.");
             }
 
             @Override
@@ -66,13 +56,12 @@ public class RuntimeContainer {
 
             @Override
             public CustomAttributeCore getCustomAttributeCore() {
-                throw new UnsupportedOperationException("Not supported yet."); // To change body of generated
-                // methods, choose Tools | Templates.
+                throw new UnsupportedOperationException("Not supported yet.");
             }
 
             @Override
             public NodeCore getNodeCore() {
-                return fsnc;
+                throw new UnsupportedOperationException("Not supported yet.");
             }
 
             @Override
@@ -82,8 +71,7 @@ public class RuntimeContainer {
 
             @Override
             public SearchCore getSearchCore() {
-                throw new UnsupportedOperationException("Not supported yet."); // To change body of generated
-                // methods, choose Tools | Templates.
+                throw new UnsupportedOperationException("Not supported yet.");
             }
 
             @Override
