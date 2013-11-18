@@ -1,57 +1,29 @@
 package de.cismet.cids.server.rest.cores;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.cismet.cids.server.rest.domain.RuntimeContainer;
-import de.cismet.cids.server.rest.domain.Server;
 import de.cismet.cids.server.rest.domain.data.SimpleObjectQuery;
 import de.cismet.cids.server.rest.domain.types.User;
+import java.io.IOException;
 import java.util.List;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
-import org.testng.annotations.DataProvider;
 
 /**
  *
  * @author mscholl
  */
-public class EntityCoreNGTest
+// FIXME: depend on EntityInfo Test for proper schema check
+// NOTE: this test is designed to work for every core implementation. it does not replace core specific tests
+public abstract class EntityCoreNGTest
 {
     
-    public EntityCoreNGTest()
-    {
-        System.out.println("constr");
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception
-    {
-        System.out.println("setupc");
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception
-    {
-        System.out.println("tdc");
-    }
-
-    @BeforeMethod
-    public void setUpMethod() throws Exception
-    {
-        System.out.println("sum");
-    }
-
-    @AfterMethod
-    public void tearDownMethod() throws Exception
-    {
-        System.out.println("tdm");
-    }
-
+    protected static final ObjectMapper MAPPER = new ObjectMapper(new JsonFactory());
+    
     /**
      * Test of getAllObjects method, of class EntityCore.
      */
@@ -100,7 +72,6 @@ public class EntityCoreNGTest
     }
 
     @Test(
-            dataProviderClass = DefaultDataProvider.class, 
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -109,13 +80,9 @@ public class EntityCoreNGTest
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
         core.createObject(null, null, null, null, true);
-        core.createObject(new User(), null, null, null, true);
-        core.createObject(new User(), "", null, null, true);
-        core.createObject(new User(), "", new ObjectNode(JsonNodeFactory.instance), null, true);
     }
 
     @Test(
-            dataProviderClass = DefaultDataProvider.class, 
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -127,7 +94,6 @@ public class EntityCoreNGTest
     }
 
     @Test(
-            dataProviderClass = DefaultDataProvider.class, 
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -139,7 +105,6 @@ public class EntityCoreNGTest
     }
 
     @Test(
-            dataProviderClass = DefaultDataProvider.class, 
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -148,6 +113,185 @@ public class EntityCoreNGTest
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
         core.createObject(new User(), "", new ObjectNode(JsonNodeFactory.instance), null, true);
+    }
+
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidUserException.class}
+    )
+    public void testCreateObject_invalidUser(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.createObject(new User(), "", new ObjectNode(JsonNodeFactory.instance), "", true);
+    }
+
+    @Test(
+            enabled = false,
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidClassKeyException.class}
+    )
+    public void testCreateObject_invalidClassKey_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        core.createObject(u, "", new ObjectNode(JsonNodeFactory.instance), "", true);
+    }
+
+    @Test(
+            enabled = false,
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidClassKeyException.class}
+    )
+    public void testCreateObject_invalidClassKey_unknownClass(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        core.createObject(u, "idontexist", new ObjectNode(JsonNodeFactory.instance), "", true);
+    }
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidRoleException.class}
+    )
+    public void testCreateObject_invalidRole_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        core.createObject(u, "testclass@testdomain", new ObjectNode(JsonNodeFactory.instance), "", true);
+    }
+
+    @Test(
+            enabled = false,
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidRoleException.class}
+    )
+    public void testCreateObject_invalidRole_unknownRole(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        core.createObject(u, "testclass@testdomain", new ObjectNode(JsonNodeFactory.instance), "idontexist", true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidEntityException.class}
+    )
+    public void testCreateObject_invalidObj_emptyObj(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        final ObjectNode node = JsonNodeFactory.instance.objectNode();
+        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidEntityException.class}
+    )
+    public void testCreateObject_invalidObj_noSelf(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_noself.json"));
+        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidEntityException.class}
+    )
+    public void testCreateObject_invalidObj_subNoSelfNoRef(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subNoSelfNoRef.json"));
+        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidEntityException.class}
+    )
+    public void testCreateObject_invalidObj_subArrSubNoSelfNoRef(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subArrSubNoSelfNoRef.json"));
+        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidEntityException.class}
+    )
+    public void testCreateObject_invalidObj_subArrSubNoSelfdRef_tooManyProps(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subArrSubNoSelfRef_tooManyProps.json"));
+        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testSymmetricRW(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1.json"));
+        
+        String classKey = "testclass@testdomain";
+        String role = "testrole";
+        
+        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
+//        ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, null, null, null, role, false);
+        
+//        assertEquals(readRes, storeRes);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj2.json"));
+        
+        storeRes = core.createObject(u, classKey, node, role, true);
+//        readRes = core.getObject(u, classKey, "a2", null, null, null, null, null, role, false);
+        
+//        assertEquals(readRes, storeRes, null);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj3.json"));
+        
+        storeRes = core.createObject(u, classKey, node, role, true);
+//        readRes = core.getObject(u, classKey, "a2", null, null, null, null, null, role, false);
+        
+//        assertEquals(readRes, storeRes, null);
     }
 
     /**
