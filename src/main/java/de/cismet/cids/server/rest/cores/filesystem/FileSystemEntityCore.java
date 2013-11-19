@@ -366,8 +366,7 @@ public class FileSystemEntityCore implements EntityCore {
             _level = 50;
         }
 
-        // FIXME: is this the correct way to build the obj ref? what is the expected format of the classkey?
-        final String ref = "/" + classKey + "/" + objectId; // NOI18N
+        final String ref = buildRef(classKey, objectId);
 
         final Lock lock = rwLock.readLock();
         try {
@@ -558,8 +557,63 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public boolean deleteObject(final User user, final String classKey, final String objectId, final String role) {
-        throw new UnsupportedOperationException("not supported yet");
+    public boolean deleteObject(@NonNull final User user,
+            @NonNull final String classKey,
+            @NonNull final String objectId,
+            @NonNull final String role) {
+        if (!user.isValidated()) {
+            throw new InvalidUserException("user is not validated");  // NOI18N
+        }
+        if (classKey.isEmpty()) {
+            throw new InvalidClassKeyException("class key is empty"); // NOI18N
+        }
+        if (objectId.isEmpty()) {
+            throw new IllegalArgumentException("objectId is empty");  // NOI18N
+        }
+        if (role.isEmpty()) {
+            throw new InvalidRoleException("role is empty");          // NOI18N
+        }
+
+        final String ref = buildRef(classKey, objectId);
+
+        final Lock lock = rwLock.writeLock();
+        try {
+            lock.lock();
+
+            return deleteObject(ref);
+        } finally {
+            lock.unlock();
+        }
+    }
+    /**
+     * FIXME: subject to be Tools method or similar, this is not the correct context
+     *
+     * @param   classKey  DOCUMENT ME!
+     * @param   objectId  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private String buildRef(final String classKey, final String objectId) {
+        assert classKey != null;
+        assert objectId != null;
+
+        // FIXME: is this the correct way to build the obj ref? what is the expected format of the classkey?
+        return "/" + classKey + "/" + objectId; // NOI18N
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   ref  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private boolean deleteObject(final String ref) {
+        assert ref != null;
+
+        final File file = new File(buildObjPath(ref));
+
+        return file.delete();
     }
 
     @Override

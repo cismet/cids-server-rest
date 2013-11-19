@@ -72,6 +72,7 @@ public abstract class EntityCoreNGTest
     }
 
     @Test(
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -83,6 +84,7 @@ public abstract class EntityCoreNGTest
     }
 
     @Test(
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -94,6 +96,7 @@ public abstract class EntityCoreNGTest
     }
 
     @Test(
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -105,6 +108,7 @@ public abstract class EntityCoreNGTest
     }
 
     @Test(
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -116,6 +120,7 @@ public abstract class EntityCoreNGTest
     }
 
     @Test(
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidUserException.class}
     )
@@ -128,6 +133,7 @@ public abstract class EntityCoreNGTest
 
     @Test(
             enabled = false,
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidClassKeyException.class}
     )
@@ -143,6 +149,7 @@ public abstract class EntityCoreNGTest
 
     @Test(
             enabled = false,
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidClassKeyException.class}
     )
@@ -156,6 +163,7 @@ public abstract class EntityCoreNGTest
         core.createObject(u, "idontexist", new ObjectNode(JsonNodeFactory.instance), "", true);
     }
     @Test(
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidRoleException.class}
     )
@@ -171,6 +179,7 @@ public abstract class EntityCoreNGTest
 
     @Test(
             enabled = false,
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidRoleException.class}
     )
@@ -185,6 +194,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidEntityException.class}
     )
@@ -200,6 +210,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"createObject"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidEntityException.class}
     )
@@ -215,6 +226,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidEntityException.class}
     )
@@ -230,6 +242,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidEntityException.class}
     )
@@ -245,6 +258,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidEntityException.class}
     )
@@ -267,6 +281,7 @@ public abstract class EntityCoreNGTest
      * @throws IOException 
      */
     @Test(
+            groups = {"data_producing"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
     public void testSymmetricRW(final EntityCore core) throws IOException
@@ -316,6 +331,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "data_consuming"},
             dependsOnMethods = {"testSymmetricRW"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
@@ -336,6 +352,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "data_consuming"},
             dependsOnMethods = {"testSymmetricRW"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
@@ -356,6 +373,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "data_consuming"},
             dependsOnMethods = {"testSymmetricRW"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
@@ -376,6 +394,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "data_consuming"},
             dependsOnMethods = {"testSymmetricRW"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
@@ -401,6 +420,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "data_consuming"},
             dependsOnMethods = {"testSymmetricRW"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
@@ -448,6 +468,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
     public void testGetObject_notExisting(final EntityCore core) throws Exception
@@ -486,6 +507,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -497,6 +519,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -508,6 +531,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -519,6 +543,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {NullPointerException.class}
     )
@@ -530,6 +555,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidUserException.class}
     )
@@ -541,6 +567,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidClassKeyException.class}
     )
@@ -556,6 +583,7 @@ public abstract class EntityCoreNGTest
     
     @Test(
             enabled = false,
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidClassKeyException.class}
     )
@@ -570,6 +598,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {IllegalArgumentException.class}
     )
@@ -584,6 +613,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidRoleException.class}
     )
@@ -599,6 +629,7 @@ public abstract class EntityCoreNGTest
     
     @Test(
             enabled = false,
+            groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidRoleException.class}
     )
@@ -615,20 +646,140 @@ public abstract class EntityCoreNGTest
     /**
      * Test of deleteObject method, of class EntityCore.
      */
-    @Test(enabled = false)
-    public void testDeleteObject()
+    
+    @Test(
+            dependsOnGroups = {"data_producing", "data_consuming"}, // ensure getobject tests are done
+            groups = {"deleteObject", "data_destroying"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testDeleteObject(final EntityCore core)
     {
-        System.out.println("deleteObject");
-        User user = null;
-        String classKey = "";
-        String objectId = "";
-        String role = "";
-        EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
-        boolean expResult = false;
-        boolean result = instance.deleteObject(user, classKey, objectId, role);
-        assertEquals(result, expResult);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
+        
+        boolean result = core.deleteObject(user, classKey, "idontexist", role);
+        
+        assertFalse(result);
+        
+        result = core.deleteObject(user, classKey, "a3", role);
+        // test actual deletion
+        ObjectNode get1 = core.getObject(user, classKey, "a3", null, null, null, null, null, role, false);
+        // test subobj remained
+        ObjectNode get2 = core.getObject(user, "testDomain.testsubclass", "b1", null, null, null, null, null, role, false);
+        
+        assertTrue(result);
+        assertNull(get1);
+        assertNotNull(get2);
+    }
+    
+    @Test(
+            groups = {"deleteObject", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testDeleteObject_NullUser(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.deleteObject(null, null, null, null);
+    }
+    
+    @Test(
+            groups = {"deleteObject", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testDeleteObject_NullClassKey(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.deleteObject(new User(), null, null, null);
+    }
+    
+    @Test(
+            groups = {"deleteObject", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testDeletetObject_NullObjId(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.deleteObject(new User(), "", null, null);
+    }
+    
+    @Test(
+            groups = {"deleteObject", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testDeleteObject_NullRole(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.deleteObject(new User(), "", "", null);
+    }
+    
+    @Test(
+            groups = {"deleteObject", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidUserException.class}
+    )
+    public void testDeleteObject_invalidUser(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.deleteObject(new User(), "", "", "");
+    }
+    
+    @Test(
+            groups = {"deleteObject", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidClassKeyException.class}
+    )
+    public void testDeleteObject_invalidClassKey_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.deleteObject(user, "", "", "");
+    }
+    
+    @Test(
+            groups = {"deleteObject", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {IllegalArgumentException.class}
+    )
+    public void testDeleteObject_invalidObjId_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.deleteObject(user, "testclass", "", "");
+    }
+    
+    @Test(
+            groups = {"deleteObject", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidRoleException.class}
+    )
+    public void testDeleteObject_invalidRole_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.deleteObject(user, "testclass", "testid", "");
     }
 
     /**
