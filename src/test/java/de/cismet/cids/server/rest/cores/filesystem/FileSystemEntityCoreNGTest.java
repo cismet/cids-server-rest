@@ -1,7 +1,7 @@
 
-package de.cismet.cids.server.rest.cores;
+package de.cismet.cids.server.rest.cores.filesystem;
 
-import de.cismet.cids.server.rest.cores.filesystem.FileSystemEntityCore;
+import de.cismet.cids.server.rest.cores.EntityCoreNGTest;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;

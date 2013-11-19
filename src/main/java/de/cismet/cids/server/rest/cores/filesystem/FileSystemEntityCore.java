@@ -98,10 +98,10 @@ public class FileSystemEntityCore implements EntityCore {
             throw new InvalidUserException("user is not validated");          // NOI18N
         }
         if (classKey.isEmpty()) {
-            throw new InvalidClassKeyException("invalid class: " + classKey); // NOI18N
+            throw new InvalidClassKeyException("class key is empty"); // NOI18N
         }
         if (role.isEmpty()) {
-            throw new InvalidRoleException("invalid role: " + role);          // NOI18N
+            throw new InvalidRoleException("role is empty");          // NOI18N
         }
 
         writeObj(jsonObject.deepCopy());
@@ -294,16 +294,28 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public ObjectNode getObject(final User user,
-            final String classKey,
-            final String objectId,
+    public ObjectNode getObject(@NonNull final User user,
+            @NonNull final String classKey,
+            @NonNull final String objectId,
             final String version,
             final String expand,
             final String level,
             final String fields,
             final String profile,
-            final String role,
+            @NonNull final String role,
             final boolean omitNullValues) {
+        if (!user.isValidated()) {
+            throw new InvalidUserException("user is not validated");          // NOI18N
+        }
+        if (classKey.isEmpty()) {
+            throw new InvalidClassKeyException("class key is empty"); // NOI18N
+        }
+        if (objectId.isEmpty()) {
+            throw new IllegalArgumentException("objectId is empty"); // NOI18N
+        }
+        if (role.isEmpty()) {
+            throw new InvalidRoleException("role is empty");          // NOI18N
+        }
         throw new UnsupportedOperationException("not supported yet");
     }
 

@@ -338,6 +338,133 @@ public abstract class EntityCoreNGTest
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testGetObject_NullUser(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.getObject(null, null, null, null, null, null, null, null, null, true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testGetObject_NullClassKey(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.getObject(new User(), null, null, null, null, null, null, null, null, true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testGetObject_NullObjId(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.getObject(new User(), "", null, null, null, null, null, null, null, true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testGetObject_NullRole(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.getObject(new User(), "", "", null, null, null, null, null, null, true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidUserException.class}
+    )
+    public void testGetObject_invalidUser(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.getObject(new User(), "", "", null, null, null, null, null, "", true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidClassKeyException.class}
+    )
+    public void testGetObject_invalidClassKey_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.getObject(user, "", "", null, null, null, null, null, "", true);
+    }
+    
+    @Test(
+            enabled = false,
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidClassKeyException.class}
+    )
+    public void testGetObject_invalidClassKey_unknownClass(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.getObject(user, "idontexist", "", null, null, null, null, null, "", true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {IllegalArgumentException.class}
+    )
+    public void testGetObject_invalidObjId_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.getObject(user, "testclass", "", null, null, null, null, null, "", true);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidRoleException.class}
+    )
+    public void testGetObject_invalidRole_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.getObject(user, "testclass", "testid", null, null, null, null, null, "", true);
+    }
+    
+    @Test(
+            enabled = false,
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidRoleException.class}
+    )
+    public void testGetObject_invalidRole_unknownClass(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.getObject(user, "testclass", "testid", null, null, null, null, null, "idontexist", true);
+    }
 
     /**
      * Test of deleteObject method, of class EntityCore.
