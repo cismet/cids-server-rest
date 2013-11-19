@@ -1,10 +1,10 @@
 {
     "$self": "/testDomain.testclass/a3",
-    "id": "a2",
-    "name": "testname2",
-    "description": "desc2",
+    "id": "a3",
+    "name": "testname3",
+    "description": "desc3",
     "sub":{
-        "$self": "/testDomain.testsubclass/a1",
+        "$self": "/testDomain.testsubclass/b1",
         "sub1":"sub1val",
         "sub2":"sub2val",
         "sub3":"sub3val"

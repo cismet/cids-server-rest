@@ -271,27 +271,34 @@ public abstract class EntityCoreNGTest
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1.json"));
         
-        String classKey = "testclass@testdomain";
+        String classKey = "testdomain.testclass";
         String role = "testrole";
         
         ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
-//        ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, null, null, null, role, false);
+        ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, null, null, null, role, false);
         
-//        assertEquals(readRes, storeRes);
+        assertEquals(readRes, storeRes);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj2.json"));
         
         storeRes = core.createObject(u, classKey, node, role, true);
-//        readRes = core.getObject(u, classKey, "a2", null, null, null, null, null, role, false);
+        readRes = core.getObject(u, classKey, "a2", null, null, null, null, null, role, false);
         
-//        assertEquals(readRes, storeRes, null);
+        assertEquals(readRes, storeRes, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj3.json"));
         
         storeRes = core.createObject(u, classKey, node, role, true);
-//        readRes = core.getObject(u, classKey, "a2", null, null, null, null, null, role, false);
+        readRes = core.getObject(u, classKey, "a3", null, null, null, null, null, role, false);
         
-//        assertEquals(readRes, storeRes, null);
+        assertEquals(readRes, storeRes, null);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj4.json"));
+        
+        storeRes = core.createObject(u, classKey, node, role, true);
+        readRes = core.getObject(u, classKey, "a4", null, null, null, null, null, role, false);
+        
+        assertEquals(readRes, storeRes, null);
     }
 
     /**

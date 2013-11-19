@@ -18,11 +18,19 @@ import lombok.NonNull;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import de.cismet.cids.server.rest.cores.EntityCore;
@@ -30,6 +38,7 @@ import de.cismet.cids.server.rest.cores.InvalidClassKeyException;
 import de.cismet.cids.server.rest.cores.InvalidEntityException;
 import de.cismet.cids.server.rest.cores.InvalidRoleException;
 import de.cismet.cids.server.rest.cores.InvalidUserException;
+import de.cismet.cids.server.rest.domain.Tools;
 import de.cismet.cids.server.rest.domain.data.SimpleObjectQuery;
 import de.cismet.cids.server.rest.domain.types.User;
 
@@ -95,7 +104,7 @@ public class FileSystemEntityCore implements EntityCore {
             @NonNull final String role,
             final boolean requestResultingInstance) {
         if (!user.isValidated()) {
-            throw new InvalidUserException("user is not validated");          // NOI18N
+            throw new InvalidUserException("user is not validated");  // NOI18N
         }
         if (classKey.isEmpty()) {
             throw new InvalidClassKeyException("class key is empty"); // NOI18N
@@ -305,18 +314,214 @@ public class FileSystemEntityCore implements EntityCore {
             @NonNull final String role,
             final boolean omitNullValues) {
         if (!user.isValidated()) {
-            throw new InvalidUserException("user is not validated");          // NOI18N
+            throw new InvalidUserException("user is not validated");  // NOI18N
         }
         if (classKey.isEmpty()) {
             throw new InvalidClassKeyException("class key is empty"); // NOI18N
         }
         if (objectId.isEmpty()) {
-            throw new IllegalArgumentException("objectId is empty"); // NOI18N
+            throw new IllegalArgumentException("objectId is empty");  // NOI18N
         }
         if (role.isEmpty()) {
             throw new InvalidRoleException("role is empty");          // NOI18N
         }
-        throw new UnsupportedOperationException("not supported yet");
+
+        // FIXME: what is the format of the expand parameter, why is the expand parameter not concrete (list of fields)?
+        final Collection<String> expandFields = Tools.splitListParameter(expand);
+
+        // FIXME: what is the format of the fields parameter, why is the field parameter not concrete (list of fields)?
+        final Collection<String> includeFields = Tools.splitListParameter(fields);
+
+        // NOTE: full expand default
+        int _level = Integer.MAX_VALUE;
+        if (level != null) {
+            try {
+                _level = Integer.parseInt(level);
+            } catch (final Exception e) {
+                if (log.isWarnEnabled()) {
+                    log.warn("illegal level parameter: " + level, e); // NOI18N
+                }
+            }
+        }
+
+        // level limit
+        if (_level > 50) {
+            _level = 50;
+        }
+
+        // FIXME: is this the correct way to build the obj ref? what is the expected format of the classkey?
+        final String ref = "/" + classKey + "/" + objectId; // NOI18N
+
+        return readObj(ref, expandFields, includeFields, _level, omitNullValues, new HashMap<String, ObjectNode>());
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   ref            DOCUMENT ME!
+     * @param   expandFields   DOCUMENT ME!
+     * @param   includeFields  DOCUMENT ME!
+     * @param   level          DOCUMENT ME!
+     * @param   stripNullVals  DOCUMENT ME!
+     * @param   cache          DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private ObjectNode readObj(final String ref,
+            final Collection<String> expandFields,
+            final Collection<String> includeFields,
+            final int level,
+            final boolean stripNullVals,
+            final Map<String, ObjectNode> cache) {
+        assert ref != null;
+        assert expandFields != null;
+        assert includeFields != null;
+        assert cache != null;
+
+        ObjectNode obj = cache.get(ref);
+        if (obj == null) {
+            obj = doReadObj(ref);
+
+            if (obj != null) {
+                // currently direct obj manipulation
+                obj = filterProperties(obj, includeFields, stripNullVals);
+            }
+
+            cache.put(ref, obj);
+        }
+
+        // FIXME: behaviour for infinite loops because of parent-child-child-parent designs
+        if ((obj != null) && (level > 0)) {
+            final Iterator<Entry<String, JsonNode>> it = obj.fields();
+            while (it.hasNext()) {
+                final Entry<String, JsonNode> entry = it.next();
+                final String key = entry.getKey();
+                final JsonNode val = entry.getValue();
+                // only expand if expand param is provided (non-empty collection) and the current field is in collection
+                if (val.isObject() && (expandFields.isEmpty() || expandFields.contains(key))) {
+                    // $ref has to be present, otherwise data is corrupted
+                    final String subRef = val.get("$ref").asText(); // NOI18N
+                    final ObjectNode subObj = readObj(
+                            subRef,
+                            expandFields,
+                            includeFields,
+                            level
+                                    - 1,
+                            stripNullVals,
+                            cache);
+
+                    obj.replace(key, subObj);
+                }
+                if (val.isArray() && (expandFields.isEmpty() || expandFields.contains(key))) {
+                    readArray((ArrayNode)val, expandFields, includeFields, level, stripNullVals, cache);
+                }
+            }
+        }
+
+        return obj;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  arr            DOCUMENT ME!
+     * @param  expandFields   DOCUMENT ME!
+     * @param  includeFields  DOCUMENT ME!
+     * @param  level          DOCUMENT ME!
+     * @param  stripNullVals  DOCUMENT ME!
+     * @param  cache          DOCUMENT ME!
+     */
+    private void readArray(final ArrayNode arr,
+            final Collection<String> expandFields,
+            final Collection<String> includeFields,
+            final int level,
+            final boolean stripNullVals,
+            final Map<String, ObjectNode> cache) {
+        for (int i = 0; i < arr.size(); ++i) {
+            final JsonNode sub = arr.get(i);
+            if (sub.isArray()) {
+                readArray((ArrayNode)sub, expandFields, includeFields, level, stripNullVals, cache);
+            } else if (sub.isObject()) {
+                // $ref has to be present, otherwise data is corrupted
+                final String subRef = sub.get("$ref").asText(); // NOI18N
+                final ObjectNode subObj = readObj(subRef, expandFields, includeFields, level - 1, stripNullVals, cache);
+                arr.set(i, subObj);
+            }
+        }
+    }
+
+    /**
+     * currently does direct object manipulation, return value is convenience.
+     *
+     * @param   obj            DOCUMENT ME!
+     * @param   includeFields  DOCUMENT ME!
+     * @param   stripNullVals  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private ObjectNode filterProperties(final ObjectNode obj,
+            final Collection<String> includeFields,
+            final boolean stripNullVals) {
+        assert obj != null;
+        assert includeFields != null;
+
+        final Iterator<Entry<String, JsonNode>> it = obj.fields();
+        while (it.hasNext()) {
+            final Entry<String, JsonNode> entry = it.next();
+            final String key = entry.getKey();
+
+            if (stripNullVals && entry.getValue().isNull()) {
+                obj.remove(key);
+            } else if (!(includeFields.isEmpty() || key.startsWith("$") || includeFields.contains(key))) { // NOI18N
+                obj.remove(key);
+            }
+        }
+
+        return obj;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   ref  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  IllegalStateException  DOCUMENT ME!
+     */
+    private ObjectNode doReadObj(final String ref) {
+        assert ref != null;
+
+        final File file = new File(buildObjPath(ref));
+
+        final ObjectNode ret;
+
+        if (file.exists() && file.isFile() && file.canRead()) {
+            BufferedInputStream bis = null;
+            try {
+                bis = new BufferedInputStream(new FileInputStream(file));
+                ret = (ObjectNode)MAPPER.reader().readTree(bis);
+            } catch (final FileNotFoundException e) {
+                throw new IllegalStateException(
+                    "file was present and readable but while opening stream an error occurred", // NOI18N
+                    e);
+            } catch (final IOException e) {
+                throw new IllegalStateException(
+                    "file cannot be read, file corrupted or external process blocking: " // NOI18N
+                            + file.getAbsolutePath(),
+                    e);
+            } finally {
+                IOUtils.closeQuietly(bis);
+            }
+        } else {
+            if (log.isTraceEnabled()) {
+                log.trace("read object failed, file not existent or cannot be read: " + file.getAbsolutePath()); // NOI18N
+            }
+
+            ret = null;
+        }
+
+        return ret;
     }
 
     @Override

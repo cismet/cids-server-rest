@@ -10,8 +10,12 @@ package de.cismet.cids.server.rest.domain;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -37,6 +41,31 @@ public class Tools {
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   listParam  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static Collection<String> splitListParameter(final String listParam) {
+        final Collection<String> ret;
+        if (listParam == null) {
+            ret = Collections.emptySet();
+        } else {
+            final String[] split = listParam.split(","); // NOI18N
+            // hashset for fast random access (contains)
+            final Set<String> set = new HashSet<String>(split.length, 1);
+            for (final String s : split) {
+                set.add(s.trim());
+            }
+
+            ret = Collections.unmodifiableSet(set);
+        }
+
+        return ret;
+    }
 
     /**
      * DOCUMENT ME!
