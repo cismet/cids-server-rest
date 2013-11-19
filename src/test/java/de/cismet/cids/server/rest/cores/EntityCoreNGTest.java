@@ -259,6 +259,13 @@ public abstract class EntityCoreNGTest
         core.createObject(u, "testclass@testdomain", node, "testrole", true);
     }
     
+    /**
+     * this test ensures the symmetry between create and read and ensures the core has data available for extended 
+     * getObject tests (filtering, etc).
+     * 
+     * @param core
+     * @throws IOException 
+     */
     @Test(
             dataProvider = "EntityCoreInstanceDataProvider"
     )
@@ -268,11 +275,11 @@ public abstract class EntityCoreNGTest
         
         final User u = new User();
         u.setValidated(true);
-        
-        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1.json"));
-        
+                
         String classKey = "testdomain.testclass";
         String role = "testrole";
+        
+        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1.json"));
         
         ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
         ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, null, null, null, role, false);
@@ -299,8 +306,165 @@ public abstract class EntityCoreNGTest
         readRes = core.getObject(u, classKey, "a4", null, null, null, null, null, role, false);
         
         assertEquals(readRes, storeRes, null);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5.json"));
+        
+        storeRes = core.createObject(u, classKey, node, role, true);
+        readRes = core.getObject(u, classKey, "a5", null, null, null, null, null, role, false);
+        
+        assertEquals(readRes, storeRes, null);
     }
+    
+    @Test(
+            dependsOnMethods = {"testSymmetricRW"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetObject_omitNullValues(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
+        
+        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_omitNull.json"));
+        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, null, null, null, role, true);
+        
+        assertEquals(readRes, expected);
+    }
+    
+    @Test(
+            dependsOnMethods = {"testSymmetricRW"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetObject_fieldsParam(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
 
+        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fields.json"));
+        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, null, "id, sub, subarr, nil", null, role, false);
+        
+        assertEquals(readRes, expected);
+    }
+    
+    @Test(
+            dependsOnMethods = {"testSymmetricRW"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetObject_fieldsParamOmitNull(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
+        
+        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fieldsOmitNull.json"));
+        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, null, "id, sub, subarr, nil", null, role, true);
+        
+        assertEquals(readRes, expected);
+    }
+    
+    @Test(
+            dependsOnMethods = {"testSymmetricRW"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetObject_levelParam(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
+        
+        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level1.json"));
+        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "1", null, null, role, false);
+        
+        assertEquals(readRes, expected);
+        
+        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level2.json"));
+        readRes = core.getObject(u, classKey, "a5", null, null, "2", null, null, role, false);
+        
+        assertEquals(readRes, expected);
+    }
+    
+    @Test(
+            dependsOnMethods = {"testSymmetricRW"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetObject_expandParam(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
+        
+        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_expand1.json"));
+        ObjectNode readRes = core.getObject(u, classKey, "a5", null, "sub", null, null, null, role, false);
+
+        assertEquals(readRes, expected);
+        
+        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_expand2.json"));
+        readRes = core.getObject(u, classKey, "a5", null, "sub, subarr", null, null, null, role, false);
+        
+        assertEquals(readRes, expected);
+    }
+    
+    @Test(
+            enabled = false,
+            dependsOnMethods = {"testSymmetricRW"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetObject_subObjNotExisting(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
+        
+        fail("not implemented");
+        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level1.json"));
+        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "1", null, null, role, false);
+        
+        assertEquals(readRes, expected);
+    }
+    
+    @Test(
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetObject_notExisting(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
+        
+        ObjectNode readRes = core.getObject(u, classKey, "idontexist", null, null, null, null, null, role, false);
+        
+        assertNull(readRes);
+    }
+    
     /**
      * Test of getObjectsByQuery method, of class EntityCore.
      */
@@ -316,31 +480,6 @@ public abstract class EntityCoreNGTest
         EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
         ObjectNode expResult = null;
         ObjectNode result = instance.getObjectsByQuery(user, query, role, limit, offset);
-        assertEquals(result, expResult);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getObject method, of class EntityCore.
-     */
-    @Test(enabled = false)
-    public void testGetObject()
-    {
-        System.out.println("getObject");
-        User user = null;
-        String classKey = "";
-        String objectId = "";
-        String version = "";
-        String expand = "";
-        String level = "";
-        String fields = "";
-        String profile = "";
-        String role = "";
-        boolean ommitNullValues = false;
-        EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
-        ObjectNode expResult = null;
-        ObjectNode result = instance.getObject(user, classKey, objectId, version, expand, level, fields, profile, role, ommitNullValues);
         assertEquals(result, expResult);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

@@ -102,6 +102,9 @@ public class FileSystemEntityCore implements EntityCore {
             final String role,
             final boolean requestResultingInstance) {
         throw new UnsupportedOperationException("not supported yet");
+        // FIXME: what is the difference between update and create (except that update usually only works for existing
+        // top-level objects)? This is related to the behaviour of create in case of existing objects return
+        // createObject(user, classKey, jsonObject, role, requestResultingInstance);
     }
 
     @Override
@@ -412,7 +415,7 @@ public class FileSystemEntityCore implements EntityCore {
         }
 
         // FIXME: behaviour for infinite loops because of parent-child-child-parent designs
-        if ((obj != null) && (level > 0)) {
+        if ((obj != null) && (level > 1)) {
             final Iterator<Entry<String, JsonNode>> it = obj.fields();
             while (it.hasNext()) {
                 final Entry<String, JsonNode> entry = it.next();
@@ -492,9 +495,9 @@ public class FileSystemEntityCore implements EntityCore {
             final String key = entry.getKey();
 
             if (stripNullVals && entry.getValue().isNull()) {
-                obj.remove(key);
+                it.remove();
             } else if (!(includeFields.isEmpty() || key.startsWith("$") || includeFields.contains(key))) { // NOI18N
-                obj.remove(key);
+                it.remove();
             }
         }
 
