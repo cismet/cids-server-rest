@@ -32,6 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import de.cismet.cids.server.rest.cores.EntityCore;
 import de.cismet.cids.server.rest.cores.InvalidClassKeyException;
@@ -57,6 +59,9 @@ public class FileSystemEntityCore implements EntityCore {
 
     //~ Instance fields --------------------------------------------------------
 
+    // locking on public method level, finer grained locking not supported yet
+    private final ReentrantReadWriteLock rwLock;
+
     private final String baseDir;
 
     //~ Constructors -----------------------------------------------------------
@@ -68,6 +73,8 @@ public class FileSystemEntityCore implements EntityCore {
      */
     public FileSystemEntityCore(final String baseDir) {
         this.baseDir = baseDir;
+
+        rwLock = new ReentrantReadWriteLock();
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -113,7 +120,14 @@ public class FileSystemEntityCore implements EntityCore {
             throw new InvalidRoleException("role is empty");          // NOI18N
         }
 
-        writeObj(jsonObject.deepCopy());
+        final Lock lock = rwLock.writeLock();
+
+        try {
+            lock.lock();
+            writeObj(jsonObject.deepCopy());
+        } finally {
+            lock.unlock();
+        }
 
         // the object is the same as there is no id generation or sth else, additionally we don't want to confuse by
         // by returning a modified object (ref instead of actual object)
@@ -352,7 +366,14 @@ public class FileSystemEntityCore implements EntityCore {
         // FIXME: is this the correct way to build the obj ref? what is the expected format of the classkey?
         final String ref = "/" + classKey + "/" + objectId; // NOI18N
 
-        return readObj(ref, expandFields, includeFields, _level, omitNullValues, new HashMap<String, ObjectNode>());
+        final Lock lock = rwLock.readLock();
+        try {
+            lock.lock();
+
+            return readObj(ref, expandFields, includeFields, _level, omitNullValues, new HashMap<String, ObjectNode>());
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
