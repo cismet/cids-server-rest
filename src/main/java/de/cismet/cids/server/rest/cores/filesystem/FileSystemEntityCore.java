@@ -22,11 +22,16 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -80,9 +85,9 @@ public class FileSystemEntityCore implements EntityCore {
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public List<ObjectNode> getAllObjects(final User user,
-            final String classKey,
-            final String role,
+    public List<ObjectNode> getAllObjects(@NonNull final User user,
+            @NonNull final String classKey,
+            @NonNull final String role,
             final int limit,
             final int offset,
             final String expand,
@@ -90,8 +95,135 @@ public class FileSystemEntityCore implements EntityCore {
             final String fields,
             final String profile,
             final String filter,
-            final boolean ommitNullValues) {
-        throw new UnsupportedOperationException("not supported yet");
+            final boolean omitNullValues) {
+        if (!user.isValidated()) {
+            throw new InvalidUserException("user is not validated");  // NOI18N
+        }
+        if (classKey.isEmpty()) {
+            throw new InvalidClassKeyException("class key is empty"); // NOI18N
+        }
+        if (role.isEmpty()) {
+            throw new InvalidRoleException("role is empty");          // NOI18N
+        }
+
+        // FIXME: what is the format of the expand parameter, why is the expand parameter not concrete (list of fields)?
+        final Collection<String> expandFields = Tools.splitListParameter(expand);
+
+        // FIXME: what is the format of the fields parameter, why is the field parameter not concrete (list of fields)?
+        final Collection<String> includeFields = Tools.splitListParameter(fields);
+
+        // FIXME: what is the format of the level parameter, why is the level parameter not concrete (int), what is the
+        // value for null
+        final int _level = parseLevel(level, 0);
+
+        // FIXME: what is the format of the filter parameter, why is the filter parameter not concrete (map)?
+        final Map<String, String> _filter = parseFilter(filter);
+
+        return collectObjects(classKey, limit, offset, expandFields, includeFields, _level, _filter, omitNullValues);
+    }
+
+    /**
+     * FIXME: to be implemented, insufficient definition
+     *
+     * @param   filter  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private Map<String, String> parseFilter(final String filter) {
+        final Map<String, String> _filter = new HashMap<String, String>();
+
+        if (filter != null) {
+        }
+
+        return _filter;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   classKey       DOCUMENT ME!
+     * @param   limit          DOCUMENT ME!
+     * @param   offset         DOCUMENT ME!
+     * @param   expandFields   DOCUMENT ME!
+     * @param   includeFields  DOCUMENT ME!
+     * @param   level          DOCUMENT ME!
+     * @param   filter         DOCUMENT ME!
+     * @param   stripNullVals  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  UnsupportedOperationException  DOCUMENT ME!
+     */
+    private List<ObjectNode> collectObjects(final String classKey,
+            final int limit,
+            final int offset,
+            final Collection<String> expandFields,
+            final Collection<String> includeFields,
+            final int level,
+            final Map<String, String> filter,
+            final boolean stripNullVals) {
+        final List<ObjectNode> result = doCollectObjects(classKey, limit, offset);
+
+        if (level > 0) {
+            throw new UnsupportedOperationException("implement");
+        }
+
+        return result;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   classKey  DOCUMENT ME!
+     * @param   limit     DOCUMENT ME!
+     * @param   offset    DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private List<ObjectNode> doCollectObjects(final String classKey, final int limit, final int offset) {
+        assert classKey != null;
+
+        final String dummyRef = buildRef(classKey, "dummy"); // NOI18N
+
+        final File dir = new File(buildObjPath(dummyRef)).getParentFile();
+
+        // ensure case sensitivity
+        if (!fileExists(dir)) {
+            return Collections.emptyList();
+        }
+
+        // cannot apply limit and offset here because we don't know if the filesystem does natural alphabetical ordering
+        final File[] objFiles = dir.listFiles(new FileFilter() {
+
+                    @Override
+                    public boolean accept(final File pathname) {
+                        return !pathname.isHidden() && pathname.isFile() && pathname.canRead();
+                    }
+                });
+
+        // ensure natural alphabetical ordering because some filesystems may have special ordering rules
+        Arrays.sort(objFiles, new Comparator<File>() {
+
+                @Override
+                public int compare(final File o1, final File o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
+
+        final int _offset = Math.max(0, offset);
+        final int elements = (limit <= 0) ? (objFiles.length - _offset) : Math.min(limit, objFiles.length - _offset);
+        final int end = _offset + elements;
+
+        final List<ObjectNode> result = new ArrayList<ObjectNode>(elements);
+        for (int i = _offset; i < end; ++i) {
+            final String objId = objFiles[i].getName();
+            final String ref = buildRef(classKey, objId);
+            final ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
+            n.put("$ref", ref); // NOI18N
+            result.add(n);
+        }
+
+        return result;
     }
 
     @Override
@@ -190,7 +322,7 @@ public class FileSystemEntityCore implements EntityCore {
                         + file.getAbsolutePath());
         } else {
             final File parent = file.getParentFile();
-            if (!parent.exists()) {
+            if (!fileExists(parent)) {
                 if (!parent.mkdirs()) {
                     throw new IllegalStateException("cannot create file structure for object: " + obj); // NOI18N
                 }
@@ -263,7 +395,7 @@ public class FileSystemEntityCore implements EntityCore {
         final String objectPath = buildObjPath(ref);
         final File file = new File(objectPath);
 
-        return file.exists() && file.isFile();
+        return fileExists(file) && file.isFile();
     }
 
     /**
@@ -349,22 +481,9 @@ public class FileSystemEntityCore implements EntityCore {
         // FIXME: what is the format of the fields parameter, why is the field parameter not concrete (list of fields)?
         final Collection<String> includeFields = Tools.splitListParameter(fields);
 
-        // NOTE: full expand default
-        int _level = Integer.MAX_VALUE;
-        if (level != null) {
-            try {
-                _level = Integer.parseInt(level);
-            } catch (final Exception e) {
-                if (log.isWarnEnabled()) {
-                    log.warn("illegal level parameter: " + level, e); // NOI18N
-                }
-            }
-        }
-
-        // level limit
-        if (_level > 50) {
-            _level = 50;
-        }
+        // FIXME: what is the format of the level parameter, why is the level parameter not concrete (int), what is the
+        // value for null
+        final int _level = parseLevel(level, Integer.MAX_VALUE);
 
         final String ref = buildRef(classKey, objectId);
 
@@ -376,6 +495,32 @@ public class FileSystemEntityCore implements EntityCore {
         } finally {
             lock.unlock();
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   level         DOCUMENT ME!
+     * @param   defaultLevel  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private int parseLevel(final String level, final int defaultLevel) {
+        int _level = defaultLevel;
+        if (level != null) {
+            try {
+                _level = Integer.parseInt(level);
+            } catch (final Exception e) {
+                if (log.isWarnEnabled()) {
+                    log.warn("illegal level parameter: " + level, e); // NOI18N
+                }
+            }
+        }
+
+        // enforce level limit
+        _level = Math.min(50, _level);
+
+        return _level;
     }
 
     /**
@@ -504,6 +649,46 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
+     * INFO: because some filesystems are case-insensitive we have to take care of the exists implementation
+     * /path/to/my/files shall not be the same as /path/To/my/files this is expensive but the only way to achieve
+     * case-sensitivity on any filesystem
+     *
+     * @param   file  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private boolean fileExists(final File file) {
+        // if this fails the file is not present at all but may not be sufficient
+        boolean exists = (file != null) && file.exists();
+
+        if (exists) {
+            File curFile = file;
+            File parent = curFile.getParentFile();
+            while (parent != null) {
+                final String curName = curFile.getName();
+                final File[] match = parent.listFiles(new FileFilter() {
+
+                            @Override
+                            public boolean accept(final File listedFile) {
+                                return listedFile.getName().equals(curName);
+                            }
+                        });
+
+                if (match.length == 0) {
+                    exists = false;
+
+                    break;
+                }
+
+                curFile = parent;
+                parent = parent.getParentFile();
+            }
+        }
+
+        return exists;
+    }
+
+    /**
      * DOCUMENT ME!
      *
      * @param   ref  DOCUMENT ME!
@@ -519,7 +704,7 @@ public class FileSystemEntityCore implements EntityCore {
 
         final ObjectNode ret;
 
-        if (file.exists() && file.isFile() && file.canRead()) {
+        if (fileExists(file) && file.isFile() && file.canRead()) {
             BufferedInputStream bis = null;
             try {
                 bis = new BufferedInputStream(new FileInputStream(file));

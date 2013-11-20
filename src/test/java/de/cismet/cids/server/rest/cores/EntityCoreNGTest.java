@@ -8,6 +8,8 @@ import de.cismet.cids.server.rest.domain.RuntimeContainer;
 import de.cismet.cids.server.rest.domain.data.SimpleObjectQuery;
 import de.cismet.cids.server.rest.domain.types.User;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.testng.annotations.Test;
 
@@ -24,30 +26,145 @@ public abstract class EntityCoreNGTest
     
     protected static final ObjectMapper MAPPER = new ObjectMapper(new JsonFactory());
     
-    /**
-     * Test of getAllObjects method, of class EntityCore.
-     */
-    @Test(enabled = false)
-    public void testGetAllObjects()
+    @Test(
+            dependsOnGroups = {"data_producing"},
+            groups = {"getAllObjects", "data_consuming"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetAllObjects_defaults(final EntityCore core) throws Exception
     {
-        System.out.println("getAllObjects");
-        User user = null;
-        String classkey = "";
-        String role = "";
-        int limit = 0;
-        int offset = 0;
-        String expand = "";
-        String level = "";
-        String fields = "";
-        String profile = "";
-        String filter = "";
-        boolean ommitNullValues = false;
-        EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
-        List expResult = null;
-        List result = instance.getAllObjects(user, classkey, role, limit, offset, expand, level, fields, profile, filter, ommitNullValues);
-        assertEquals(result, expResult);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
+        final List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        while(it.hasNext()){
+            expected.add((ObjectNode)it.next());
+        }
+        final List<ObjectNode> result = core.getAllObjects(user, classKey, role, 0, -1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 5);
+        assertEquals(result, expected);
+    }
+    
+    @Test(
+            dependsOnGroups = {"data_producing"},
+            groups = {"getAllObjects", "data_consuming"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetAllObjects_notExisting(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        // case-sensitivity test
+        final String classKey = "testdomain.idontexist";
+        final String role = "testrole";
+        
+        final List<ObjectNode> result = core.getAllObjects(user, classKey, role, 0, -1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 0);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testGetAllObjects_NullUser(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.getAllObjects(null, null, null, -1, -1, null, null, null, null, null, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testGetAllObjects_NullClassKey(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.getAllObjects(new User(), null, null, -1, -1, null, null, null, null, null, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {NullPointerException.class}
+    )
+    public void testGetAllObjects_NullRole(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.getAllObjects(new User(), "", null, -1, -1, null, null, null, null, null, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidUserException.class}
+    )
+    public void testGetAllObjects_invalidUser(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        core.getAllObjects(new User(), "", "", -1, -1, null, null, null, null, null, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidClassKeyException.class}
+    )
+    public void testGetAllObjects_invalidClassKey_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.getAllObjects(user, "", "", -1, -1, null, null, null, null, null, false);
+    }
+    
+    @Test(
+            enabled = false,
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidClassKeyException.class}
+    )
+    public void testGetAllObjects_invalidClassKey_unknownClass(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.getAllObjects(user, "idontexist", "", -1, -1, null, null, null, null, null, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidRoleException.class}
+    )
+    public void testGetAllObjects_invalidRole_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        core.getAllObjects(user, "testclass", "", -1, -1, null, null, null, null, null, false);
     }
 
     /**
@@ -273,6 +390,69 @@ public abstract class EntityCoreNGTest
         core.createObject(u, "testclass@testdomain", node, "testrole", true);
     }
     
+    @Test(
+            groups = {"case_sensitivity", "data_producing"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testSymmetricRW_caseSensitivity(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+                
+        String classKey = "testDomain.testclass";
+        String role = "testrole";
+        
+        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1_caseSensitivity.json"));
+        
+        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
+        ObjectNode readRes = core.getObject(u, classKey, "A1", null, null, null, null, null, role, false);
+        
+        assertEquals(readRes, storeRes);
+    }
+    
+    @Test(
+            dependsOnGroups = {"data_producing"},
+            groups = {"getObject", "case_sensitivity", "data_consuming"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetObject_caseSensitivity(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+                
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
+        
+        ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, null, null, null, role, false);
+        
+        assertNull(readRes);
+    }
+    
+    @Test(
+            dependsOnGroups = {"data_producing"},
+            groups = {"getAllObjects", "case_sensitivity", "data_consuming"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetAllObjects_caseSensitivity(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+                
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
+        
+        // test case-sensitivity 
+        final List<ObjectNode> result = core.getAllObjects(u, classKey, role, 0, -1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 0);
+    }
+    
     /**
      * this test ensures the symmetry between create and read and ensures the core has data available for extended 
      * getObject tests (filtering, etc).
@@ -291,7 +471,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
                 
-        String classKey = "testdomain.testclass";
+        String classKey = "testDomain.testclass";
         String role = "testrole";
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1.json"));
@@ -342,7 +522,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testdomain.testclass";
+        String classKey = "testDomain.testclass";
         String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_omitNull.json"));
@@ -363,7 +543,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testdomain.testclass";
+        String classKey = "testDomain.testclass";
         String role = "testrole";
 
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fields.json"));
@@ -384,7 +564,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testdomain.testclass";
+        String classKey = "testDomain.testclass";
         String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fieldsOmitNull.json"));
@@ -405,7 +585,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testdomain.testclass";
+        String classKey = "testDomain.testclass";
         String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level1.json"));
@@ -431,7 +611,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testdomain.testclass";
+        String classKey = "testDomain.testclass";
         String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_expand1.json"));
@@ -468,7 +648,7 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
-            groups = {"getObject", "independent"},
+            groups = {"getObject", "data_consuming"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
     public void testGetObject_notExisting(final EntityCore core) throws Exception
@@ -478,7 +658,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testdomain.testclass";
+        String classKey = "testDomain.testclass";
         String role = "testrole";
         
         ObjectNode readRes = core.getObject(u, classKey, "idontexist", null, null, null, null, null, role, false);
