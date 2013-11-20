@@ -1,0 +1,30 @@
+[
+{
+    "$self": "/testDomain.testclass/a2",
+    "id": "a2"
+},
+{
+    "$self": "/testDomain.testclass/a3",
+    "id": "a3",
+    "sub":{
+        "$self": "/testDomain.testsubclass/b1"
+    }
+},
+{
+    "$self": "/testDomain.testclass/a4",
+    "id": "a4",
+    "sub":{
+        "$self": "/testDomain.testsubclass/b4",
+        "subsub": {
+            "$ref": "/testDomain.testsubsubclass/c4"
+        } ,
+        "subarr": [
+           {
+               "$ref": "/testDomain.testsubarrclass/aa4"
+           },
+           {
+               "$ref": "/testDomain.testsubarrclass/ab4"
+           }
+        ]
+    }
+}]

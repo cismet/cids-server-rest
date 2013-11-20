@@ -235,6 +235,86 @@ public abstract class EntityCoreNGTest
             groups = {"getAllObjects", "data_consuming"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
+    public void testGetAllObjects(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj1.json")).elements();
+        final List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        while(it.hasNext()){
+            expected.add((ObjectNode)it.next());
+        }
+        
+        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 3, 1, null, "2", "id,sub,subsub,subarr", null, null, false);
+        
+        assertEquals(result.size(), 3);
+        assertEquals(result, expected);
+    }
+    
+    @Test(
+            enabled = false,
+            dependsOnGroups = {"data_producing"},
+            groups = {"getAllObjects", "data_consuming"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetAllObjects_filter(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        // TODO: implement as soon as filter behaviour is known
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
+        final List<ObjectNode> all = new ArrayList<ObjectNode>();
+        while(it.hasNext()){
+            all.add((ObjectNode)it.next());
+        }
+        
+        List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(1));
+        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 1, 1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 1);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(2));
+        expected.add(all.get(3));
+        expected.add(all.get(4));
+        result = core.getAllObjects(user, classKey, role, 3, 2, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 3);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(4));
+        result = core.getAllObjects(user, classKey, role, 3, 4, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 1);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        result = core.getAllObjects(user, classKey, role, 6, 5, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 0);
+        assertEquals(result, expected);
+    }
+    
+    @Test(
+            dependsOnGroups = {"data_producing"},
+            groups = {"getAllObjects", "data_consuming"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
     public void testGetAllObjects_notExisting(final EntityCore core) throws Exception
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());

@@ -119,7 +119,15 @@ public class FileSystemEntityCore implements EntityCore {
         // FIXME: what is the format of the filter parameter, why is the filter parameter not concrete (map)?
         final Map<String, String> _filter = parseFilter(filter);
 
-        return collectObjects(classKey, limit, offset, expandFields, includeFields, _level, _filter, omitNullValues);
+        final Lock lock = rwLock.readLock();
+
+        try {
+            lock.lock();
+
+            return collectObjs(classKey, limit, offset, expandFields, includeFields, _level, _filter, omitNullValues);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -152,9 +160,9 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @return  DOCUMENT ME!
      *
-     * @throws  UnsupportedOperationException  DOCUMENT ME!
+     * @throws  IllegalStateException  UnsupportedOperationException DOCUMENT ME!
      */
-    private List<ObjectNode> collectObjects(final String classKey,
+    private List<ObjectNode> collectObjs(final String classKey,
             final int limit,
             final int offset,
             final Collection<String> expandFields,
@@ -162,10 +170,21 @@ public class FileSystemEntityCore implements EntityCore {
             final int level,
             final Map<String, String> filter,
             final boolean stripNullVals) {
-        final List<ObjectNode> result = doCollectObjects(classKey, limit, offset);
+        final List<ObjectNode> result = doCollectObjs(classKey, limit, offset);
 
         if (level > 0) {
-            throw new UnsupportedOperationException("implement");
+            final Map<String, ObjectNode> cache = new HashMap<String, ObjectNode>();
+
+            for (int i = 0; i < result.size(); ++i) {
+                final String ref = result.get(i).get("$ref").asText();
+                // TODO: apply filter when it is known how it shall work, maybe this should be included in readObj then
+                final ObjectNode expanded = readObj(ref, expandFields, includeFields, level, stripNullVals, cache);
+                if (expanded == null) {
+                    throw new IllegalStateException("external modification occurred"); // NOI18N
+                }
+
+                result.set(i, expanded);
+            }
         }
 
         return result;
@@ -180,7 +199,7 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @return  DOCUMENT ME!
      */
-    private List<ObjectNode> doCollectObjects(final String classKey, final int limit, final int offset) {
+    private List<ObjectNode> doCollectObjs(final String classKey, final int limit, final int offset) {
         assert classKey != null;
 
         final String dummyRef = buildRef(classKey, "dummy"); // NOI18N

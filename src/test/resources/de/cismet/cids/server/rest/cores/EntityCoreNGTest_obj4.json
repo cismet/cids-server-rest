@@ -8,7 +8,7 @@
         "sub1":"sub1val",
         "sub2":"sub2val",
         "sub3":"sub3val", 
-        "subsub:": {
+        "subsub": {
             "$self": "/testDomain.testsubsubclass/c4",
             "subsub1": "subsub1val"
         } ,
