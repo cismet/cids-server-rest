@@ -46,9 +46,187 @@ public abstract class EntityCoreNGTest
         while(it.hasNext()){
             expected.add((ObjectNode)it.next());
         }
-        final List<ObjectNode> result = core.getAllObjects(user, classKey, role, 0, -1, null, null, null, null, null, false);
+         
+        List<ObjectNode> result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, null, false);
         
         assertEquals(result.size(), 5);
+        assertEquals(result, expected);
+        
+        result = core.getAllObjects(user, classKey, role, 0, -1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 5);
+        assertEquals(result, expected);
+        
+        result = core.getAllObjects(user, classKey, role, -1, 0, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 5);
+        assertEquals(result, expected);
+        
+        result = core.getAllObjects(user, classKey, role, 0, 0, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 5);
+        assertEquals(result, expected);
+    }    
+    
+    @Test(
+            dependsOnGroups = {"data_producing"},
+            groups = {"getAllObjects", "data_consuming"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetAllObjects_limit(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
+        final List<ObjectNode> all = new ArrayList<ObjectNode>();
+        while(it.hasNext()){
+            all.add((ObjectNode)it.next());
+        }
+        
+        List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(0));
+        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 1, -1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 1);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(0));
+        expected.add(all.get(1));
+        expected.add(all.get(2));
+        result = core.getAllObjects(user, classKey, role, 3, -1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 3);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(0));
+        expected.add(all.get(1));
+        expected.add(all.get(2));
+        expected.add(all.get(3));
+        expected.add(all.get(4));
+        result = core.getAllObjects(user, classKey, role, 5, -1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 5);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(0));
+        expected.add(all.get(1));
+        expected.add(all.get(2));
+        expected.add(all.get(3));
+        expected.add(all.get(4));
+        result = core.getAllObjects(user, classKey, role, 6, -1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 5);
+        assertEquals(result, expected);
+    }
+    
+    @Test(
+            dependsOnGroups = {"data_producing"},
+            groups = {"getAllObjects", "data_consuming"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetAllObjects_offset(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
+        final List<ObjectNode> all = new ArrayList<ObjectNode>();
+        while(it.hasNext()){
+            all.add((ObjectNode)it.next());
+        }
+        
+        List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(1));
+        expected.add(all.get(2));
+        expected.add(all.get(3));
+        expected.add(all.get(4));
+        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 0, 1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 4);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(4));
+        result = core.getAllObjects(user, classKey, role, 0, 4, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 1);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        result = core.getAllObjects(user, classKey, role, 0, 5, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 0);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        result = core.getAllObjects(user, classKey, role, 0, 6, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 0);
+        assertEquals(result, expected);
+    }
+    
+    @Test(
+            dependsOnGroups = {"data_producing"},
+            groups = {"getAllObjects", "data_consuming"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetAllObjects_offsetLimit(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
+        final List<ObjectNode> all = new ArrayList<ObjectNode>();
+        while(it.hasNext()){
+            all.add((ObjectNode)it.next());
+        }
+        
+        List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(1));
+        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 1, 1, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 1);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(2));
+        expected.add(all.get(3));
+        expected.add(all.get(4));
+        result = core.getAllObjects(user, classKey, role, 3, 2, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 3);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        expected.add(all.get(4));
+        result = core.getAllObjects(user, classKey, role, 3, 4, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 1);
+        assertEquals(result, expected);
+        
+        expected = new ArrayList<ObjectNode>();
+        result = core.getAllObjects(user, classKey, role, 6, 5, null, null, null, null, null, false);
+        
+        assertEquals(result.size(), 0);
         assertEquals(result, expected);
     }
     

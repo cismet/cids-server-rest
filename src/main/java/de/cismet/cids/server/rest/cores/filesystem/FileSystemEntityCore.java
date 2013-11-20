@@ -212,6 +212,11 @@ public class FileSystemEntityCore implements EntityCore {
 
         final int _offset = Math.max(0, offset);
         final int elements = (limit <= 0) ? (objFiles.length - _offset) : Math.min(limit, objFiles.length - _offset);
+
+        if (elements <= 0) {
+            return Collections.emptyList();
+        }
+
         final int end = _offset + elements;
 
         final List<ObjectNode> result = new ArrayList<ObjectNode>(elements);
