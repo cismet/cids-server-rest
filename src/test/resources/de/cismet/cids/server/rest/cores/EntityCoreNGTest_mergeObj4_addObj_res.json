@@ -1,0 +1,48 @@
+{
+    "$self": "/testDomain.testclass2/m4",
+    "id": "m2",
+    "name": "testnamem2",
+    "addobj": {
+        "$self": "/testDomain.testaddsubclass/ma4",
+        "addobj1": "addobj1val"
+    },
+    "description": null,
+    "add1": "add1val",
+    "sub": {
+        "$self": "/testDomain.testsubclass/ma4",
+        "id": "ma2",
+        "name": null,
+        "sub1": "sub1valchanged",
+        "sub2": "sub2val",
+        "sub3": "sub3val",
+        "subaddobj": {
+            "$self": "/testDomain.testaddsubsubclass/ma4",
+            "subsubaddobj1": "subaddobj1val"
+        },
+        "subadd1": "subadd1valchanged",
+        "subadd2": "subadd2val",
+        "subnil": null,
+        "subsub": {
+            "$self": "/testDomain.testsubsubclass/mb4",
+            "subsub1": "subsub1valchanged",
+            "subsubadd1": "subsubadd1val",
+            "subsubadd2": "subsubadd2val"
+        },
+        "subarr": [
+            {
+                "$self": "/testDomain.testsubarrclass/maa4",
+                "subarr1": "subarr1val",
+                "id": "maa2",
+                "name": "testnamemaa1changed"
+            },
+            {
+                "$self": "/testDomain.testsubarrclass/mab4",
+                "subarr2add1": "subarr2add1val",
+                "subarr2": "subarr2val"
+            },
+            null
+        ]
+    },
+    "nil": "nonil",
+    "add2": "add2val"
+}

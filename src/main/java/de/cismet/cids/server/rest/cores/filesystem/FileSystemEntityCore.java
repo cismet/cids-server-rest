@@ -76,8 +76,12 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @param  baseDir  DOCUMENT ME!
      */
-    public FileSystemEntityCore(final String baseDir) {
-        this.baseDir = baseDir;
+    public FileSystemEntityCore(@NonNull final String baseDir) {
+        if (File.separatorChar == baseDir.charAt(baseDir.length() - 1)) {
+            this.baseDir = baseDir.substring(0, baseDir.length() - 1);
+        } else {
+            this.baseDir = baseDir;
+        }
 
         rwLock = new ReentrantReadWriteLock();
     }
@@ -257,10 +261,9 @@ public class FileSystemEntityCore implements EntityCore {
             final ObjectNode jsonObject,
             final String role,
             final boolean requestResultingInstance) {
-        throw new UnsupportedOperationException("not supported yet");
         // FIXME: what is the difference between update and create (except that update usually only works for existing
-        // top-level objects)? This is related to the behaviour of create in case of existing objects return
-        // createObject(user, classKey, jsonObject, role, requestResultingInstance);
+        // top-level objects)? This is related to the behaviour of create in case of existing objects
+        return createObject(user, classKey, jsonObject, role, requestResultingInstance);
     }
 
     @Override
@@ -288,9 +291,14 @@ public class FileSystemEntityCore implements EntityCore {
             lock.unlock();
         }
 
-        // the object is the same as there is no id generation or sth else, additionally we don't want to confuse by
-        // by returning a modified object (ref instead of actual object)
-        return jsonObject;
+        if (requestResultingInstance) {
+            final String ref = jsonObject.get("$self").asText(); // NOI18N
+            final String objId = stripObjId(ref);
+
+            return getObject(user, classKey, objId, null, null, null, null, null, role, false);
+        } else {
+            return jsonObject;
+        }
     }
 
     /**
@@ -321,10 +329,36 @@ public class FileSystemEntityCore implements EntityCore {
         }
 
         if (objExists(selfNode.asText())) {
-            // TODO: merge obj or throw exception or in other words, should this have been handled from the "outer" impl
-            throw new UnsupportedOperationException("not supported yet");
-        } else {
-            doWriteObj(obj);
+            mergeObj(obj);
+        }
+
+        doWriteObj(obj);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  obj  DOCUMENT ME!
+     */
+    private void mergeObj(final ObjectNode obj) {
+        assert obj != null;
+
+        final String ref = obj.get("$self").asText(); // NOI18N
+        @SuppressWarnings("unchecked")
+        final ObjectNode mergeObj = readObj(
+                ref,
+                Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST,
+                1,
+                false,
+                new HashMap<String, ObjectNode>(1, 1f));
+
+        final Iterator<Entry<String, JsonNode>> it = mergeObj.fields();
+        while (it.hasNext()) {
+            final Entry<String, JsonNode> entry = it.next();
+            if (!obj.has(entry.getKey())) {
+                obj.put(entry.getKey(), entry.getValue());
+            }
         }
     }
 
@@ -794,6 +828,7 @@ public class FileSystemEntityCore implements EntityCore {
             lock.unlock();
         }
     }
+
     /**
      * FIXME: subject to be Tools method or similar, this is not the correct context
      *
@@ -808,6 +843,38 @@ public class FileSystemEntityCore implements EntityCore {
 
         // FIXME: is this the correct way to build the obj ref? what is the expected format of the classkey?
         return "/" + classKey + "/" + objectId; // NOI18N
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   ref  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private String stripObjId(final String ref) {
+        assert ref != null;
+
+        // assume proper ref format
+        final int index = ref.lastIndexOf('/');
+
+        return ref.substring(index + 1);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   ref  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private String stripClassKey(final String ref) {
+        assert ref != null;
+
+        // assume proper ref format
+        final int index = ref.lastIndexOf('/');
+
+        return ref.substring(1, index);
     }
 
     /**

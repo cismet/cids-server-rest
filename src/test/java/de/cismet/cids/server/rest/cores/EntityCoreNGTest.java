@@ -426,7 +426,7 @@ public abstract class EntityCoreNGTest
     }
 
     /**
-     * Test of updateObject method, of class EntityCore.
+     * update and create shall work in the very same way because no ids or defaults are generated, however
      */
     @Test(enabled = false)
     public void testUpdateObject()
@@ -722,7 +722,7 @@ public abstract class EntityCoreNGTest
             groups = {"data_producing"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
-    public void testSymmetricRW(final EntityCore core) throws IOException
+    public void testSymmetricRW_new(final EntityCore core) throws IOException
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
@@ -769,8 +769,196 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
+            dependsOnMethods = {"testSymmetricRW_new"},
+            groups = {"data_producing"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testSymmetricRW_mergeFull_create(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+                
+        String classKey = "testDomain.testclass2";
+        String role = "testrole";
+        
+        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1.json"));
+        
+        // setup
+        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_addPlain_res.json"));
+        
+        storeRes = core.createObject(u, classKey, node, role, true);
+        ObjectNode readRes = core.getObject(u, classKey, "m1", null, null, null, null, null, role, false);
+        
+        assertEquals(readRes, storeRes);
+        assertEquals(readRes, node);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_changePlain_res.json"));
+        
+        storeRes = core.createObject(u, classKey, node, role, true);
+        readRes = core.getObject(u, classKey, "m1", null, null, null, null, null, role, false);
+        
+        assertEquals(readRes, storeRes);
+        assertEquals(readRes, node);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_addObj_res.json"));
+        
+        storeRes = core.createObject(u, classKey, node, role, true);
+        readRes = core.getObject(u, classKey, "m1", null, null, null, null, null, role, false);
+        
+        assertEquals(readRes, storeRes);
+        assertEquals(readRes, node);
+    }
+        
+    @Test(
+            dependsOnMethods = {"testSymmetricRW_new"},
+            groups = {"data_producing"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testSymmetricRW_mergePartial_create(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+                
+        String classKey = "testDomain.testclass2";
+        String role = "testrole";
+        
+        ObjectNode insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2.json"));
+        
+        // setup
+        ObjectNode storeRes = core.createObject(u, classKey, insert, role, true);
+        ObjectNode readRes = core.getObject(u, classKey, "m2", null, null, null, null, null, role, false);
+        
+        assertNotNull(readRes);
+        
+        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addPlain_part.json"));
+        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addPlain_res.json"));
+        
+        storeRes = core.createObject(u, classKey, insert, role, true);
+        readRes = core.getObject(u, classKey, "m2", null, null, null, null, null, role, false);
+        
+        // we cannot use assertEqual as both the json objects can be equal without taking the property ordering into account
+        assertTrue(readRes.equals(expected));
+        
+        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_changePlain_part.json"));
+        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_changePlain_res.json"));
+        
+        storeRes = core.createObject(u, classKey, insert, role, true);
+        readRes = core.getObject(u, classKey, "m2", null, null, null, null, null, role, false);
+        
+        assertTrue(readRes.equals(expected));
+        
+        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addObj_part.json"));
+        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addObj_res.json"));
+        
+        storeRes = core.createObject(u, classKey, insert, role, true);
+        readRes = core.getObject(u, classKey, "m2", null, null, null, null, null, role, false);
+        
+        assertTrue(readRes.equals(expected));
+    }
+    
+    @Test(
+            dependsOnMethods = {"testSymmetricRW_new"},
+            groups = {"data_producing"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testSymmetricRW_mergeFull_update(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+                
+        String classKey = "testDomain.testclass2";
+        String role = "testrole";
+        
+        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3.json"));
+        
+        // setup
+        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_addPlain_res.json"));
+        
+        storeRes = core.updateObject(u, classKey, "m3", node, role, true);
+        ObjectNode readRes = core.getObject(u, classKey, "m3", null, null, null, null, null, role, false);
+        
+        assertEquals(readRes, storeRes);
+        assertEquals(readRes, node);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_changePlain_res.json"));
+        
+        storeRes = core.updateObject(u, classKey, "m3", node, role, true);
+        readRes = core.getObject(u, classKey, "m3", null, null, null, null, null, role, false);
+        
+        assertEquals(readRes, storeRes);
+        assertEquals(readRes, node);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_addObj_res.json"));
+        
+        storeRes = core.updateObject(u, classKey, "m3", node, role, true);
+        readRes = core.getObject(u, classKey, "m3", null, null, null, null, null, role, false);
+        
+        assertEquals(readRes, storeRes);
+        assertEquals(readRes, node);
+    }
+        
+    @Test(
+            dependsOnMethods = {"testSymmetricRW_new"},
+            groups = {"data_producing"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testSymmetricRW_mergePartial_update(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+                
+        String classKey = "testDomain.testclass2";
+        String role = "testrole";
+        
+        ObjectNode insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4.json"));
+        
+        // setup
+        ObjectNode storeRes = core.createObject(u, classKey, insert, role, true);
+        ObjectNode readRes = core.getObject(u, classKey, "m4", null, null, null, null, null, role, false);
+        
+        assertNotNull(readRes);
+        
+        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addPlain_part.json"));
+        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addPlain_res.json"));
+        
+        storeRes = core.updateObject(u, classKey, "m4", insert, role, true);
+        readRes = core.getObject(u, classKey, "m4", null, null, null, null, null, role, false);
+        
+        // we cannot use assertEqual as both the json objects can be equal without taking the property ordering into account
+        assertTrue(readRes.equals(expected));
+        
+        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_changePlain_part.json"));
+        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_changePlain_res.json"));
+        
+        storeRes = core.updateObject(u, classKey, "m4", insert, role, true);
+        readRes = core.getObject(u, classKey, "m4", null, null, null, null, null, role, false);
+        
+        assertTrue(readRes.equals(expected));
+        
+        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addObj_part.json"));
+        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addObj_res.json"));
+        
+        storeRes = core.updateObject(u, classKey, "m4", insert, role, true);
+        readRes = core.getObject(u, classKey, "m4", null, null, null, null, null, role, false);
+        
+        assertTrue(readRes.equals(expected));
+    }
+    
+    @Test(
             groups = {"getObject", "data_consuming"},
-            dependsOnMethods = {"testSymmetricRW"},
+            dependsOnMethods = {"testSymmetricRW_new"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
     public void testGetObject_omitNullValues(final EntityCore core) throws Exception
@@ -791,7 +979,7 @@ public abstract class EntityCoreNGTest
     
     @Test(
             groups = {"getObject", "data_consuming"},
-            dependsOnMethods = {"testSymmetricRW"},
+            dependsOnMethods = {"testSymmetricRW_new"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
     public void testGetObject_fieldsParam(final EntityCore core) throws Exception
@@ -812,7 +1000,7 @@ public abstract class EntityCoreNGTest
     
     @Test(
             groups = {"getObject", "data_consuming"},
-            dependsOnMethods = {"testSymmetricRW"},
+            dependsOnMethods = {"testSymmetricRW_new"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
     public void testGetObject_fieldsParamOmitNull(final EntityCore core) throws Exception
@@ -833,7 +1021,7 @@ public abstract class EntityCoreNGTest
     
     @Test(
             groups = {"getObject", "data_consuming"},
-            dependsOnMethods = {"testSymmetricRW"},
+            dependsOnMethods = {"testSymmetricRW_new"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
     public void testGetObject_levelParam(final EntityCore core) throws Exception
@@ -859,7 +1047,7 @@ public abstract class EntityCoreNGTest
     
     @Test(
             groups = {"getObject", "data_consuming"},
-            dependsOnMethods = {"testSymmetricRW"},
+            dependsOnMethods = {"testSymmetricRW_new"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
     public void testGetObject_expandParam(final EntityCore core) throws Exception
@@ -885,7 +1073,7 @@ public abstract class EntityCoreNGTest
     
     @Test(
             enabled = false,
-            dependsOnMethods = {"testSymmetricRW"},
+            dependsOnMethods = {"testSymmetricRW_new"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
     public void testGetObject_subObjNotExisting(final EntityCore core) throws Exception
