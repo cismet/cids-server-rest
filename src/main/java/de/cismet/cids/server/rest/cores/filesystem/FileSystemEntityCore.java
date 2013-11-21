@@ -174,13 +174,18 @@ public class FileSystemEntityCore implements EntityCore {
             final int level,
             final Map<String, String> filter,
             final boolean stripNullVals) {
+        assert classKey != null;
+        assert expandFields != null;
+        assert includeFields != null;
+        assert filter != null;
+
         final List<ObjectNode> result = doCollectObjs(classKey, limit, offset);
 
         if (level > 0) {
             final Map<String, ObjectNode> cache = new HashMap<String, ObjectNode>();
 
             for (int i = 0; i < result.size(); ++i) {
-                final String ref = result.get(i).get("$ref").asText();
+                final String ref = result.get(i).get("$ref").asText(); // NOI18N
                 // TODO: apply filter when it is known how it shall work, maybe this should be included in readObj then
                 final ObjectNode expanded = readObj(ref, expandFields, includeFields, level, stripNullVals, cache);
                 if (expanded == null) {
@@ -195,7 +200,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * collects the objects from the folder denoted by classKey. does no expansion, returns reflist only
      *
      * @param   classKey  DOCUMENT ME!
      * @param   limit     DOCUMENT ME!
@@ -302,7 +307,8 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * changes the given parameter by replacing subobjects with refs (normalisation). any obj has to contain the
+     * mandatory self reference
      *
      * @param   obj  DOCUMENT ME!
      *
@@ -311,6 +317,7 @@ public class FileSystemEntityCore implements EntityCore {
     private void writeObj(final ObjectNode obj) throws InvalidEntityException {
         assert obj != null;
 
+        // do DFS
         final Iterator<Entry<String, JsonNode>> it = obj.fields();
         while (it.hasNext()) {
             final Entry<String, JsonNode> e = it.next();
@@ -336,9 +343,12 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * changes the given parameter by adding missing properties from the already existing object. assumes object already
+     * exists!
      *
-     * @param  obj  DOCUMENT ME!
+     * @param   obj  DOCUMENT ME!
+     *
+     * @throws  IllegalStateException  DOCUMENT ME!
      */
     private void mergeObj(final ObjectNode obj) {
         assert obj != null;
@@ -353,6 +363,10 @@ public class FileSystemEntityCore implements EntityCore {
                 false,
                 new HashMap<String, ObjectNode>(1, 1f));
 
+        if (mergeObj == null) {
+            throw new IllegalStateException("external change occurred"); // NOI18N
+        }
+
         final Iterator<Entry<String, JsonNode>> it = mergeObj.fields();
         while (it.hasNext()) {
             final Entry<String, JsonNode> entry = it.next();
@@ -363,7 +377,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * simply write the obj to disk using the mandatory self ref.
      *
      * @param   obj  DOCUMENT ME!
      *
@@ -396,7 +410,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * builds the full object path from a ref.
      *
      * @param   ref  DOCUMENT ME!
      *
@@ -440,7 +454,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * checks whether a file exists and actually is a file (case sensitive!).
      *
      * @param   ref  DOCUMENT ME!
      *
@@ -476,7 +490,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * handles actual object nodes and returns a ref object.
      *
      * @param   objNode  DOCUMENT ME!
      *
@@ -556,7 +570,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * currently enforces hard limit of 50.
      *
      * @param   level         DOCUMENT ME!
      * @param   defaultLevel  DOCUMENT ME!
@@ -582,7 +596,8 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * level takes precedence over expand, meaning that if a field is marked as expand it won't be expanded if this
+     * would exceed the desired (expansion) level. properties are filtered BEFORE descending into sub obj
      *
      * @param   ref            DOCUMENT ME!
      * @param   expandFields   DOCUMENT ME!
@@ -616,7 +631,7 @@ public class FileSystemEntityCore implements EntityCore {
             cache.put(ref, obj);
         }
 
-        // FIXME: behaviour for infinite loops because of parent-child-child-parent designs
+        // FIXME: behaviour for infinite loops because of cyclic references, currently enforcing hard limit
         if ((obj != null) && (level > 1)) {
             final Iterator<Entry<String, JsonNode>> it = obj.fields();
             while (it.hasNext()) {
@@ -747,7 +762,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * actually accesses the file in the file system (case sensitive!).
      *
      * @param   ref  DOCUMENT ME!
      *
@@ -846,7 +861,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
+     * FIXME: subject to be Tools method or similar, this is not the correct context
      *
      * @param   ref  DOCUMENT ME!
      *
@@ -862,23 +877,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * DOCUMENT ME!
-     *
-     * @param   ref  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    private String stripClassKey(final String ref) {
-        assert ref != null;
-
-        // assume proper ref format
-        final int index = ref.lastIndexOf('/');
-
-        return ref.substring(1, index);
-    }
-
-    /**
-     * DOCUMENT ME!
+     * actually deletes the object referenced by ref (NOT case sensitive!).
      *
      * @param   ref  DOCUMENT ME!
      *
