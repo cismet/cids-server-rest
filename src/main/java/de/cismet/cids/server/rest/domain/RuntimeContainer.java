@@ -39,7 +39,7 @@ public class RuntimeContainer {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    static final String DIR = "/Users/thorsten/Desktop/crisma-api-demo";
+    static final String DIR = Starter.FS_CIDS_DIR;
     static FileSystemEntityCore fsec = new FileSystemEntityCore(DIR);
     static FileSystemEntityInfoCore fseic = new FileSystemEntityInfoCore(
             DIR);

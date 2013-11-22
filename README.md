@@ -1,28 +1,36 @@
-Core API Preview
+ICMM Core API Preview
 ================
+
+
 
 What is this about?
 ------------------
-This is a CORE API Preview for the CRISMA ICMS infrastructure building block. With this API other components 
-can get infos about worldstates, about manipulation UI's and federated models.
+This is a CORE API Preview (basic API supporting mainly CRUD) for the CRISMA infrastructure building block the so called ICMM (Integrated Crisis Management Middleware). With this API other components 
+can get infos about worldstates, manipulation UI's and federated models.
 
-You can find the model "behind" the api either in this [document](https://dl.dropboxusercontent.com/u/8114622/Core%20Control%20and%20Communication%20Information%20Model%20v1.2.rtf "document") (or via calling ```/classe?domain=crisma``` ;-))
+You can find the data model (schema) "behind" the api either in this [document](https://dl.dropboxusercontent.com/u/8114622/Core%20Control%20and%20Communication%20Information%20Model%20v1.2.rtf "document") (or via calling ```/classe?domain=crisma``` ;-))
 ![core ccim complete](https://f.cloud.github.com/assets/837211/749892/6f40f9ac-e4b8-11e2-99d5-f5a089f00ea4.png)
 
+The software is based on cids which is an Open Source project of cismet. The source code of cids as well of custom extensions of other projects e.g. CRISMA can be found here https://github.com/cismet
 
+Adhering to the CRISMA architecture rules we have implemented a restful API for the ICMM.
 
-We set up a cids System that implements(besserer Begriff finden) that model.
+The API is enriched by a very cool documentation framework named Swagger (see e.g. http://blog.programmableweb.com/2013/02/19/swagger-the-interactive-api-documentation-framework-that-benefits-both-api-providers-and-consumers/). With this interactive API documentation 
+using swagger you can explore and test the API's resources and methods.
 
-We implemented a restful API and tried to fulfill the rules SP3 set.
+Where can I find the API demo and swagger documentation?
+------------------
+http://crisma.cismet.de/icms/
 
-The API is enriched by a cool documentation framework named Swagger. With this interactive API documentation 
-you can explore the API and play around with the resources and methods.
+Where do I start to explore the API?
+------------------
+you might start using classes (http://crisma.cismet.de/icms/#!/classes) to get an overview on what is available and then us the respective entities (http://crisma.cismet.de/icms/#!/entities)
 
 What this is not about
 -----------------------
 The Swagger Site is not a UI for CRISMA. 
-The API is a core API. There will be some helpers to support CRISMA developers in their work. At the moment we are not sure if these helpers are
-a more client side component or if we enhance the API for this purpose.
+The API is a core API. There will be a number of helpers to provide a more convenient way to deal with world state data and federated models. At the moment we are not sure if these helpers will be client side components encapsulating the worldstate management logic or whether we will extend this API for this purpose.
+In a parallel activity we are developing a so called CRISMA reference application which will help us to find out what works best.
 
 The API is divided in different Sub APIs.
 =========================================
@@ -30,10 +38,10 @@ The API is divided in different Sub APIs.
 What are the most important API parts?
 --------------------------------------
 ![bildschirmfoto 2013-07-03 um 23 15 10](https://f.cloud.github.com/assets/837211/746167/ab707b34-e425-11e2-9dfa-813ee90288df.png)
-In the classes sub API one can get information about the classes (schemas) of the stored entities.
+In the classes sub API one can access information about the classes (data models, schemas) of the stored entities.
 
 ![bildschirmfoto 2013-07-03 um 23 15 36](https://f.cloud.github.com/assets/837211/746169/c680273a-e425-11e2-87aa-f76162cb16ac.png)
-In the entities sub API one get, modify, create and delete entities that are stored in the system
+In the entities sub API one can access get, modify, create and delete entities that are stored in the system
 
 ![bildschirmfoto 2013-07-03 um 23 16 20](https://f.cloud.github.com/assets/837211/746177/edb62d72-e425-11e2-9f03-00e7306b40a9.png)
 In the actions sub API one can execute actions, retrieve the results and cancel long running tasks.
@@ -43,12 +51,12 @@ And the other ones?
 Well, since this is a preview the other sub APIs are not (fully) availlable yet. But here comes a quick overview 
 what you can expect in the near future.
 
-* configattributes: store an retrieve user/role based configuration paramters
-* nodes: retrieve information about a custom structure (so called node structure) of the system
+* configattributes: store an retrieve user/role based configuration parameters
+* nodes: retrieve information about a custom structure (so called node structure) of the system (this maps to the world state tree)
 * permission: retrieve the user/role based permissions
 * searches: execute custom searches and retrieve the results
 * subscriptions: subscribe to certain properties and get noticed when something changes
-* users: validate a user and get her roles
+* users: validate a user and retrieve roles
 
 Limitations
 ============
@@ -72,7 +80,7 @@ Experiments
 ===========
 
 Feel free to try out the API Demo. You can either use the provided Swagger Page, your browser or your favourite commandline tool (curl, resty, ...)
-Please delete only the objects that you created and keep in mind that we eill reset the demo data once in a while.
+Please delete only the objects that you have created and keep in mind that we will reset the demo data once in a while.
 
 Examples
 ========
