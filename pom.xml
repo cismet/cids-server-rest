@@ -29,7 +29,7 @@
     </prerequisites>
     
     <properties>
-        <jersey.version>1.9.1</jersey.version>
+        <jersey.version>1.17.1</jersey.version>
         <jackson.version>2.2.2</jackson.version>
     </properties>
     
@@ -64,6 +64,11 @@
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-core</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-bundle</artifactId>
             <version>${jersey.version}</version>
         </dependency>
         <dependency>
