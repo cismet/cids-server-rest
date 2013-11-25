@@ -20,6 +20,7 @@ import de.cismet.cids.server.rest.cores.dummy.DummyPermissionCore;
 import de.cismet.cids.server.rest.cores.dummy.DummyUserCore;
 import de.cismet.cids.server.rest.cores.filesystem.FileSystemActionCore;
 import de.cismet.cids.server.rest.cores.filesystem.FileSystemEntityCore;
+import de.cismet.cids.server.rest.cores.filesystem.FileSystemEntityInfoCore;
 import de.cismet.cids.server.rest.data.unused.CustomAttributeCore;
 
 /**
@@ -35,13 +36,14 @@ public class RuntimeContainer {
     static final String DIR = Starter.FS_CIDS_DIR;
     static FileSystemEntityCore fsec = new FileSystemEntityCore(DIR);
     static FileSystemActionCore fsac = new FileSystemActionCore(DIR);
+    static FileSystemEntityInfoCore fseic = new FileSystemEntityInfoCore(DIR);
     static DummyUserCore duc = new DummyUserCore();
     static DummyPermissionCore dpc = new DummyPermissionCore();
     static Server server = new Server() {
 
             @Override
             public EntityInfoCore getEntityInfoCore() {
-                throw new UnsupportedOperationException("Not supported yet.");
+                return fseic;
             }
 
             @Override
@@ -81,7 +83,7 @@ public class RuntimeContainer {
 
             @Override
             public String getDomainName() {
-                return "crisma";
+                return "CRISMA";
             }
 
             @Override
