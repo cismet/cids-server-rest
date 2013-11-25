@@ -203,14 +203,13 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+            final String baseref = domain + "." + classKey;
             final List l = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
                         .getAllObjects(
                             user,
                             // FIXME: what is the correct class key and format
-                            domain
-                            + "."
-                            + classKey,
+                            baseref,
                             // FIXME: what is the default
                             (role == null) ? "default" : role,
                             limit,
@@ -221,13 +220,95 @@ public class EntitiesAPI extends APIBase {
                             profile,
                             filter,
                             omitNullValues);
-            final CollectionResource result = new CollectionResource("/" + domain + "." + classKey,
-                    offset,
-                    limit,
-                    "not avilable",
-                    "not avilable",
-                    "not avilable",
-                    "not avilable",
+
+            final List allobjs = RuntimeContainer.getServer()
+                        .getEntityCore(classKey)
+                        .getAllObjects(
+                            user,
+                            // FIXME: what is the correct class key and format
+                            baseref,
+                            // FIXME: what is the default
+                            (role == null) ? "default" : role,
+                            Integer.MAX_VALUE,
+                            0,
+                            null,
+                            "0",
+                            null,
+                            null,
+                            filter,
+                            omitNullValues);
+
+            // FIXME: maybe has to be done even before sending the data to the core so that the core won't have to
+            // care about that, too
+            final int _limit = Math.max(0, limit);
+            final int _offset = Math.max(0, offset);
+                // using integer div
+            final int lastOffset = _limit == 0 ? 0 : ((allobjs.size() - 1) / _limit) * _limit;
+
+            final String first = buildRequestString(
+                    baseref,
+                    _limit,
+                    0,
+                    role,
+                    expand,
+                    level,
+                    fields,
+                    profile,
+                    filter,
+                    omitNullValues);
+            
+            final String prev;
+            if(_offset > 0) {
+                prev = buildRequestString(
+                    baseref,
+                    _limit,
+                    _limit == 0 ? 0 : _offset - _limit,
+                    role,
+                    expand,
+                    level,
+                    fields,
+                    profile,
+                    filter,
+                    omitNullValues);
+            } else {
+                prev = null;
+            }
+            
+            final String next;
+            if(_limit > 0 && (allobjs.size() - _limit) > _offset) {
+                next = buildRequestString(
+                    baseref,
+                    _limit,
+                    _offset + _limit,
+                    role,
+                    expand,
+                    level,
+                    fields,
+                    profile,
+                    filter,
+                    omitNullValues);
+            } else {
+                next = null;
+            }
+            final String last = buildRequestString(
+                    baseref,
+                    _limit,
+                    lastOffset,
+                    role,
+                    expand,
+                    level,
+                    fields,
+                    profile,
+                    filter,
+                    omitNullValues);
+
+            final CollectionResource result = new CollectionResource("/" + baseref,
+                    _offset,
+                    _limit,
+                    first,
+                    prev,
+                    next,
+                    last,
                     l);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else {
@@ -248,6 +329,63 @@ public class EntitiesAPI extends APIBase {
                         .get(ClientResponse.class);
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   baseref        DOCUMENT ME!
+     * @param   limit          DOCUMENT ME!
+     * @param   offset         DOCUMENT ME!
+     * @param   role           DOCUMENT ME!
+     * @param   expand         DOCUMENT ME!
+     * @param   level          DOCUMENT ME!
+     * @param   fields         DOCUMENT ME!
+     * @param   profile        DOCUMENT ME!
+     * @param   filter         DOCUMENT ME!
+     * @param   stripNullVals  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private String buildRequestString(final String baseref,
+            final int limit,
+            final int offset,
+            final String role,
+            final String expand,
+            final String level,
+            final String fields,
+            final String profile,
+            final String filter,
+            final boolean stripNullVals) {
+        assert baseref != null;
+
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append('/').append(baseref);
+        sb.append('?').append("limit=").append(limit);
+        sb.append('&').append("offset=").append(offset);
+
+        if (role != null) {
+            sb.append('&').append("role=").append(role);
+        }
+        if (expand != null) {
+            sb.append('&').append("expand=").append(expand);
+        }
+        if (level != null) {
+            sb.append('&').append("level=").append(level);
+        }
+        if (fields != null) {
+            sb.append('&').append("fields=").append(fields);
+        }
+        if (profile != null) {
+            sb.append('&').append("profile=").append(profile);
+        }
+        if (filter != null) {
+            sb.append('&').append("filter=").append(filter);
+        }
+        sb.append('&').append("omitNullValues=").append(stripNullVals);
+
+        return sb.toString();
     }
 
     /**
