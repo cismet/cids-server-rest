@@ -207,7 +207,10 @@ public class EntitiesAPI extends APIBase {
                         .getEntityCore(classKey)
                         .getAllObjects(
                             user,
-                            classKey,
+                            // FIXME: what is the correct class key and format
+                            domain
+                            + "."
+                            + classKey,
                             role,
                             limit,
                             offset,
@@ -319,7 +322,10 @@ public class EntitiesAPI extends APIBase {
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).updateObject(
                                     user,
-                                    classKey,
+                                    // FIXME: what is the correct class key and format
+                                    domain
+                                    + "."
+                                    + classKey,
                                     objectId,
                                     body,
                                     role,
@@ -405,7 +411,10 @@ public class EntitiesAPI extends APIBase {
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).createObject(
                                     user,
-                                    classKey,
+                                    // FIXME: what is the correct class key and format
+                                    domain
+                                    + "."
+                                    + classKey,
                                     body,
                                     role,
                                     requestResultingInstance))
@@ -504,7 +513,10 @@ public class EntitiesAPI extends APIBase {
                         .getEntityCore(classKey)
                         .getObject(
                             user,
-                            classKey,
+                            // FIXME: what is the correct class key and format
+                            domain
+                            + "."
+                            + classKey,
                             objectId,
                             version,
                             expand,
@@ -581,7 +593,16 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            RuntimeContainer.getServer().getEntityCore(classKey).deleteObject(user, classKey, objectId, role);
+            RuntimeContainer.getServer()
+                    .getEntityCore(classKey)
+                    .deleteObject(
+                        user,
+                        // FIXME: what is the correct class key and format
+                        domain
+                        + "."
+                        + classKey,
+                        objectId,
+                        role);
             return Response.status(Response.Status.OK).header("Location", getLocation()).build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
