@@ -766,6 +766,14 @@ public abstract class EntityCoreNGTest
         readRes = core.getObject(u, classKey, "a5", null, null, null, null, null, role, false);
         
         assertEquals(readRes, storeRes, null);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6.json"));
+        
+        // we have to limit this request because of a cycle in it, but thats the point
+        storeRes = core.createObject(u, "testDomain.testclass2", node, role, false);
+        readRes = core.getObject(u, "testDomain.testclass2", "a6", null, null, "3", null, null, role, false);
+        
+        assertEquals(readRes, storeRes, null);
     }
     
     @Test(
@@ -1041,6 +1049,19 @@ public abstract class EntityCoreNGTest
         
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level2.json"));
         readRes = core.getObject(u, classKey, "a5", null, null, "2", null, null, role, false);
+        
+        assertEquals(readRes, expected);
+        
+        // read cyclic ref
+        classKey = "testDomain.testclass2";
+        
+        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6_level4.json"));
+        readRes = core.getObject(u, classKey, "a6", null, null, "4", null, null, role, false);
+        
+        assertEquals(readRes, expected);
+        
+        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6_level7.json"));
+        readRes = core.getObject(u, classKey, "a6", null, null, "7", null, null, role, false);
         
         assertEquals(readRes, expected);
     }

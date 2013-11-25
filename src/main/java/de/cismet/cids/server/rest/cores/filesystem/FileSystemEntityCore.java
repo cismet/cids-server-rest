@@ -623,38 +623,42 @@ public class FileSystemEntityCore implements EntityCore {
         if (obj == null) {
             obj = doReadObj(ref);
 
-            if (obj != null) {
-                // currently direct obj manipulation
-                obj = filterProperties(obj, includeFields, stripNullVals);
-            }
-
             cache.put(ref, obj);
         }
 
-        // FIXME: behaviour for infinite loops because of cyclic references, currently enforcing hard limit
-        if ((obj != null) && (level > 1)) {
-            final Iterator<Entry<String, JsonNode>> it = obj.fields();
-            while (it.hasNext()) {
-                final Entry<String, JsonNode> entry = it.next();
-                final String key = entry.getKey();
-                final JsonNode val = entry.getValue();
-                // only expand if expand param is provided (non-empty collection) and the current field is in collection
-                if (val.isObject() && (expandFields.isEmpty() || expandFields.contains(key))) {
-                    // $ref has to be present, otherwise data is corrupted
-                    final String subRef = val.get("$ref").asText(); // NOI18N
-                    final ObjectNode subObj = readObj(
-                            subRef,
-                            expandFields,
-                            includeFields,
-                            level
-                                    - 1,
-                            stripNullVals,
-                            cache);
+        if (obj != null) {
+            // the cache shall only contain normalised objects and as objects are directly changed we have to copy them
+            obj = obj.deepCopy();
 
-                    obj.replace(key, subObj);
-                }
-                if (val.isArray() && (expandFields.isEmpty() || expandFields.contains(key))) {
-                    readArray((ArrayNode)val, expandFields, includeFields, level, stripNullVals, cache);
+            // currently direct obj manipulation
+            obj = filterProperties(obj, includeFields, stripNullVals);
+
+            // FIXME: behaviour for infinite loops because of cyclic references, currently enforcing hard limit
+            if (level > 1) {
+                final Iterator<Entry<String, JsonNode>> it = obj.fields();
+                while (it.hasNext()) {
+                    final Entry<String, JsonNode> entry = it.next();
+                    final String key = entry.getKey();
+                    final JsonNode val = entry.getValue();
+                    // only expand if expand param is provided (non-empty collection) and the current field is in
+                    // collection
+                    if (val.isObject() && (expandFields.isEmpty() || expandFields.contains(key))) {
+                        // $ref has to be present, otherwise data is corrupted
+                        final String subRef = val.get("$ref").asText(); // NOI18N
+                        final ObjectNode subObj = readObj(
+                                subRef,
+                                expandFields,
+                                includeFields,
+                                level
+                                        - 1,
+                                stripNullVals,
+                                cache);
+
+                        obj.replace(key, subObj);
+                    }
+                    if (val.isArray() && (expandFields.isEmpty() || expandFields.contains(key))) {
+                        readArray((ArrayNode)val, expandFields, includeFields, level, stripNullVals, cache);
+                    }
                 }
             }
         }
