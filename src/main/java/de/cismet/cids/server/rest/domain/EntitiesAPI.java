@@ -211,7 +211,8 @@ public class EntitiesAPI extends APIBase {
                             domain
                             + "."
                             + classKey,
-                            role,
+                            // FIXME: what is the default
+                            (role == null) ? "default" : role,
                             limit,
                             offset,
                             expand,
@@ -328,7 +329,8 @@ public class EntitiesAPI extends APIBase {
                                     + classKey,
                                     objectId,
                                     body,
-                                    role,
+                                    // FIXME: what is the default
+                                    (role == null) ? "default" : role,
                                     requestResultingInstance))
                         .build();
         } else {
@@ -416,7 +418,8 @@ public class EntitiesAPI extends APIBase {
                                     + "."
                                     + classKey,
                                     body,
-                                    role,
+                                    // FIXME: what is the default
+                                    (role == null) ? "default" : role,
                                     requestResultingInstance))
                         .build();
         } else {
@@ -523,7 +526,8 @@ public class EntitiesAPI extends APIBase {
                             level,
                             fields,
                             profile,
-                            role,
+                            // FIXME: what is the default
+                            (role == null) ? "default" : role,
                             omitNullValues);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else {
@@ -602,7 +606,8 @@ public class EntitiesAPI extends APIBase {
                         + "."
                         + classKey,
                         objectId,
-                        role);
+                        // FIXME: what is the default
+                        (role == null) ? "default" : role);
             return Response.status(Response.Status.OK).header("Location", getLocation()).build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
