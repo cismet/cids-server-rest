@@ -242,8 +242,8 @@ public class EntitiesAPI extends APIBase {
             // care about that, too
             final int _limit = Math.max(0, limit);
             final int _offset = Math.max(0, offset);
-                // using integer div
-            final int lastOffset = _limit == 0 ? 0 : ((allobjs.size() - 1) / _limit) * _limit;
+            // using integer div
+            final int lastOffset = (_limit == 0) ? 0 : (((allobjs.size() - 1) / _limit) * _limit);
 
             final String first = buildRequestString(
                     baseref,
@@ -256,37 +256,38 @@ public class EntitiesAPI extends APIBase {
                     profile,
                     filter,
                     omitNullValues);
-            
+
             final String prev;
-            if(_offset > 0) {
+            if (_offset > 0) {
                 prev = buildRequestString(
-                    baseref,
-                    _limit,
-                    _limit == 0 ? 0 : _offset - _limit,
-                    role,
-                    expand,
-                    level,
-                    fields,
-                    profile,
-                    filter,
-                    omitNullValues);
+                        baseref,
+                        _limit,
+                        (_limit == 0) ? 0 : (_offset - _limit),
+                        role,
+                        expand,
+                        level,
+                        fields,
+                        profile,
+                        filter,
+                        omitNullValues);
             } else {
                 prev = null;
             }
-            
+
             final String next;
-            if(_limit > 0 && (allobjs.size() - _limit) > _offset) {
+            if ((_limit > 0) && ((allobjs.size() - _limit) > _offset)) {
                 next = buildRequestString(
-                    baseref,
-                    _limit,
-                    _offset + _limit,
-                    role,
-                    expand,
-                    level,
-                    fields,
-                    profile,
-                    filter,
-                    omitNullValues);
+                        baseref,
+                        _limit,
+                        _offset
+                                + _limit,
+                        role,
+                        expand,
+                        level,
+                        fields,
+                        profile,
+                        filter,
+                        omitNullValues);
             } else {
                 next = null;
             }
