@@ -53,7 +53,7 @@ import de.cismet.cids.server.rest.domain.types.User;
  * DOCUMENT ME!
  *
  * @author   martin.scholl@cismet.de
- * @version  1.0 2013/11/15
+ * @version  1.1 2013/11/26
  */
 @Slf4j
 public class FileSystemEntityCore implements EntityCore {
@@ -74,7 +74,9 @@ public class FileSystemEntityCore implements EntityCore {
     /**
      * Creates a new FileSystemEntityCore object.
      *
-     * @param  baseDir  DOCUMENT ME!
+     * @param   baseDir  DOCUMENT ME!
+     *
+     * @throws  IllegalStateException  DOCUMENT ME!
      */
     public FileSystemEntityCore(@NonNull final String baseDir) {
         if (File.separatorChar == baseDir.charAt(baseDir.length() - 1)) {
@@ -83,10 +85,52 @@ public class FileSystemEntityCore implements EntityCore {
             this.baseDir = baseDir;
         }
 
+        if (!isCaseSensitiveFS()) {
+            if (System.getProperty("cids-server-rest.fscore.caseSensitivityOverride") == null) {                                          // NOI18N
+                throw new IllegalStateException("FS EntityCore implementation cannot be used on a case-insensitive FS");                  // NOI18N
+            } else {
+                if (log.isWarnEnabled()) {
+                    log.warn(
+                        "FS is not case-sensitive, FS EntityCore implementation will not be fully compliant to interface specification"); // NOI18N
+                }
+            }
+        }
+
         rwLock = new ReentrantReadWriteLock();
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private boolean isCaseSensitiveFS() {
+        File tmpFile = null;
+        try {
+            tmpFile = File.createTempFile("caseSensitiveFS", null); // NOI18N
+            final File file2 = new File(tmpFile.getParentFile(), tmpFile.getName().toLowerCase());
+
+            return !file2.exists();
+        } catch (final Exception e) {
+            if (log.isWarnEnabled()) {
+                log.warn("cannot determine case sensitivity of FS", e); // NOI18N
+            }
+        } finally {
+            if (tmpFile != null) {
+                try {
+                    if (!tmpFile.delete()) {
+                        tmpFile.deleteOnExit();
+                    }
+                } catch (final Exception e) {
+                    tmpFile.deleteOnExit();
+                }
+            }
+        }
+
+        return false;
+    }
 
     @Override
     public List<ObjectNode> getAllObjects(@NonNull final User user,
@@ -215,8 +259,7 @@ public class FileSystemEntityCore implements EntityCore {
 
         final File dir = new File(buildObjPath(dummyRef)).getParentFile();
 
-        // ensure case sensitivity
-        if (!fileExists(dir)) {
+        if (!dir.exists()) {
             return Collections.emptyList();
         }
 
@@ -394,7 +437,7 @@ public class FileSystemEntityCore implements EntityCore {
                         + file.getAbsolutePath());
         } else {
             final File parent = file.getParentFile();
-            if (!fileExists(parent)) {
+            if (!parent.exists()) {
                 if (!parent.mkdirs()) {
                     throw new IllegalStateException("cannot create file structure for object: " + obj); // NOI18N
                 }
@@ -432,7 +475,7 @@ public class FileSystemEntityCore implements EntityCore {
         final String strippedRef = ref.substring(from + 1, to);
         final String objId = ref.substring(to);
 
-        final String[] split = strippedRef.split("\\.");
+        final String[] split = strippedRef.split("\\.");                            // NOI18N
         if (split.length != 2) {
             throw new InvalidClassKeyException("invalid reference format: " + ref); // NOI18N
         }
@@ -444,7 +487,7 @@ public class FileSystemEntityCore implements EntityCore {
         sb.append(File.separatorChar);
         sb.append(domain);
         sb.append(File.separatorChar);
-        sb.append("entities");
+        sb.append("entities"); // NOI18N
         sb.append(File.separatorChar);
         sb.append(clazz);
         sb.append(File.separatorChar);
@@ -454,7 +497,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * checks whether a file exists and actually is a file (case sensitive!).
+     * checks whether a ref denotes and existing file.
      *
      * @param   ref  DOCUMENT ME!
      *
@@ -467,7 +510,7 @@ public class FileSystemEntityCore implements EntityCore {
         final String objectPath = buildObjPath(ref);
         final File file = new File(objectPath);
 
-        return fileExists(file) && file.isFile();
+        return file.exists() && file.isFile();
     }
 
     /**
@@ -726,47 +769,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * INFO: because some filesystems are case-insensitive we have to take care of the exists implementation
-     * /path/to/my/files shall not be the same as /path/To/my/files this is expensive but the only way to achieve
-     * case-sensitivity on any filesystem
-     *
-     * @param   file  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    private boolean fileExists(final File file) {
-        // if this fails the file is not present at all but may not be sufficient
-        boolean exists = (file != null) && file.exists();
-
-        if (exists) {
-            File curFile = file;
-            File parent = curFile.getParentFile();
-            while (parent != null) {
-                final String curName = curFile.getName();
-                final File[] match = parent.listFiles(new FileFilter() {
-
-                            @Override
-                            public boolean accept(final File listedFile) {
-                                return listedFile.getName().equals(curName);
-                            }
-                        });
-
-                if (match.length == 0) {
-                    exists = false;
-
-                    break;
-                }
-
-                curFile = parent;
-                parent = parent.getParentFile();
-            }
-        }
-
-        return exists;
-    }
-
-    /**
-     * actually accesses the file in the file system (case sensitive!).
+     * actually accesses the file in the file system.
      *
      * @param   ref  DOCUMENT ME!
      *
@@ -781,7 +784,7 @@ public class FileSystemEntityCore implements EntityCore {
 
         final ObjectNode ret;
 
-        if (fileExists(file) && file.isFile() && file.canRead()) {
+        if (file.exists() && file.isFile() && file.canRead()) {
             BufferedInputStream bis = null;
             try {
                 bis = new BufferedInputStream(new FileInputStream(file));
@@ -881,7 +884,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * actually deletes the object referenced by ref (NOT case sensitive!).
+     * actually deletes the object referenced by ref.
      *
      * @param   ref  DOCUMENT ME!
      *
