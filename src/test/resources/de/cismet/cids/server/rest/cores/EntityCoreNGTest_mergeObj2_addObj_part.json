@@ -1,0 +1,14 @@
+{
+    "$self": "/testDomain.testclass2/m2",
+    "addobj": {
+        "$self": "/testDomain.testaddsubclass/ma1",
+        "addobj1": "addobj1val"
+    },
+    "sub": {
+        "$self": "/testDomain.testsubclass/ma2",
+        "subaddobj": {
+            "$self": "/testDomain.testaddsubsubclass/ma1",
+            "subsubaddobj1": "subaddobj1val"
+        }
+    }
+}

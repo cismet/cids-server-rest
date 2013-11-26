@@ -5,10 +5,6 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,13 +16,15 @@ import javax.ws.rs.core.UriInfo;
  * DOCUMENT ME!
  *
  * @author   thorsten
- * @version  $Revision$, $Date$
+ * @version  1.0
  */
 public class APIBase {
 
-    //~ Instance fields --------------------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-    protected ObjectMapper mapper = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
+
+    //~ Instance fields --------------------------------------------------------
 
     @Context
     private UriInfo _uriInfo;

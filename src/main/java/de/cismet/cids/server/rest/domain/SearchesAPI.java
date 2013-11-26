@@ -5,10 +5,6 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -21,14 +17,20 @@ import com.wordnik.swagger.core.ApiParam;
 
 import java.util.List;
 
-import javax.ws.rs.*;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import de.cismet.cids.server.domain.types.User;
 import de.cismet.cids.server.rest.APIBase;
 import de.cismet.cids.server.rest.domain.data.CollectionResource;
 import de.cismet.cids.server.rest.domain.data.SearchInfo;
+import de.cismet.cids.server.rest.domain.types.User;
 
 /**
  * DOCUMENT ME!

@@ -5,10 +5,6 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * DOCUMENT ME!
  *
  * @author   thorsten
- * @version  $Revision$, $Date$
+ * @version  1.0
  */
 @XmlRootElement
 public class SimpleObjectQuery {

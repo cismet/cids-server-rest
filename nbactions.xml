@@ -86,4 +86,24 @@
             <exec.executable>java</exec.executable>
         </properties>
     </action>
+    <action>
+        <actionName>test</actionName>
+        <goals>
+            <goal>test</goal>
+        </goals>
+        <properties>
+            <jalopy.skip>true</jalopy.skip>
+        </properties>
+    </action>
+    <action>
+        <actionName>test.single</actionName>
+        <goals>
+            <goal>test-compile</goal>
+            <goal>surefire:test</goal>
+        </goals>
+        <properties>
+            <test>${packageClassName}</test>
+            <jalopy.skip>true</jalopy.skip>
+        </properties>
+    </action>
 </actions>

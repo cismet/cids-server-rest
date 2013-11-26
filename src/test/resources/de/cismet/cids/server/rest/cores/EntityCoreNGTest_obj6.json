@@ -1,0 +1,36 @@
+{
+    "$self": "/testDomain.testclass2/a6",
+    "id": "a6",
+    "name": "testname6",
+    "description": "desc6",
+    "sub": {
+        "$self": "/testDomain.testsubclass/b6",
+        "id": "b6",
+        "name": "testnameb6",
+        "sub1": "sub1val",
+        "sub2": "sub2val",
+        "sub3": "sub3val",
+        "subnil": null,
+        "subsub": {
+            "$self": "/testDomain.testsubsubclass/c6",
+            "subsub1": "subsub1val",
+            "cycle": {
+                "$ref": "/testDomain.testclass2/a6"
+            }
+        },
+        "subarr": [
+            {
+                "$self": "/testDomain.testsubarrclass/aa6",
+                "subarr1": "subarr1val",
+                "id": "aa6",
+                "name": "testnameaa6"
+            },
+            {
+                "$self": "/testDomain.testsubarrclass/ab6",
+                "subarr2": "subarr2val"
+            },
+            null
+        ]
+    },
+    "nil": null
+}

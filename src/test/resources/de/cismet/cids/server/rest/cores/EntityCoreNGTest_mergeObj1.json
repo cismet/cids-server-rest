@@ -1,0 +1,33 @@
+{
+    "$self": "/testDomain.testclass2/m1",
+    "id": "m1",
+    "name": "testnamem1",
+    "description": "descm1",
+    "sub": {
+        "$self": "/testDomain.testsubclass/ma1",
+        "id": "ma1",
+        "name": "testnamema1",
+        "sub1": "sub1val",
+        "sub2": "sub2val",
+        "sub3": "sub3val",
+        "subnil": null,
+        "subsub": {
+            "$self": "/testDomain.testsubsubclass/mb1",
+            "subsub1": "subsub1val"
+        },
+        "subarr": [
+            {
+                "$self": "/testDomain.testsubarrclass/maa1",
+                "subarr1": "subarr1val",
+                "id": "maa1",
+                "name": "testnamemaa1"
+            },
+            {
+                "$self": "/testDomain.testsubarrclass/mab1",
+                "subarr2": "subarr2val"
+            },
+            null
+        ]
+    },
+    "nil": null
+}

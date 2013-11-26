@@ -5,10 +5,6 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain;
 
 import com.sun.jersey.api.client.Client;
@@ -58,7 +54,7 @@ public class Starter {
             // unsatisfactory swaggerbasepath setting
         }
 
-        FS_CIDS_DIR = "/Users/thorsten/Desktop/crisma-api-demo";
+        FS_CIDS_DIR = "/Users/mscholl/Desktop/crisma-api-demo";
         try {
             if ((args[2] != null) || new File(args[2]).isDirectory()) {
                 FS_CIDS_DIR = args[2];

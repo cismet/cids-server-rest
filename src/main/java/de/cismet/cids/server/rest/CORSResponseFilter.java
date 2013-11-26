@@ -15,7 +15,7 @@ import com.sun.jersey.spi.container.ContainerResponseFilter;
  * Currently this filter allows any origin for testing purposes. This has to be adapted for productional use.
  *
  * @author   martin.scholl@cismet.de
- * @version  $Revision$, $Date$
+ * @version  1.0
  */
 public final class CORSResponseFilter implements ContainerResponseFilter {
 
