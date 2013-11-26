@@ -1313,7 +1313,6 @@ public abstract class EntityCoreNGTest
         assertFalse(result);
         
         classKey = "testDomain.testclass";
-        core.deleteObject(user, classKey, "a4", role);
         result = core.deleteObject(user, classKey, "a4", role);
         
         // test actual deletion
