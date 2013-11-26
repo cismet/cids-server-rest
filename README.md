@@ -65,16 +65,11 @@ There are several limitations of the API due to the early development phase.
 
 * Authorization feature is disabled for the demo.
 * The ```role``` parameter will be ignored.
-* Collection ressources will be delivered completely (no ```limit``` and ```offset``` parameter functionality).
 * No proper error codes.
-* Only one domain (```crisma```) is queryable.
+* Only one domain (```CRISMA```) is queryable.
 * The ```version``` parameter will be ignored.
-* The ```expand``` parameter will be ignored (All objects will be delivered as a whole).
-* The ```level``` parameter will be ignored.
 * The ```profile``` parameter will be ignored.
-* The ```fields``` parameter will only work in the top level of the object.
 * No automatic key generation. You'll have to submit a proper (primary) key when you create an object.
-* No partial updates
 
 Experiments
 ===========
