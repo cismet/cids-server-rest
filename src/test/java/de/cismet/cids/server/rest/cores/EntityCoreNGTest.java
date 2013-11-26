@@ -1296,6 +1296,42 @@ public abstract class EntityCoreNGTest
     
     @Test(
             dependsOnGroups = {"data_producing", "data_consuming"}, // ensure getobject tests are done
+            groups = {"deleteObject", "data_destroying", "case_sensitivity"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testDeleteObject_caseSensitivity(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        String classKey = "testdomain.testclass";
+        String role = "testrole";
+        
+        boolean result = core.deleteObject(user, classKey, "a4", role);
+        assertFalse(result);
+        
+        classKey = "testDomain.testclass";
+        core.deleteObject(user, classKey, "a4", role);
+        result = core.deleteObject(user, classKey, "a4", role);
+        
+        // test actual deletion
+        ObjectNode get1 = core.getObject(user, classKey, "a4", null, null, null, null, null, role, false);
+        // test subobj remained
+        ObjectNode get2 = core.getObject(user, "testDomain.testsubclass", "b4", null, null, null, null, null, role, false);
+        
+        assertTrue(result);
+        assertNull(get1);
+        assertNotNull(get2);
+    }
+
+    /**
+     * Test of deleteObject method, of class EntityCore.
+     */
+    
+    @Test(
+            dependsOnGroups = {"data_producing", "data_consuming"}, // ensure getobject tests are done
             groups = {"deleteObject", "data_destroying"},
             dataProvider = "EntityCoreInstanceDataProvider"
     )
@@ -1306,7 +1342,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        String classKey = "testdomain.testclass";
+        String classKey = "testDomain.testclass";
         String role = "testrole";
         
         boolean result = core.deleteObject(user, classKey, "idontexist", role);
