@@ -143,7 +143,8 @@ public class FileSystemEntityCore implements EntityCore {
             final String fields,
             final String profile,
             final String filter,
-            final boolean omitNullValues) {
+            final boolean omitNullValues,
+            final boolean deduplicate) {
         if (!user.isValidated()) {
             throw new InvalidUserException("user is not validated");  // NOI18N
         }
@@ -343,7 +344,7 @@ public class FileSystemEntityCore implements EntityCore {
             final String ref = jsonObject.get("$self").asText(); // NOI18N
             final String objId = stripObjId(ref);
 
-            return getObject(user, classKey, objId, null, null, null, null, null, role, false);
+            return getObject(user, classKey, objId, null, null, null, null, null, role, false, true);
         } else {
             return jsonObject;
         }
@@ -576,7 +577,8 @@ public class FileSystemEntityCore implements EntityCore {
             final String fields,
             final String profile,
             @NonNull final String role,
-            final boolean omitNullValues) {
+            final boolean omitNullValues,
+            final boolean deduplicate) {
         if (!user.isValidated()) {
             throw new InvalidUserException("user is not validated");  // NOI18N
         }
