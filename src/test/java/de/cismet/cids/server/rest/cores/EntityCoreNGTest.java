@@ -734,46 +734,56 @@ public abstract class EntityCoreNGTest
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1.json"));
         
-        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
+        ObjectNode expected = core.createObject(u, classKey, node, role, true);
         ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, null, null, null, role, false, false);
         
-        assertEquals(readRes, storeRes);
+        assertEquals(readRes, expected);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj2.json"));
         
-        storeRes = core.createObject(u, classKey, node, role, true);
+        expected = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "a2", null, null, null, null, null, role, false, false);
         
-        assertEquals(readRes, storeRes, null);
+        assertEquals(readRes, expected, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj3.json"));
         
-        storeRes = core.createObject(u, classKey, node, role, true);
+        expected = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "a3", null, null, null, null, null, role, false, false);
         
-        assertEquals(readRes, storeRes, null);
+        System.out.println("ex: " + expected);
+        System.out.println("re: " + readRes);
+        
+        assertEquals(readRes, expected, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj4.json"));
         
-        storeRes = core.createObject(u, classKey, node, role, true);
+        expected = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "a4", null, null, null, null, null, role, false, false);
         
-        assertEquals(readRes, storeRes, null);
+        assertEquals(readRes, expected, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5.json"));
         
-        storeRes = core.createObject(u, classKey, node, role, true);
+        expected = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "a5", null, null, null, null, null, role, false, false);
         
-        assertEquals(readRes, storeRes, null);
+        assertEquals(readRes, expected, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6.json"));
         
         // we have to limit this request because of a cycle in it, but thats the point
-        storeRes = core.createObject(u, "testDomain.testclass2", node, role, false);
+        expected = core.createObject(u, "testDomain.testclass2", node, role, false);
         readRes = core.getObject(u, "testDomain.testclass2", "a6", null, null, "3", null, null, role, false, false);
         
-        assertEquals(readRes, storeRes, null);
+        assertEquals(readRes, expected, null);
+        
+        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7.json"));
+        
+        expected = core.createObject(u, "testDomain.testclass2", node, role, false);
+        readRes = core.getObject(u, "testDomain.testclass2", "a7", null, null, null, null, null, role, false, false);
+        
+        assertEquals(readRes, expected, null);
     }
     
     @Test(
@@ -1066,6 +1076,38 @@ public abstract class EntityCoreNGTest
         assertEquals(readRes, expected);
     }
     
+        @Test(
+            groups = {"getObject", "data_consuming"},
+            dependsOnMethods = {"testSymmetricRW_new"},
+            dataProvider = "EntityCoreInstanceDataProvider"
+    )
+    public void testGetObject_deduplicateParam(final EntityCore core) throws Exception
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        String classKey = "testDomain.testclass2";
+        String role = "testrole";
+        
+        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7.json"));
+        ObjectNode readRes = core.getObject(u, classKey, "a7", null, null, null, null, null, role, false, false);
+        
+        assertEquals(readRes, expected);
+        
+        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7_deduplicate.json"));
+        readRes = core.getObject(u, classKey, "a7", null, null, null, null, null, role, false, true);
+        
+        assertEquals(readRes, expected);
+        
+        // read cyclic ref
+        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6.json"));
+        readRes = core.getObject(u, classKey, "a6", null, null, null, null, null, role, false, true);
+        
+        assertEquals(readRes, expected);
+    }
+        
     @Test(
             groups = {"getObject", "data_consuming"},
             dependsOnMethods = {"testSymmetricRW_new"},

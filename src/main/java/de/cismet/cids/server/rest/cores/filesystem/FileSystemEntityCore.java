@@ -173,7 +173,16 @@ public class FileSystemEntityCore implements EntityCore {
         try {
             lock.lock();
 
-            return collectObjs(classKey, limit, offset, expandFields, includeFields, _level, _filter, omitNullValues);
+            return collectObjs(
+                    classKey,
+                    limit,
+                    offset,
+                    expandFields,
+                    includeFields,
+                    _level,
+                    _filter,
+                    omitNullValues,
+                    deduplicate);
         } finally {
             lock.unlock();
         }
@@ -206,6 +215,7 @@ public class FileSystemEntityCore implements EntityCore {
      * @param   level          DOCUMENT ME!
      * @param   filter         DOCUMENT ME!
      * @param   stripNullVals  DOCUMENT ME!
+     * @param   deduplicate    DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      *
@@ -218,7 +228,8 @@ public class FileSystemEntityCore implements EntityCore {
             final Collection<String> includeFields,
             final int level,
             final Map<String, String> filter,
-            final boolean stripNullVals) {
+            final boolean stripNullVals,
+            final boolean deduplicate) {
         assert classKey != null;
         assert expandFields != null;
         assert includeFields != null;
@@ -232,7 +243,14 @@ public class FileSystemEntityCore implements EntityCore {
             for (int i = 0; i < result.size(); ++i) {
                 final String ref = result.get(i).get("$ref").asText(); // NOI18N
                 // TODO: apply filter when it is known how it shall work, maybe this should be included in readObj then
-                final ObjectNode expanded = readObj(ref, expandFields, includeFields, level, stripNullVals, cache);
+                final ObjectNode expanded = readObj(
+                        ref,
+                        expandFields,
+                        includeFields,
+                        level,
+                        stripNullVals,
+                        deduplicate,
+                        cache);
                 if (expanded == null) {
                     throw new IllegalStateException("external modification occurred"); // NOI18N
                 }
@@ -404,6 +422,7 @@ public class FileSystemEntityCore implements EntityCore {
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
                 1,
+                false,
                 false,
                 new HashMap<String, ObjectNode>(1, 1f));
 
@@ -608,7 +627,14 @@ public class FileSystemEntityCore implements EntityCore {
         try {
             lock.lock();
 
-            return readObj(ref, expandFields, includeFields, _level, omitNullValues, new HashMap<String, ObjectNode>());
+            return readObj(
+                    ref,
+                    expandFields,
+                    includeFields,
+                    _level,
+                    omitNullValues,
+                    deduplicate,
+                    new HashMap<String, ObjectNode>());
         } finally {
             lock.unlock();
         }
@@ -649,6 +675,7 @@ public class FileSystemEntityCore implements EntityCore {
      * @param   includeFields  DOCUMENT ME!
      * @param   level          DOCUMENT ME!
      * @param   stripNullVals  DOCUMENT ME!
+     * @param   deduplicate    DOCUMENT ME!
      * @param   cache          DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
@@ -658,6 +685,7 @@ public class FileSystemEntityCore implements EntityCore {
             final Collection<String> includeFields,
             final int level,
             final boolean stripNullVals,
+            final boolean deduplicate,
             final Map<String, ObjectNode> cache) {
         assert ref != null;
         assert expandFields != null;
@@ -690,19 +718,30 @@ public class FileSystemEntityCore implements EntityCore {
                     if (val.isObject() && (expandFields.isEmpty() || expandFields.contains(key))) {
                         // $ref has to be present, otherwise data is corrupted
                         final String subRef = val.get("$ref").asText(); // NOI18N
-                        final ObjectNode subObj = readObj(
-                                subRef,
-                                expandFields,
-                                includeFields,
-                                level
-                                        - 1,
-                                stripNullVals,
-                                cache);
 
-                        obj.replace(key, subObj);
+                        // in case of deduplicate we keep the simple ref object if it has already been read
+                        if (!deduplicate || (cache.get(subRef) == null)) {
+                            final ObjectNode subObj = readObj(
+                                    subRef,
+                                    expandFields,
+                                    includeFields,
+                                    level
+                                            - 1,
+                                    stripNullVals,
+                                    deduplicate,
+                                    cache);
+
+                            obj.replace(key, subObj);
+                        }
                     }
                     if (val.isArray() && (expandFields.isEmpty() || expandFields.contains(key))) {
-                        readArray((ArrayNode)val, expandFields, includeFields, level, stripNullVals, cache);
+                        readArray((ArrayNode)val,
+                            expandFields,
+                            includeFields,
+                            level,
+                            stripNullVals,
+                            deduplicate,
+                            cache);
                     }
                 }
             }
@@ -719,6 +758,7 @@ public class FileSystemEntityCore implements EntityCore {
      * @param  includeFields  DOCUMENT ME!
      * @param  level          DOCUMENT ME!
      * @param  stripNullVals  DOCUMENT ME!
+     * @param  deduplicate    DOCUMENT ME!
      * @param  cache          DOCUMENT ME!
      */
     private void readArray(final ArrayNode arr,
@@ -726,15 +766,24 @@ public class FileSystemEntityCore implements EntityCore {
             final Collection<String> includeFields,
             final int level,
             final boolean stripNullVals,
+            final boolean deduplicate,
             final Map<String, ObjectNode> cache) {
         for (int i = 0; i < arr.size(); ++i) {
             final JsonNode sub = arr.get(i);
             if (sub.isArray()) {
-                readArray((ArrayNode)sub, expandFields, includeFields, level, stripNullVals, cache);
+                readArray((ArrayNode)sub, expandFields, includeFields, level, stripNullVals, deduplicate, cache);
             } else if (sub.isObject()) {
                 // $ref has to be present, otherwise data is corrupted
                 final String subRef = sub.get("$ref").asText(); // NOI18N
-                final ObjectNode subObj = readObj(subRef, expandFields, includeFields, level - 1, stripNullVals, cache);
+                final ObjectNode subObj = readObj(
+                        subRef,
+                        expandFields,
+                        includeFields,
+                        level
+                                - 1,
+                        stripNullVals,
+                        deduplicate,
+                        cache);
                 arr.set(i, subObj);
             }
         }

@@ -106,4 +106,15 @@
             <jalopy.skip>true</jalopy.skip>
         </properties>
     </action>
+    <action>
+        <actionName>CUSTOM-case-insensitve build</actionName>
+        <displayName>case-insensitve build</displayName>
+        <goals>
+            <goal>clean</goal>
+            <goal>install</goal>
+        </goals>
+        <activatedProfiles>
+            <activatedProfile>case-insensitive-test-override</activatedProfile>
+        </activatedProfiles>
+    </action>
 </actions>
