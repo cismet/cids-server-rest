@@ -99,7 +99,7 @@ public class Tools {
      * @return  DOCUMENT ME!
      */
     public static User validationHelper(final String authString) {
-        if (authString == null) {
+        if (true) {
             return User.NONE;
         }
         User user = new User(authString);
