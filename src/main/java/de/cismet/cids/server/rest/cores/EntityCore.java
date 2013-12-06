@@ -38,6 +38,7 @@ public interface EntityCore {
      * @param   profile          DOCUMENT ME!
      * @param   filter           DOCUMENT ME!
      * @param   ommitNullValues  DOCUMENT ME!
+     * @param   deduplicate      DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -51,7 +52,8 @@ public interface EntityCore {
             String fields,
             String profile,
             String filter,
-            boolean ommitNullValues);
+            boolean ommitNullValues,
+            boolean deduplicate);
 
     /**
      * DOCUMENT ME!
@@ -115,6 +117,7 @@ public interface EntityCore {
      * @param   profile          DOCUMENT ME!
      * @param   role             DOCUMENT ME!
      * @param   ommitNullValues  DOCUMENT ME!
+     * @param   deduplicate      DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -127,7 +130,8 @@ public interface EntityCore {
             String fields,
             String profile,
             String role,
-            boolean ommitNullValues);
+            boolean ommitNullValues,
+            boolean deduplicate);
 
     /**
      * DOCUMENT ME!

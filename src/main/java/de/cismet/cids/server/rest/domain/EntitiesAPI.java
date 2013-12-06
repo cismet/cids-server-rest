@@ -129,6 +129,7 @@ public class EntitiesAPI extends APIBase {
      * @param   profile         DOCUMENT ME!
      * @param   filter          DOCUMENT ME!
      * @param   omitNullValues  DOCUMENT ME!
+     * @param   deduplicate     DOCUMENT ME!
      * @param   authString      DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
@@ -193,6 +194,13 @@ public class EntitiesAPI extends APIBase {
             @QueryParam("omitNullValues")
             final boolean omitNullValues,
             @ApiParam(
+                value =
+                    "if you don't want already expanded properties to be expanded again, set this parameter to true",
+                defaultValue = "false"
+            )
+            @QueryParam("deduplicate")
+            final boolean deduplicate,
+            @ApiParam(
                 value = "Basic Auth Authorization String",
                 required = false
             )
@@ -219,7 +227,8 @@ public class EntitiesAPI extends APIBase {
                             fields,
                             profile,
                             filter,
-                            omitNullValues);
+                            omitNullValues,
+                            deduplicate);
 
             final List allobjs = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
@@ -236,7 +245,8 @@ public class EntitiesAPI extends APIBase {
                             null,
                             null,
                             filter,
-                            omitNullValues);
+                            omitNullValues,
+                            deduplicate);
 
             // FIXME: maybe has to be done even before sending the data to the core so that the core won't have to
             // care about that, too
@@ -587,6 +597,7 @@ public class EntitiesAPI extends APIBase {
      * @param   fields          DOCUMENT ME!
      * @param   profile         DOCUMENT ME!
      * @param   omitNullValues  DOCUMENT ME!
+     * @param   deduplicate     DOCUMENT ME!
      * @param   authString      DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
@@ -641,6 +652,13 @@ public class EntitiesAPI extends APIBase {
             @QueryParam("omitNullValues")
             final boolean omitNullValues,
             @ApiParam(
+                value =
+                    "if you don't want already expanded properties to be expanded again, set this parameter to true",
+                defaultValue = "false"
+            )
+            @QueryParam("deduplicate")
+            final boolean deduplicate,
+            @ApiParam(
                 value = "Basic Auth Authorization String",
                 required = false
             )
@@ -667,7 +685,8 @@ public class EntitiesAPI extends APIBase {
                             profile,
                             // FIXME: what is the default
                             (role == null) ? "default" : role,
-                            omitNullValues);
+                            omitNullValues,
+                            deduplicate);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);

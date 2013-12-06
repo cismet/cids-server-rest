@@ -1,0 +1,17 @@
+{
+    "$self": "/testDomain.testclass2/a7",
+    "id": "a7",
+    "name": "testname7",
+    "description": "desc7",
+    "sub": {
+        "$self": "/testDomain.testsubclass/b7",
+        "id": "b7",
+        "name": "testnameb7"
+    },
+    "sub2": {
+        "$ref": "/testDomain.testsubclass/b7"
+    },
+    "sub3": {
+        "$ref": "/testDomain.testsubclass/b7"
+    }
+}

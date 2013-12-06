@@ -43,6 +43,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import de.cismet.cids.server.rest.cores.EntityCore;
 import de.cismet.cids.server.rest.cores.InvalidClassKeyException;
 import de.cismet.cids.server.rest.cores.InvalidEntityException;
+import de.cismet.cids.server.rest.cores.InvalidLevelException;
 import de.cismet.cids.server.rest.cores.InvalidRoleException;
 import de.cismet.cids.server.rest.cores.InvalidUserException;
 import de.cismet.cids.server.rest.domain.Tools;
@@ -143,7 +144,8 @@ public class FileSystemEntityCore implements EntityCore {
             final String fields,
             final String profile,
             final String filter,
-            final boolean omitNullValues) {
+            final boolean omitNullValues,
+            final boolean deduplicate) {
         if (!user.isValidated()) {
             throw new InvalidUserException("user is not validated");  // NOI18N
         }
@@ -162,7 +164,7 @@ public class FileSystemEntityCore implements EntityCore {
 
         // FIXME: what is the format of the level parameter, why is the level parameter not concrete (int), what is the
         // value for null
-        final int _level = parseLevel(level, 0);
+        final int _level = parseLevel(level, 0, deduplicate);
 
         // FIXME: what is the format of the filter parameter, why is the filter parameter not concrete (map)?
         final Map<String, String> _filter = parseFilter(filter);
@@ -172,7 +174,16 @@ public class FileSystemEntityCore implements EntityCore {
         try {
             lock.lock();
 
-            return collectObjs(classKey, limit, offset, expandFields, includeFields, _level, _filter, omitNullValues);
+            return collectObjs(
+                    classKey,
+                    limit,
+                    offset,
+                    expandFields,
+                    includeFields,
+                    _level,
+                    _filter,
+                    omitNullValues,
+                    deduplicate);
         } finally {
             lock.unlock();
         }
@@ -205,6 +216,7 @@ public class FileSystemEntityCore implements EntityCore {
      * @param   level          DOCUMENT ME!
      * @param   filter         DOCUMENT ME!
      * @param   stripNullVals  DOCUMENT ME!
+     * @param   deduplicate    DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      *
@@ -217,7 +229,8 @@ public class FileSystemEntityCore implements EntityCore {
             final Collection<String> includeFields,
             final int level,
             final Map<String, String> filter,
-            final boolean stripNullVals) {
+            final boolean stripNullVals,
+            final boolean deduplicate) {
         assert classKey != null;
         assert expandFields != null;
         assert includeFields != null;
@@ -231,7 +244,14 @@ public class FileSystemEntityCore implements EntityCore {
             for (int i = 0; i < result.size(); ++i) {
                 final String ref = result.get(i).get("$ref").asText(); // NOI18N
                 // TODO: apply filter when it is known how it shall work, maybe this should be included in readObj then
-                final ObjectNode expanded = readObj(ref, expandFields, includeFields, level, stripNullVals, cache);
+                final ObjectNode expanded = readObj(
+                        ref,
+                        expandFields,
+                        includeFields,
+                        level,
+                        stripNullVals,
+                        deduplicate,
+                        cache);
                 if (expanded == null) {
                     throw new IllegalStateException("external modification occurred"); // NOI18N
                 }
@@ -343,7 +363,7 @@ public class FileSystemEntityCore implements EntityCore {
             final String ref = jsonObject.get("$self").asText(); // NOI18N
             final String objId = stripObjId(ref);
 
-            return getObject(user, classKey, objId, null, null, null, null, null, role, false);
+            return getObject(user, classKey, objId, null, null, null, null, null, role, false, true);
         } else {
             return jsonObject;
         }
@@ -403,6 +423,7 @@ public class FileSystemEntityCore implements EntityCore {
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
                 1,
+                false,
                 false,
                 new HashMap<String, ObjectNode>(1, 1f));
 
@@ -576,7 +597,8 @@ public class FileSystemEntityCore implements EntityCore {
             final String fields,
             final String profile,
             @NonNull final String role,
-            final boolean omitNullValues) {
+            final boolean omitNullValues,
+            final boolean deduplicate) {
         if (!user.isValidated()) {
             throw new InvalidUserException("user is not validated");  // NOI18N
         }
@@ -598,7 +620,7 @@ public class FileSystemEntityCore implements EntityCore {
 
         // FIXME: what is the format of the level parameter, why is the level parameter not concrete (int), what is the
         // value for null
-        final int _level = parseLevel(level, Integer.MAX_VALUE);
+        final int _level = parseLevel(level, Integer.MAX_VALUE, deduplicate);
 
         final String ref = buildRef(classKey, objectId);
 
@@ -606,21 +628,31 @@ public class FileSystemEntityCore implements EntityCore {
         try {
             lock.lock();
 
-            return readObj(ref, expandFields, includeFields, _level, omitNullValues, new HashMap<String, ObjectNode>());
+            return readObj(
+                    ref,
+                    expandFields,
+                    includeFields,
+                    _level,
+                    omitNullValues,
+                    deduplicate,
+                    new HashMap<String, ObjectNode>());
         } finally {
             lock.unlock();
         }
     }
 
     /**
-     * currently enforces hard limit of 50.
+     * currently enforces hard limit of 10 if deduplicate is false.
      *
      * @param   level         DOCUMENT ME!
      * @param   defaultLevel  DOCUMENT ME!
+     * @param   deduplicate   DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  InvalidLevelException  DOCUMENT ME!
      */
-    private int parseLevel(final String level, final int defaultLevel) {
+    private int parseLevel(final String level, final int defaultLevel, final boolean deduplicate) {
         int _level = defaultLevel;
         if (level != null) {
             try {
@@ -632,21 +664,29 @@ public class FileSystemEntityCore implements EntityCore {
             }
         }
 
-        // enforce level limit
-        _level = Math.min(50, _level);
+        if (_level <= 0) {
+            _level = defaultLevel;
+        }
+
+        // enforce hard level limit if deduplicate is not set to true
+        if (!deduplicate && (_level > 10)) {
+            throw new InvalidLevelException("level must not exceed 10 if deduplicate is not true", _level);
+        }
 
         return _level;
     }
 
     /**
      * level takes precedence over expand, meaning that if a field is marked as expand it won't be expanded if this
-     * would exceed the desired (expansion) level. properties are filtered BEFORE descending into sub obj
+     * would exceed the desired (expansion) level. properties are filtered BEFORE descending into sub obj. level limit
+     * has to be enforced by caller if deduplicate is not true to prevent cyclic resolving
      *
      * @param   ref            DOCUMENT ME!
      * @param   expandFields   DOCUMENT ME!
      * @param   includeFields  DOCUMENT ME!
      * @param   level          DOCUMENT ME!
      * @param   stripNullVals  DOCUMENT ME!
+     * @param   deduplicate    DOCUMENT ME!
      * @param   cache          DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
@@ -656,6 +696,7 @@ public class FileSystemEntityCore implements EntityCore {
             final Collection<String> includeFields,
             final int level,
             final boolean stripNullVals,
+            final boolean deduplicate,
             final Map<String, ObjectNode> cache) {
         assert ref != null;
         assert expandFields != null;
@@ -676,7 +717,6 @@ public class FileSystemEntityCore implements EntityCore {
             // currently direct obj manipulation
             obj = filterProperties(obj, includeFields, stripNullVals);
 
-            // FIXME: behaviour for infinite loops because of cyclic references, currently enforcing hard limit
             if (level > 1) {
                 final Iterator<Entry<String, JsonNode>> it = obj.fields();
                 while (it.hasNext()) {
@@ -688,19 +728,30 @@ public class FileSystemEntityCore implements EntityCore {
                     if (val.isObject() && (expandFields.isEmpty() || expandFields.contains(key))) {
                         // $ref has to be present, otherwise data is corrupted
                         final String subRef = val.get("$ref").asText(); // NOI18N
-                        final ObjectNode subObj = readObj(
-                                subRef,
-                                expandFields,
-                                includeFields,
-                                level
-                                        - 1,
-                                stripNullVals,
-                                cache);
 
-                        obj.replace(key, subObj);
+                        // in case of deduplicate we keep the simple ref object if it has already been read
+                        if (!deduplicate || (cache.get(subRef) == null)) {
+                            final ObjectNode subObj = readObj(
+                                    subRef,
+                                    expandFields,
+                                    includeFields,
+                                    level
+                                            - 1,
+                                    stripNullVals,
+                                    deduplicate,
+                                    cache);
+
+                            obj.replace(key, subObj);
+                        }
                     }
                     if (val.isArray() && (expandFields.isEmpty() || expandFields.contains(key))) {
-                        readArray((ArrayNode)val, expandFields, includeFields, level, stripNullVals, cache);
+                        readArray((ArrayNode)val,
+                            expandFields,
+                            includeFields,
+                            level,
+                            stripNullVals,
+                            deduplicate,
+                            cache);
                     }
                 }
             }
@@ -717,6 +768,7 @@ public class FileSystemEntityCore implements EntityCore {
      * @param  includeFields  DOCUMENT ME!
      * @param  level          DOCUMENT ME!
      * @param  stripNullVals  DOCUMENT ME!
+     * @param  deduplicate    DOCUMENT ME!
      * @param  cache          DOCUMENT ME!
      */
     private void readArray(final ArrayNode arr,
@@ -724,15 +776,24 @@ public class FileSystemEntityCore implements EntityCore {
             final Collection<String> includeFields,
             final int level,
             final boolean stripNullVals,
+            final boolean deduplicate,
             final Map<String, ObjectNode> cache) {
         for (int i = 0; i < arr.size(); ++i) {
             final JsonNode sub = arr.get(i);
             if (sub.isArray()) {
-                readArray((ArrayNode)sub, expandFields, includeFields, level, stripNullVals, cache);
+                readArray((ArrayNode)sub, expandFields, includeFields, level, stripNullVals, deduplicate, cache);
             } else if (sub.isObject()) {
                 // $ref has to be present, otherwise data is corrupted
                 final String subRef = sub.get("$ref").asText(); // NOI18N
-                final ObjectNode subObj = readObj(subRef, expandFields, includeFields, level - 1, stripNullVals, cache);
+                final ObjectNode subObj = readObj(
+                        subRef,
+                        expandFields,
+                        includeFields,
+                        level
+                                - 1,
+                        stripNullVals,
+                        deduplicate,
+                        cache);
                 arr.set(i, subObj);
             }
         }
