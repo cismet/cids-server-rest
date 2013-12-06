@@ -43,6 +43,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import de.cismet.cids.server.rest.cores.EntityCore;
 import de.cismet.cids.server.rest.cores.InvalidClassKeyException;
 import de.cismet.cids.server.rest.cores.InvalidEntityException;
+import de.cismet.cids.server.rest.cores.InvalidLevelException;
 import de.cismet.cids.server.rest.cores.InvalidRoleException;
 import de.cismet.cids.server.rest.cores.InvalidUserException;
 import de.cismet.cids.server.rest.domain.Tools;
@@ -163,7 +164,7 @@ public class FileSystemEntityCore implements EntityCore {
 
         // FIXME: what is the format of the level parameter, why is the level parameter not concrete (int), what is the
         // value for null
-        final int _level = parseLevel(level, 0);
+        final int _level = parseLevel(level, 0, deduplicate);
 
         // FIXME: what is the format of the filter parameter, why is the filter parameter not concrete (map)?
         final Map<String, String> _filter = parseFilter(filter);
@@ -619,7 +620,7 @@ public class FileSystemEntityCore implements EntityCore {
 
         // FIXME: what is the format of the level parameter, why is the level parameter not concrete (int), what is the
         // value for null
-        final int _level = parseLevel(level, Integer.MAX_VALUE);
+        final int _level = parseLevel(level, Integer.MAX_VALUE, deduplicate);
 
         final String ref = buildRef(classKey, objectId);
 
@@ -641,14 +642,17 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * currently enforces hard limit of 50.
+     * currently enforces hard limit of 10 if deduplicate is false.
      *
      * @param   level         DOCUMENT ME!
      * @param   defaultLevel  DOCUMENT ME!
+     * @param   deduplicate   DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  InvalidLevelException  DOCUMENT ME!
      */
-    private int parseLevel(final String level, final int defaultLevel) {
+    private int parseLevel(final String level, final int defaultLevel, final boolean deduplicate) {
         int _level = defaultLevel;
         if (level != null) {
             try {
@@ -660,15 +664,22 @@ public class FileSystemEntityCore implements EntityCore {
             }
         }
 
-        // enforce level limit
-        _level = Math.min(50, _level);
+        if (_level <= 0) {
+            _level = defaultLevel;
+        }
+
+        // enforce hard level limit if deduplicate is not set to true
+        if (!deduplicate && (_level > 10)) {
+            throw new InvalidLevelException("level must not exceed 10 if deduplicate is not true", _level);
+        }
 
         return _level;
     }
 
     /**
      * level takes precedence over expand, meaning that if a field is marked as expand it won't be expanded if this
-     * would exceed the desired (expansion) level. properties are filtered BEFORE descending into sub obj
+     * would exceed the desired (expansion) level. properties are filtered BEFORE descending into sub obj. level limit
+     * has to be enforced by caller if deduplicate is not true to prevent cyclic resolving
      *
      * @param   ref            DOCUMENT ME!
      * @param   expandFields   DOCUMENT ME!
@@ -706,7 +717,6 @@ public class FileSystemEntityCore implements EntityCore {
             // currently direct obj manipulation
             obj = filterProperties(obj, includeFields, stripNullVals);
 
-            // FIXME: behaviour for infinite loops because of cyclic references, currently enforcing hard limit
             if (level > 1) {
                 final Iterator<Entry<String, JsonNode>> it = obj.fields();
                 while (it.hasNext()) {
