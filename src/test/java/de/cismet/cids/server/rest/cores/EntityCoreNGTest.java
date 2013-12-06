@@ -665,7 +665,7 @@ public abstract class EntityCoreNGTest
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1_caseSensitivity.json"));
         
         ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "A1", null, null, null, null, null, role, false, false);
+        ObjectNode readRes = core.getObject(u, classKey, "A1", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, storeRes);
     }
@@ -685,7 +685,7 @@ public abstract class EntityCoreNGTest
         String classKey = "testdomain.testclass";
         String role = "testrole";
         
-        ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, null, null, null, role, false, false);
+        ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, "10", null, null, role, false, false);
         
         assertNull(readRes);
     }
@@ -1430,9 +1430,9 @@ public abstract class EntityCoreNGTest
         result = core.deleteObject(user, classKey, "a4", role);
         
         // test actual deletion
-        ObjectNode get1 = core.getObject(user, classKey, "a4", null, null, null, null, null, role, false, false);
+        ObjectNode get1 = core.getObject(user, classKey, "a4", null, null, "10", null, null, role, false, false);
         // test subobj remained
-        ObjectNode get2 = core.getObject(user, "testDomain.testsubclass", "b4", null, null, null, null, null, role, false, false);
+        ObjectNode get2 = core.getObject(user, "testDomain.testsubclass", "b4", null, null, "10", null, null, role, false, false);
         
         assertTrue(result);
         assertNull(get1);
