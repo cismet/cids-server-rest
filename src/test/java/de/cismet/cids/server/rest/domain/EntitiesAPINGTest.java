@@ -142,9 +142,9 @@ public class EntitiesAPINGTest
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
         // FIXME: the domain should be configurable
-        final URI uri = new URI("http", null, "localhost", port, "/CRISMA.testclass/9", null, null);
-        final ClientResponse cr = client.resource(uri).get(ClientResponse.class);
-        assertEquals(cr.getStatus(), 413);
+        final URI uri = new URI("http", null, "localhost", port, "/CRISMA.testclass", null, null);
+        final ClientResponse cr = client.resource(uri).queryParam("level", "11").get(ClientResponse.class);
+        assertEquals(cr.getStatus(), 403);
     }
 
     /**
@@ -201,7 +201,7 @@ public class EntitiesAPINGTest
         // FIXME: the domain should be configurable
         final URI uri = new URI("http", null, "localhost", port, "/CRISMA.testclass/9", null, null);
         final ClientResponse cr = client.resource(uri).get(ClientResponse.class);
-        assertEquals(cr.getStatus(), 413);
+        assertEquals(cr.getStatus(), 403);
     }
 
     /**

@@ -7,7 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.rest.domain;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +16,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import de.cismet.cids.server.rest.cores.InvalidLevelException;
+import de.cismet.cids.server.rest.domain.types.APIException;
 
 /**
  * DOCUMENT ME!
@@ -39,41 +39,6 @@ public final class ServerExceptionMapper {
     private ServerExceptionMapper() {
     }
 
-    //~ Methods ----------------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   e        t DOCUMENT ME!
-     * @param   builder  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public static Response toResponse(final Exception e, final Response.ResponseBuilder builder) {
-        final Response.ResponseBuilder response;
-        if (builder == null) {
-            response = Response.serverError();
-        } else {
-            response = builder;
-        }
-
-        if (e != null) {
-            if (log.isTraceEnabled()) {
-                log.trace("converting exception to response", e);
-            }
-
-            try {
-                final String exJson = MAPPER.writer().writeValueAsString(e);
-                response.entity(exJson);
-                response.type("application/json"); // NOI18N
-            } catch (JsonProcessingException ex) {
-                log.warn("cannot convert exception to json", ex);
-            }
-        }
-
-        return response.build();
-    }
-
     //~ Inner Classes ----------------------------------------------------------
 
     /**
@@ -88,9 +53,22 @@ public final class ServerExceptionMapper {
 
         @Override
         public Response toResponse(final InvalidLevelException e) {
-            final Response.ResponseBuilder builder = Response.status(413);
+            final Response.ResponseBuilder builder = Response.status(403);
 
-            return ServerExceptionMapper.toResponse(e, builder);
+            final APIException ex = new APIException(
+                    e.getMessage()
+                            + ": level="
+                            + e.getLevel(), // NOI18N
+                    "The level / deduplicate parameter combination is not valid. "
+                            + "Remember to explicitely set the level to a value not exceeting 10 "
+                            + "if deduplication shall not be done",
+                    4030001,
+                    "https://github.com/cismet/cids-server-rest/wiki/4030001"); // NOI18N
+
+            builder.entity(ex);
+            builder.type("application/json"); // NOI18N
+
+            return builder.build();
         }
     }
 }
