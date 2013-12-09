@@ -258,7 +258,253 @@ public abstract class EntityCoreNGTest
     }
     
     @Test(
-            enabled = false,
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_emptyString(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = "";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKV1(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = ",";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKV2(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = ",,";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKV3(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = ",kv";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKV4(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = "kv,";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKV5(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = "kv1,,kv2";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKV6(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = "kv";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKV7(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = ":v";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKey1(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = ".:v";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKey2(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = "..:v";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKey3(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = "k.:v";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidKey4(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = ".k:v";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
+            groups = {"getAllObjects", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidFilterFormatException.class}
+    )
+    public void testGetAllObjects_invalidFilter_invalidValue1(final EntityCore core)
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User user = new User();
+        user.setValidated(true);
+        
+        final String classKey = "testDomain.testclass";
+        final String role = "testrole";
+        
+        final String filter = "k:\\";
+        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+    }
+    
+    @Test(
             dependsOnGroups = {"data_producing"},
             groups = {"getAllObjects", "data_consuming"},
             dataProvider = "EntityCoreInstanceDataProvider"
@@ -267,46 +513,83 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        // TODO: implement as soon as filter behaviour is known
         final User user = new User();
         user.setValidated(true);
         
         final String classKey = "testDomain.testclass";
         final String role = "testrole";
         
-        final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
-        final List<ObjectNode> all = new ArrayList<ObjectNode>();
+        Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter1_res.json")).elements();
+        List<ObjectNode> expected = new ArrayList<ObjectNode>();
         while(it.hasNext()){
-            all.add((ObjectNode)it.next());
+            expected.add((ObjectNode)it.next());
         }
         
-        List<ObjectNode> expected = new ArrayList<ObjectNode>();
-        expected.add(all.get(1));
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 1, 1, null, null, null, null, null, false, false);
+        String filter = "id:a2";
+        List<ObjectNode> result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
         
+        it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter2_res.json")).elements();
         expected = new ArrayList<ObjectNode>();
-        expected.add(all.get(2));
-        expected.add(all.get(3));
-        expected.add(all.get(4));
-        result = core.getAllObjects(user, classKey, role, 3, 2, null, null, null, null, null, false, false);
+        while(it.hasNext()){
+            expected.add((ObjectNode)it.next());
+        }
+        
+        filter = "id:a1|a4|a5";
+        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 3);
         assertEquals(result, expected);
         
+        it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter3_res.json")).elements();
         expected = new ArrayList<ObjectNode>();
-        expected.add(all.get(4));
-        result = core.getAllObjects(user, classKey, role, 3, 4, null, null, null, null, null, false, false);
+        while(it.hasNext()){
+            expected.add((ObjectNode)it.next());
+        }
+        
+        filter = "id:a1|a4|a5,sub.sub1:sub1val";
+        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        
+        assertEquals(result.size(), 2);
+        assertEquals(result, expected);
+        
+        // as there is no trim there shouldn't be a match
+        filter = "id:a1|a4|a5,sub.sub1: sub1val";
+        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        
+        assertEquals(result.size(), 0);
+        
+        // as there is no trim there shouldn't be a match
+        filter = "id:a1|a4|a5, sub.sub1:sub1val";
+        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        
+        assertEquals(result.size(), 0);
+        
+        it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter4_res.json")).elements();
+        expected = new ArrayList<ObjectNode>();
+        while(it.hasNext()){
+            expected.add((ObjectNode)it.next());
+        }
+        
+        filter = "id:a1|a4|a5,sub.subnil:";
+        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
         
+        it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter5_res.json")).elements();
         expected = new ArrayList<ObjectNode>();
-        result = core.getAllObjects(user, classKey, role, 6, 5, null, null, null, null, null, false, false);
+        while(it.hasNext()){
+            expected.add((ObjectNode)it.next());
+        }
         
-        assertEquals(result.size(), 0);
+        // although using such patterns is discouraged, it should work
+        filter = "sub.subsub:..\\$ref.../testDomain.+";
+        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        
+        assertEquals(result.size(), 2);
         assertEquals(result, expected);
     }
     
@@ -750,9 +1033,6 @@ public abstract class EntityCoreNGTest
         
         expected = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "a3", null, null, "10", null, null, role, false, false);
-        
-        System.out.println("ex: " + expected);
-        System.out.println("re: " + readRes);
         
         assertEquals(readRes, expected, null);
         

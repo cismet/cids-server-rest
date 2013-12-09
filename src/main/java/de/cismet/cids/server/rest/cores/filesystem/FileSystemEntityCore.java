@@ -8,6 +8,7 @@
 package de.cismet.cids.server.rest.cores.filesystem;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -39,10 +40,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import de.cismet.cids.server.rest.cores.EntityCore;
 import de.cismet.cids.server.rest.cores.InvalidClassKeyException;
 import de.cismet.cids.server.rest.cores.InvalidEntityException;
+import de.cismet.cids.server.rest.cores.InvalidFilterFormatException;
 import de.cismet.cids.server.rest.cores.InvalidLevelException;
 import de.cismet.cids.server.rest.cores.InvalidRoleException;
 import de.cismet.cids.server.rest.cores.InvalidUserException;
@@ -166,8 +172,8 @@ public class FileSystemEntityCore implements EntityCore {
         // value for null
         final int _level = parseLevel(level, 0, deduplicate);
 
-        // FIXME: what is the format of the filter parameter, why is the filter parameter not concrete (map)?
-        final Map<String, String> _filter = parseFilter(filter);
+        // FIXME: why is the filter parameter not concrete (map)?
+        final Map<String[], Pattern> _filter = parseFilter(filter);
 
         final Lock lock = rwLock.readLock();
 
@@ -190,16 +196,74 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * FIXME: to be implemented, insufficient definition
+     * FIXME: this should be done by the outer impl
      *
      * @param   filter  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  InvalidFilterFormatException  DOCUMENT ME!
      */
-    private Map<String, String> parseFilter(final String filter) {
-        final Map<String, String> _filter = new HashMap<String, String>();
+    private Map<String[], Pattern> parseFilter(final String filter) {
+        final Map<String[], Pattern> _filter = new HashMap<String[], Pattern>();
 
         if (filter != null) {
+            final String[] kvs = filter.split(","); // NOI18N
+
+            if (kvs.length == 0) {
+                throw new InvalidFilterFormatException(
+                    "error while parsing filter: no key-value pairs present", // NOI18N
+                    filter);
+            }
+
+            for (final String kv : kvs) {
+                final String[] key_val = kv.split(":", 2); // NOI18N
+
+                if (key_val.length < 2) {
+                    throw new InvalidFilterFormatException(
+                        "error while parsing filter: key and value must be separated by ':'", // NOI18N
+                        filter);
+                }
+
+                final String key = key_val[0];
+                final String val = key_val[1];
+
+                if (key.isEmpty()) {
+                    throw new InvalidFilterFormatException("error while parsing filter: key must not be empty", filter); // NOI18N
+                }
+
+                // NOTE: property names with '.' are not supported
+                // we don't want trailing empty strings to be discarded so negative limit is used
+                final String[] properties = key.split("\\.", -1);
+
+                if (properties.length == 0) {
+                    throw new InvalidFilterFormatException(
+                        "error while parsing filter: property list is empty", // NOI18N
+                        filter);
+                } else {
+                    for (final String p : properties) {
+                        if (p.isEmpty()) {
+                            throw new InvalidFilterFormatException(
+                                "error while parsing filter: property list contains empty property string", // NOI18N
+                                filter);
+                        }
+                    }
+                }
+
+                if (val.isEmpty()) {
+                    _filter.put(properties, null);
+                } else {
+                    try {
+                        final Pattern regex = Pattern.compile(val);
+                        _filter.put(properties, regex);
+                    } catch (final PatternSyntaxException e) {
+                        throw new InvalidFilterFormatException(
+                            "error while parsing filter: invalid regex pattern", // NOI18N
+                            e,
+                            filter);
+                    }
+                }
+            }
         }
 
         return _filter;
@@ -228,7 +292,7 @@ public class FileSystemEntityCore implements EntityCore {
             final Collection<String> expandFields,
             final Collection<String> includeFields,
             final int level,
-            final Map<String, String> filter,
+            final Map<String[], Pattern> filter,
             final boolean stripNullVals,
             final boolean deduplicate) {
         assert classKey != null;
@@ -236,14 +300,13 @@ public class FileSystemEntityCore implements EntityCore {
         assert includeFields != null;
         assert filter != null;
 
-        final List<ObjectNode> result = doCollectObjs(classKey, limit, offset);
+        final List<ObjectNode> result = doCollectObjs(classKey, limit, offset, filter);
 
         if (level > 0) {
             final Map<String, ObjectNode> cache = new HashMap<String, ObjectNode>();
 
             for (int i = 0; i < result.size(); ++i) {
-                final String ref = result.get(i).get("$ref").asText(); // NOI18N
-                // TODO: apply filter when it is known how it shall work, maybe this should be included in readObj then
+                final String ref = result.get(i).get("$ref").asText();                 // NOI18N
                 final ObjectNode expanded = readObj(
                         ref,
                         expandFields,
@@ -264,15 +327,112 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * collects the objects from the folder denoted by classKey. does no expansion, returns reflist only
+     * DOCUMENT ME!
+     *
+     * @param   ref     DOCUMENT ME!
+     * @param   filter  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  IllegalStateException  DOCUMENT ME!
+     */
+    private boolean includeObj(final String ref, final Map<String[], Pattern> filter) {
+        assert ref != null;
+        assert filter != null;
+
+        boolean include = true;
+
+        if (!filter.isEmpty()) {
+            @SuppressWarnings("unchecked")
+            final ObjectNode obj = readObj(
+                    ref,
+                    Collections.EMPTY_LIST,
+                    Collections.EMPTY_LIST,
+                    1,
+                    false,
+                    false,
+                    new HashMap<String, ObjectNode>(1, 1f));
+
+            final Map<String, ObjectNode> cache = new HashMap<String, ObjectNode>();
+            cache.put(ref, obj);
+
+            final Iterator<String[]> it = filter.keySet().iterator();
+            while (include && it.hasNext()) {
+                final String[] plist = it.next();
+                ObjectNode current = obj;
+                for (int i = 0; (i < plist.length) && include; ++i) {
+                    final JsonNode n = current.get(plist[i]);
+
+                    // if the property is not available for filtering or if the filter wants to descend but the value of
+                    // the property is not an object (and thus we cannot descend) then we don't include the object
+                    if ((n == null) || (!n.isObject() && ((plist.length - 1) != i))) {
+                        include = false;
+                    } else if ((plist.length - 1) == i) {
+                        // we are at the last object and do the comparison
+                        final Pattern pattern = filter.get(plist);
+                        if (pattern == null) {
+                            include = n.isNull();
+                        } else {
+                            final String value;
+                            if (n.isValueNode()) {
+                                value = n.asText();
+                            } else {
+                                try {
+                                    // NOTE: array and object comparison will most likely yield unwanted results thus
+                                    // this filter should not be used for object/array comparison
+                                    value = MAPPER.writeValueAsString(n);
+                                } catch (final JsonProcessingException ex) {
+                                    // this will never occur because we built the node ourself
+                                    throw new IllegalStateException(
+                                        "cannot apply filter for object/array property", // NOI18N
+                                        ex);
+                                }
+                            }
+
+                            include = pattern.matcher(value).matches();
+                        }
+                    } else {
+                        // we decend further and have to fetch the corresponding value
+                        // $ref must be present or data is corrupted
+                        final String subref = n.get("$ref").asText(); // NOI18N
+                        current = cache.get(subref);
+                        if (current == null) {
+                            current = readObj(
+                                    subref,
+                                    Collections.EMPTY_LIST,
+                                    Collections.EMPTY_LIST,
+                                    1,
+                                    false,
+                                    false,
+                                    new HashMap<String, ObjectNode>(1, 1f));
+
+                            assert current != null;
+
+                            cache.put(subref, current);
+                        }
+                    }
+                }
+            }
+        }
+
+        return include;
+    }
+
+    /**
+     * collects the objects from the folder denoted by classKey. does no expansion, returns reflist only but applies the
+     * filter already
      *
      * @param   classKey  DOCUMENT ME!
      * @param   limit     DOCUMENT ME!
      * @param   offset    DOCUMENT ME!
+     * @param   filter    DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    private List<ObjectNode> doCollectObjs(final String classKey, final int limit, final int offset) {
+    private List<ObjectNode> doCollectObjs(final String classKey,
+            final int limit,
+            final int offset,
+            final Map<String[], Pattern> filter) {
         assert classKey != null;
 
         final String dummyRef = buildRef(classKey, "dummy"); // NOI18N
@@ -314,9 +474,12 @@ public class FileSystemEntityCore implements EntityCore {
         for (int i = _offset; i < end; ++i) {
             final String objId = objFiles[i].getName();
             final String ref = buildRef(classKey, objId);
-            final ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
-            n.put("$ref", ref); // NOI18N
-            result.add(n);
+
+            if (includeObj(ref, filter)) {
+                final ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
+                n.put("$ref", ref); // NOI18N
+                result.add(n);
+            }
         }
 
         return result;

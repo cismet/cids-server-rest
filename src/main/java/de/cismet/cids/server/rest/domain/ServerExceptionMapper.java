@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import de.cismet.cids.server.rest.cores.InvalidFilterFormatException;
 import de.cismet.cids.server.rest.cores.InvalidLevelException;
 import de.cismet.cids.server.rest.domain.types.APIException;
 
@@ -57,13 +58,43 @@ public final class ServerExceptionMapper {
 
             final APIException ex = new APIException(
                     e.getMessage()
-                            + ": level="
-                            + e.getLevel(), // NOI18N
+                            + ": level=" // NOI18N
+                            + e.getLevel(),
                     "The level / deduplicate parameter combination is not valid. "
                             + "Remember to explicitely set the level to a value not exceeting 10 "
                             + "if deduplication shall not be done",
                     4030001,
                     "https://github.com/cismet/cids-server-rest/wiki/4030001"); // NOI18N
+
+            builder.entity(ex);
+            builder.type("application/json"); // NOI18N
+
+            return builder.build();
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    @Provider
+    public static final class InvalidFilterFormatExceptionMapper
+            implements ExceptionMapper<InvalidFilterFormatException> {
+
+        //~ Methods ------------------------------------------------------------
+
+        @Override
+        public Response toResponse(final InvalidFilterFormatException e) {
+            final Response.ResponseBuilder builder = Response.status(400);
+
+            final APIException ex = new APIException(
+                    e.getMessage()
+                            + ": filter=" // NOI18N
+                            + e.getFilter(),
+                    "The format of the provided filter parameter is invalid",
+                    4000001,
+                    "https://github.com/cismet/cids-server-rest/wiki/4000001"); // NOI18N
 
             builder.entity(ex);
             builder.type("application/json"); // NOI18N
