@@ -127,7 +127,7 @@
         <properties>
             <jalopy.skip>true</jalopy.skip>
             <exec.args>-Dcids-server-rest.fscore.caseSensitivityOverride=true -classpath %classpath de.cismet.cids.server.rest.domain.Starter</exec.args>
-            <exec.executable>/Library/Java/JavaVirtualMachines/jdk1.7.0_25.jdk/Contents/Home/bin/java</exec.executable>
+            <exec.executable>java</exec.executable>
             <exec.classpathScope>runtime</exec.classpathScope>
         </properties>
     </action>
