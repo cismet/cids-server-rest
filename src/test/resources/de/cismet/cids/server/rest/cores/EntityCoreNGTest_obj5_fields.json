@@ -1,0 +1,19 @@
+{
+    "$self": "/testDomain.testclass/a5",
+    "id": "a5",
+    "sub":{
+        "$self": "/testDomain.testsubclass/b5",
+        "id": "b5",
+        "subarr": [
+           {
+               "$self": "/testDomain.testsubarrclass/aa5",
+                "id": "aa5"
+           },
+           {
+               "$self": "/testDomain.testsubarrclass/ab5"
+           },
+           null
+        ]
+    },
+    "nil": null
+}

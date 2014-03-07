@@ -15,7 +15,7 @@ import com.sun.jersey.spi.container.ContainerResponseFilter;
  * Currently this filter allows any origin for testing purposes. This has to be adapted for productional use.
  *
  * @author   martin.scholl@cismet.de
- * @version  $Revision$, $Date$
+ * @version  1.0
  */
 public final class CORSResponseFilter implements ContainerResponseFilter {
 
@@ -23,9 +23,9 @@ public final class CORSResponseFilter implements ContainerResponseFilter {
 
     @Override
     public ContainerResponse filter(final ContainerRequest cr, final ContainerResponse cr1) {
-        cr1.getHttpHeaders().add("Access-Control-Allow-Origin", "*");                       // NOI18N
-        cr1.getHttpHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT"); // NOI18N
-        cr1.getHttpHeaders().add("Access-Control-Allow-Headers", "Content-Type");           // NOI18N
+        cr1.getHttpHeaders().add("Access-Control-Allow-Origin", "*");                                // NOI18N
+        cr1.getHttpHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS"); // NOI18N
+        cr1.getHttpHeaders().add("Access-Control-Allow-Headers", "Content-Type");                    // NOI18N
 
         return cr1;
     }

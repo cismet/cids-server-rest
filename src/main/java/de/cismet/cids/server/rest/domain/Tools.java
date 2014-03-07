@@ -5,24 +5,23 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import de.cismet.cids.server.domain.Server;
-import de.cismet.cids.server.domain.types.User;
+import de.cismet.cids.server.rest.domain.types.User;
 import de.cismet.cids.server.rest.registry.CidsServerInfo;
 
 /**
@@ -33,7 +32,40 @@ import de.cismet.cids.server.rest.registry.CidsServerInfo;
  */
 public class Tools {
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new Tools object.
+     */
+    private Tools() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   listParam  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static Collection<String> splitListParameter(final String listParam) {
+        final Collection<String> ret;
+        if (listParam == null) {
+            ret = Collections.emptySet();
+        } else {
+            final String[] split = listParam.split(","); // NOI18N
+            // hashset for fast random access (contains)
+            final Set<String> set = new HashSet<String>(split.length, 1);
+            for (final String s : split) {
+                set.add(s.trim());
+            }
+
+            ret = Collections.unmodifiableSet(set);
+        }
+
+        return ret;
+    }
 
     /**
      * DOCUMENT ME!
@@ -43,7 +75,7 @@ public class Tools {
      * @return  DOCUMENT ME!
      */
     public static WebResource getDomainWebResource(final String domain) {
-        if (RuntimeContainer.getServer().getRegistry().equals(Server.STANDALONE)) {
+        if (RuntimeContainer.getServer().getRegistry().equals(ServerConstants.STANDALONE)) {
             final WebResource registryLookup = RuntimeContainer.getClient()
                         .resource(RuntimeContainer.getServer().getRegistry());
             final ClientResponse response = registryLookup.path(domain.toLowerCase())
@@ -67,7 +99,7 @@ public class Tools {
      * @return  DOCUMENT ME!
      */
     public static User validationHelper(final String authString) {
-        if (authString == null) {
+        if (true) {
             return User.NONE;
         }
         User user = new User(authString);

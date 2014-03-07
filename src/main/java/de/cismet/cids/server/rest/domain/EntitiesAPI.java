@@ -5,13 +5,8 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -24,15 +19,23 @@ import com.wordnik.swagger.core.ApiParam;
 
 import java.util.List;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
-import de.cismet.cids.server.domain.types.User;
 import de.cismet.cids.server.rest.APIBase;
 import de.cismet.cids.server.rest.domain.data.CollectionResource;
+import de.cismet.cids.server.rest.domain.types.User;
 
 /**
  * DOCUMENT ME!
@@ -126,6 +129,7 @@ public class EntitiesAPI extends APIBase {
      * @param   profile         DOCUMENT ME!
      * @param   filter          DOCUMENT ME!
      * @param   omitNullValues  DOCUMENT ME!
+     * @param   deduplicate     DOCUMENT ME!
      * @param   authString      DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
@@ -190,6 +194,13 @@ public class EntitiesAPI extends APIBase {
             @QueryParam("omitNullValues")
             final boolean omitNullValues,
             @ApiParam(
+                value =
+                    "if you don't want already expanded properties to be expanded again, set this parameter to true",
+                defaultValue = "false"
+            )
+            @QueryParam("deduplicate")
+            final boolean deduplicate,
+            @ApiParam(
                 value = "Basic Auth Authorization String",
                 required = false
             )
@@ -200,12 +211,15 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+            final String baseref = domain + "." + classKey;
             final List l = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
                         .getAllObjects(
                             user,
-                            classKey,
-                            role,
+                            // FIXME: what is the correct class key and format
+                            baseref,
+                            // FIXME: what is the default
+                            (role == null) ? "default" : role,
                             limit,
                             offset,
                             expand,
@@ -213,14 +227,99 @@ public class EntitiesAPI extends APIBase {
                             fields,
                             profile,
                             filter,
-                            omitNullValues);
-            final CollectionResource result = new CollectionResource("/" + domain + "." + classKey,
-                    offset,
-                    limit,
-                    "not avilable",
-                    "not avilable",
-                    "not avilable",
-                    "not avilable",
+                            omitNullValues,
+                            deduplicate);
+
+            final List allobjs = RuntimeContainer.getServer()
+                        .getEntityCore(classKey)
+                        .getAllObjects(
+                            user,
+                            // FIXME: what is the correct class key and format
+                            baseref,
+                            // FIXME: what is the default
+                            (role == null) ? "default" : role,
+                            Integer.MAX_VALUE,
+                            0,
+                            null,
+                            "0",
+                            null,
+                            null,
+                            filter,
+                            omitNullValues,
+                            deduplicate);
+
+            // FIXME: maybe has to be done even before sending the data to the core so that the core won't have to
+            // care about that, too
+            final int _limit = Math.max(0, limit);
+            final int _offset = Math.max(0, offset);
+            // using integer div
+            final int lastOffset = (_limit == 0) ? 0 : (((allobjs.size() - 1) / _limit) * _limit);
+
+            final String first = buildRequestString(
+                    baseref,
+                    _limit,
+                    0,
+                    role,
+                    expand,
+                    level,
+                    fields,
+                    profile,
+                    filter,
+                    omitNullValues);
+
+            final String prev;
+            if (_offset > 0) {
+                prev = buildRequestString(
+                        baseref,
+                        _limit,
+                        (_limit == 0) ? 0 : (_offset - _limit),
+                        role,
+                        expand,
+                        level,
+                        fields,
+                        profile,
+                        filter,
+                        omitNullValues);
+            } else {
+                prev = null;
+            }
+
+            final String next;
+            if ((_limit > 0) && ((allobjs.size() - _limit) > _offset)) {
+                next = buildRequestString(
+                        baseref,
+                        _limit,
+                        _offset
+                                + _limit,
+                        role,
+                        expand,
+                        level,
+                        fields,
+                        profile,
+                        filter,
+                        omitNullValues);
+            } else {
+                next = null;
+            }
+            final String last = buildRequestString(
+                    baseref,
+                    _limit,
+                    lastOffset,
+                    role,
+                    expand,
+                    level,
+                    fields,
+                    profile,
+                    filter,
+                    omitNullValues);
+
+            final CollectionResource result = new CollectionResource("/" + baseref,
+                    _offset,
+                    _limit,
+                    first,
+                    prev,
+                    next,
+                    last,
                     l);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else {
@@ -241,6 +340,63 @@ public class EntitiesAPI extends APIBase {
                         .get(ClientResponse.class);
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   baseref        DOCUMENT ME!
+     * @param   limit          DOCUMENT ME!
+     * @param   offset         DOCUMENT ME!
+     * @param   role           DOCUMENT ME!
+     * @param   expand         DOCUMENT ME!
+     * @param   level          DOCUMENT ME!
+     * @param   fields         DOCUMENT ME!
+     * @param   profile        DOCUMENT ME!
+     * @param   filter         DOCUMENT ME!
+     * @param   stripNullVals  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private String buildRequestString(final String baseref,
+            final int limit,
+            final int offset,
+            final String role,
+            final String expand,
+            final String level,
+            final String fields,
+            final String profile,
+            final String filter,
+            final boolean stripNullVals) {
+        assert baseref != null;
+
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append('/').append(baseref);
+        sb.append('?').append("limit=").append(limit);
+        sb.append('&').append("offset=").append(offset);
+
+        if (role != null) {
+            sb.append('&').append("role=").append(role);
+        }
+        if (expand != null) {
+            sb.append('&').append("expand=").append(expand);
+        }
+        if (level != null) {
+            sb.append('&').append("level=").append(level);
+        }
+        if (fields != null) {
+            sb.append('&').append("fields=").append(fields);
+        }
+        if (profile != null) {
+            sb.append('&').append("profile=").append(profile);
+        }
+        if (filter != null) {
+            sb.append('&').append("filter=").append(filter);
+        }
+        sb.append('&').append("omitNullValues=").append(stripNullVals);
+
+        return sb.toString();
     }
 
     /**
@@ -308,7 +464,7 @@ public class EntitiesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             ObjectNode body = null;
             try {
-                body = (ObjectNode)mapper.readTree(jsonBody);
+                body = (ObjectNode)MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
                 // ProblemHandling
             }
@@ -316,10 +472,14 @@ public class EntitiesAPI extends APIBase {
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).updateObject(
                                     user,
-                                    classKey,
+                                    // FIXME: what is the correct class key and format
+                                    domain
+                                    + "."
+                                    + classKey,
                                     objectId,
                                     body,
-                                    role,
+                                    // FIXME: what is the default
+                                    (role == null) ? "default" : role,
                                     requestResultingInstance))
                         .build();
         } else {
@@ -394,7 +554,7 @@ public class EntitiesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             ObjectNode body = null;
             try {
-                body = (ObjectNode)mapper.readTree(jsonBody);
+                body = (ObjectNode)MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
                 // ProblemHandling
             }
@@ -402,9 +562,13 @@ public class EntitiesAPI extends APIBase {
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).createObject(
                                     user,
-                                    classKey,
+                                    // FIXME: what is the correct class key and format
+                                    domain
+                                    + "."
+                                    + classKey,
                                     body,
-                                    role,
+                                    // FIXME: what is the default
+                                    (role == null) ? "default" : role,
                                     requestResultingInstance))
                         .build();
         } else {
@@ -433,6 +597,7 @@ public class EntitiesAPI extends APIBase {
      * @param   fields          DOCUMENT ME!
      * @param   profile         DOCUMENT ME!
      * @param   omitNullValues  DOCUMENT ME!
+     * @param   deduplicate     DOCUMENT ME!
      * @param   authString      DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
@@ -487,6 +652,13 @@ public class EntitiesAPI extends APIBase {
             @QueryParam("omitNullValues")
             final boolean omitNullValues,
             @ApiParam(
+                value =
+                    "if you don't want already expanded properties to be expanded again, set this parameter to true",
+                defaultValue = "false"
+            )
+            @QueryParam("deduplicate")
+            final boolean deduplicate,
+            @ApiParam(
                 value = "Basic Auth Authorization String",
                 required = false
             )
@@ -501,15 +673,20 @@ public class EntitiesAPI extends APIBase {
                         .getEntityCore(classKey)
                         .getObject(
                             user,
-                            classKey,
+                            // FIXME: what is the correct class key and format
+                            domain
+                            + "."
+                            + classKey,
                             objectId,
                             version,
                             expand,
                             level,
                             fields,
                             profile,
-                            role,
-                            omitNullValues);
+                            // FIXME: what is the default
+                            (role == null) ? "default" : role,
+                            omitNullValues,
+                            deduplicate);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -578,7 +755,17 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            RuntimeContainer.getServer().getEntityCore(classKey).deleteObject(user, classKey, objectId, role);
+            RuntimeContainer.getServer()
+                    .getEntityCore(classKey)
+                    .deleteObject(
+                        user,
+                        // FIXME: what is the correct class key and format
+                        domain
+                        + "."
+                        + classKey,
+                        objectId,
+                        // FIXME: what is the default
+                        (role == null) ? "default" : role);
             return Response.status(Response.Status.OK).header("Location", getLocation()).build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);

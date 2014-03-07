@@ -5,16 +5,13 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain;
 
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-
-import com.wordnik.swagger.core.*;
+import com.wordnik.swagger.core.Api;
+import com.wordnik.swagger.core.ApiError;
+import com.wordnik.swagger.core.ApiErrors;
+import com.wordnik.swagger.core.ApiOperation;
+import com.wordnik.swagger.core.ApiParam;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -23,7 +20,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import de.cismet.cids.server.domain.types.User;
+import de.cismet.cids.server.rest.domain.types.User;
 
 /**
  * DOCUMENT ME!

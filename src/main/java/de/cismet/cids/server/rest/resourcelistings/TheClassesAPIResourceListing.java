@@ -5,10 +5,6 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.resourcelistings;
 import com.sun.jersey.spi.resource.Singleton;
 
@@ -21,7 +17,7 @@ import javax.ws.rs.Produces;
  * DOCUMENT ME!
  *
  * @author   thorsten
- * @version  $Revision$, $Date$
+ * @version  1.0
  */
 @Path("/resources/classes")
 @Api(

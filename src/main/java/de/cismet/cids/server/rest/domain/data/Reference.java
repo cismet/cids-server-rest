@@ -5,11 +5,13 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.rest.domain.data;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -17,14 +19,20 @@ import javax.xml.bind.annotation.XmlRootElement;
  * DOCUMENT ME!
  *
  * @author   thorsten
- * @version  $Revision$, $Date$
+ * @version  1.0
  */
+// NOTE: by default lombok ignores all $ vars and @Data does not support "of"
 @XmlRootElement
+@NoArgsConstructor
+@ToString(of = { "$ref" })
+@EqualsAndHashCode(of = { "$ref" })
 public class Reference {
 
     //~ Instance fields --------------------------------------------------------
 
-    String $ref;
+    @Getter
+    @Setter
+    private String $ref;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -34,26 +42,6 @@ public class Reference {
      * @param  $ref  DOCUMENT ME!
      */
     public Reference(final String $ref) {
-        this.$ref = $ref;
-    }
-
-    //~ Methods ----------------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public String get$ref() {
-        return $ref;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  $ref  DOCUMENT ME!
-     */
-    public void set$ref(final String $ref) {
         this.$ref = $ref;
     }
 }

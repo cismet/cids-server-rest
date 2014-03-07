@@ -86,4 +86,49 @@
             <exec.executable>java</exec.executable>
         </properties>
     </action>
+    <action>
+        <actionName>test</actionName>
+        <goals>
+            <goal>test</goal>
+        </goals>
+        <properties>
+            <jalopy.skip>true</jalopy.skip>
+        </properties>
+    </action>
+    <action>
+        <actionName>test.single</actionName>
+        <goals>
+            <goal>test-compile</goal>
+            <goal>surefire:test</goal>
+        </goals>
+        <properties>
+            <test>${packageClassName}</test>
+            <jalopy.skip>true</jalopy.skip>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-build-case-insensitve</actionName>
+        <displayName>Build - case-insensitve</displayName>
+        <goals>
+            <goal>clean</goal>
+            <goal>install</goal>
+        </goals>
+        <activatedProfiles>
+            <activatedProfile>case-insensitive-test-override</activatedProfile>
+        </activatedProfiles>
+    </action>
+    <action>
+        <actionName>CUSTOM-run-case-insensitive</actionName>
+        <displayName>Run - case-insensitive</displayName>
+        <goals>
+            <goal>process-classes</goal>
+            <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
+        </goals>
+        <properties>
+            <jalopy.skip>true</jalopy.skip>
+            <exec.args>-Dcids-server-rest.fscore.caseSensitivityOverride=true -classpath %classpath de.cismet.cids.server.rest.domain.Starter</exec.args>
+            <exec.executable>java</exec.executable>
+            <exec.classpathScope>runtime</exec.classpathScope>
+        </properties>
+    </action>
 </actions>
