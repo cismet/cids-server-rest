@@ -530,7 +530,7 @@ public class EntitiesAPI extends APIBase {
                                     requestResultingInstance))
                         .build();
             for (final CidsTrigger ct : rightTriggers) {
-                ct.beforeUpdate(jsonBody, user);
+                ct.afterUpdate(jsonBody, user);
             }
             return r;
         } else {
