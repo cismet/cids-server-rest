@@ -54,7 +54,7 @@ public class Starter {
             // unsatisfactory swaggerbasepath setting
         }
 
-        FS_CIDS_DIR = "/Users/mscholl/Desktop/crisma-api-demo";
+        FS_CIDS_DIR = "/Users/thorsten/Desktop/crisma-api-demo";
         try {
             if ((args[2] != null) || new File(args[2]).isDirectory()) {
                 FS_CIDS_DIR = args[2];
@@ -101,8 +101,8 @@ public class Starter {
             context.addServlet(sh, "/*");
 
             server.start();
-//            System.out.println("\n\nServer started. Hit enter to shutdown.");
-//            System.in.read();
+            System.out.println("\n\nServer started. Hit enter to shutdown.");
+            System.in.read();
 //            r.path("servers").path(servername).delete();
         } catch (Throwable e) {
             e.printStackTrace();
@@ -110,7 +110,7 @@ public class Starter {
             if (server != null) {
                 server.setStopAtShutdown(true);
             }
-//            System.exit(0);
+            System.exit(0);
         }
     }
 }
