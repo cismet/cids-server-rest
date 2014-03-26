@@ -21,6 +21,7 @@ import de.cismet.cids.server.rest.cores.dummy.DummyUserCore;
 import de.cismet.cids.server.rest.cores.filesystem.FileSystemActionCore;
 import de.cismet.cids.server.rest.cores.filesystem.FileSystemEntityCore;
 import de.cismet.cids.server.rest.cores.filesystem.FileSystemEntityInfoCore;
+import de.cismet.cids.server.rest.cores.filesystem.FileSystemNodeCore;
 import de.cismet.cids.server.rest.data.unused.CustomAttributeCore;
 
 /**
@@ -37,6 +38,7 @@ public class RuntimeContainer {
     static FileSystemEntityCore fsec = new FileSystemEntityCore(DIR);
     static FileSystemActionCore fsac = new FileSystemActionCore(DIR);
     static FileSystemEntityInfoCore fseic = new FileSystemEntityInfoCore(DIR);
+    static FileSystemNodeCore fsnc = new FileSystemNodeCore(DIR);
     static DummyUserCore duc = new DummyUserCore();
     static DummyPermissionCore dpc = new DummyPermissionCore();
     static Server server = new Server() {
@@ -63,7 +65,7 @@ public class RuntimeContainer {
 
             @Override
             public NodeCore getNodeCore() {
-                throw new UnsupportedOperationException("Not supported yet.");
+                return fsnc;
             }
 
             @Override
