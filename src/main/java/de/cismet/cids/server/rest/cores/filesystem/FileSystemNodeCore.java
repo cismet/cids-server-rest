@@ -90,9 +90,9 @@ public class FileSystemNodeCore implements NodeCore {
                         + nodeKey + ".json");
         if (fileEntry.exists()) {
             try {
-                //Lazy check
+                // Lazy check
                 MAPPER.readValue(fileEntry, Node.class);
-                
+
                 final ObjectNode ret = (ObjectNode)(MAPPER.readTree(fileEntry));
                 return ret;
             } catch (IOException ex) {
