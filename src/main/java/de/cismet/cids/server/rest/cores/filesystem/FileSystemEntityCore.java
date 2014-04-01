@@ -40,8 +40,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -68,6 +67,9 @@ public class FileSystemEntityCore implements EntityCore {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final ObjectMapper MAPPER = new ObjectMapper(new JsonFactory());
+
+    private static final Pattern CLASSKEY_PATTERN = Pattern.compile("^/([^/]*)/");
+    private static final Pattern OBJECTID_PATTERN = Pattern.compile("([^/?]+)(?=/?(?:$|\\?))");
 
     //~ Instance fields --------------------------------------------------------
 
@@ -1123,12 +1125,55 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
+    /**
+     * Returns the parsed class name from the $self or $ref properties of the
+     * object or throws an error, if the properties are not found or invalid.
+     */
     public String getClassKey(final ObjectNode jsonObject) {
-        throw new UnsupportedOperationException("not supported yet");
+        if (jsonObject.hasNonNull("$self")) {
+            final Matcher matcher = CLASSKEY_PATTERN.matcher(jsonObject.get("$self").asText());
+            if (matcher.find()) {
+                return matcher.group(1);
+            } else {
+                throw new Error("Object with malformed self reference: " + jsonObject.get("$self"));
+            }
+        } else if (jsonObject.hasNonNull("$ref")) {
+            final Matcher matcher = CLASSKEY_PATTERN.matcher(jsonObject.get("$ref").asText());
+            if (matcher.find()) {
+                return matcher.group(1);
+            } else {
+                throw new Error("Object with malformed reference: " + jsonObject.get("$ref"));
+            }
+        } else {
+            throw new Error("Object without (self) reference is invalid!");
+        }
     }
 
     @Override
+    /**
+     * Returns the value of the object property 'id' or tries to extract the id
+     * from the $self or $ref properties. Returns -1 if no id is found.
+     */
     public String getObjectId(final ObjectNode jsonObject) {
-        throw new UnsupportedOperationException("not supported yet");
+        if (jsonObject.hasNonNull("id")) {
+            return jsonObject.get("id").asText();
+        } else if (jsonObject.hasNonNull("$self")) {
+            final Matcher matcher = OBJECTID_PATTERN.matcher(jsonObject.get("$self").asText());
+            if (matcher.find()) {
+                return matcher.group(1);
+            } else {
+                throw new Error("Object with malformed self reference: " + jsonObject.get("$ref"));
+            }
+        } else if (jsonObject.hasNonNull("$ref")) {
+            final Matcher matcher = OBJECTID_PATTERN.matcher(jsonObject.get("$ref").asText());
+            if (matcher.find()) {
+                return matcher.group(1);
+            } else {
+                throw new Error("Object with malformed reference: " + jsonObject.get("$ref"));
+            }
+        }
+        {
+            return "-1";
+        }
     }
 }
