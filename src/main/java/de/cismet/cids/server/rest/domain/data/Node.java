@@ -31,12 +31,11 @@ public class Node implements Key {
 
     private String key;
     private String name;
-    private String classKey;
     private String objectKey;
-    private String type;
-    private String org;
     private String dynamicChildren;
-    private boolean clientSort;
-    private boolean derivePermissionsFromClass;
-    private String icon;
+    private boolean clientSort = false;
+    private boolean derivePermissionsFromClass = true;
+    private String icon = null;
+    private String iconFactory = null;
+    private String policy = "default";
 }
