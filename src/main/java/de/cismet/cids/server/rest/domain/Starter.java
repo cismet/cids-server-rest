@@ -54,7 +54,7 @@ public class Starter {
             // unsatisfactory swaggerbasepath setting
         }
 
-        FS_CIDS_DIR = "/Users/thorsten/Desktop/crisma-api-demo";
+        FS_CIDS_DIR = "F:\\crismaDist\\crisma-api-pilot-c";
         try {
             if ((args[2] != null) || new File(args[2]).isDirectory()) {
                 FS_CIDS_DIR = args[2];

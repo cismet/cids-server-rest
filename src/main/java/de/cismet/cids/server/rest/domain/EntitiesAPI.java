@@ -17,6 +17,11 @@ import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
 import com.wordnik.swagger.core.ApiParam;
 
+import org.openide.util.Lookup;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -34,8 +39,13 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import de.cismet.cids.server.rest.APIBase;
+import de.cismet.cids.server.rest.cores.EntityCore;
 import de.cismet.cids.server.rest.domain.data.CollectionResource;
 import de.cismet.cids.server.rest.domain.types.User;
+
+import de.cismet.cids.trigger.CidsTrigger;
+import de.cismet.cids.trigger.CidsTriggerKey;
+import de.cismet.cids.trigger.EntityCoreAwareCidsTrigger;
 
 /**
  * DOCUMENT ME!
@@ -52,6 +62,35 @@ import de.cismet.cids.server.rest.domain.types.User;
 @Produces("application/json")
 @Path("/")
 public class EntitiesAPI extends APIBase {
+
+    //~ Instance fields --------------------------------------------------------
+
+    private final Collection<? extends CidsTrigger> allTriggers;
+    private final Collection<CidsTrigger> generalTriggers = new ArrayList<CidsTrigger>();
+    private final Collection<CidsTrigger> crossDomainTrigger = new ArrayList<CidsTrigger>();
+    private final HashMap<CidsTriggerKey, Collection<CidsTrigger>> triggers =
+        new HashMap<CidsTriggerKey, Collection<CidsTrigger>>();
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new EntitiesAPI object.
+     */
+    public EntitiesAPI() {
+        final Lookup.Result<CidsTrigger> result = Lookup.getDefault().lookupResult(CidsTrigger.class);
+        allTriggers = result.allInstances();
+        for (final CidsTrigger t : allTriggers) {
+            if (triggers.containsKey(t.getTriggerKey())) {
+                final Collection<CidsTrigger> c = triggers.get(t.getTriggerKey());
+                assert (c != null);
+                c.add(t);
+            } else {
+                final Collection<CidsTrigger> c = new ArrayList<CidsTrigger>();
+                c.add(t);
+                triggers.put(t.getTriggerKey(), c);
+            }
+        }
+    }
 
     //~ Methods ----------------------------------------------------------------
 
@@ -468,7 +507,15 @@ public class EntitiesAPI extends APIBase {
             } catch (Exception ex) {
                 // ProblemHandling
             }
-            return Response.status(Response.Status.OK)
+            final Collection<CidsTrigger> rightTriggers = getRightTriggers(domain, classKey);
+            final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
+            for (final CidsTrigger ct : rightTriggers) {
+                if (ct instanceof EntityCoreAwareCidsTrigger) {
+                    ((EntityCoreAwareCidsTrigger)ct).setEntityCore(core);
+                }
+                ct.beforeUpdate(jsonBody, user);
+            }
+            final Response r = Response.status(Response.Status.OK)
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).updateObject(
                                     user,
@@ -482,6 +529,10 @@ public class EntitiesAPI extends APIBase {
                                     (role == null) ? "default" : role,
                                     requestResultingInstance))
                         .build();
+            for (final CidsTrigger ct : rightTriggers) {
+                ct.afterUpdate(jsonBody, user);
+            }
+            return r;
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
@@ -552,13 +603,21 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+            final Collection<CidsTrigger> rightTriggers = getRightTriggers(domain, classKey);
+            final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
+            for (final CidsTrigger ct : rightTriggers) {
+                if (ct instanceof EntityCoreAwareCidsTrigger) {
+                    ((EntityCoreAwareCidsTrigger)ct).setEntityCore(core);
+                }
+                ct.beforeInsert(jsonBody, user);
+            }
             ObjectNode body = null;
             try {
                 body = (ObjectNode)MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
                 // ProblemHandling
             }
-            return Response.status(Response.Status.CREATED)
+            final Response r = Response.status(Response.Status.CREATED)
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).createObject(
                                     user,
@@ -571,6 +630,10 @@ public class EntitiesAPI extends APIBase {
                                     (role == null) ? "default" : role,
                                     requestResultingInstance))
                         .build();
+            for (final CidsTrigger ct : rightTriggers) {
+                ct.afterInsert(jsonBody, user);
+            }
+            return r;
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
@@ -755,17 +818,27 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            RuntimeContainer.getServer()
-                    .getEntityCore(classKey)
-                    .deleteObject(
-                        user,
-                        // FIXME: what is the correct class key and format
-                        domain
+            final Collection<CidsTrigger> rightTriggers = getRightTriggers(domain, classKey);
+            final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
+            for (final CidsTrigger ct : rightTriggers) {
+                if (ct instanceof EntityCoreAwareCidsTrigger) {
+                    ((EntityCoreAwareCidsTrigger)ct).setEntityCore(core);
+                }
+                ct.beforeDelete(domain, classKey, objectId, user);
+            }
+
+            core.deleteObject(
+                user,
+                // FIXME: what is the correct class key and format
+                domain
                         + "."
                         + classKey,
-                        objectId,
-                        // FIXME: what is the default
-                        (role == null) ? "default" : role);
+                objectId,
+                // FIXME: what is the default
+                (role == null) ? "default" : role);
+            for (final CidsTrigger ct : rightTriggers) {
+                ct.afterDelete(domain, classKey, objectId, user);
+            }
             return Response.status(Response.Status.OK).header("Location", getLocation()).build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -778,5 +851,41 @@ public class EntitiesAPI extends APIBase {
                         .get(ClientResponse.class);
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   domain    DOCUMENT ME!
+     * @param   classKey  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private Collection<CidsTrigger> getRightTriggers(final String domain, final String classKey) {
+        final ArrayList<CidsTrigger> list = new ArrayList<CidsTrigger>();
+
+        final Collection<CidsTrigger> listForAll = triggers.get(CidsTriggerKey.FORALL);
+        final Collection<CidsTrigger> listAllTablesInOneDomain = triggers.get(new CidsTriggerKey(
+                    domain,
+                    CidsTriggerKey.ALL));
+        final Collection<CidsTrigger> listOneTableInAllDomains = triggers.get(new CidsTriggerKey(
+                    CidsTriggerKey.ALL,
+                    classKey));
+        final Collection<CidsTrigger> listExplicitTableInDomain = triggers.get(new CidsTriggerKey(domain, classKey));
+
+        if (listForAll != null) {
+            list.addAll(triggers.get(CidsTriggerKey.FORALL));
+        }
+        if (listAllTablesInOneDomain != null) {
+            list.addAll(triggers.get(new CidsTriggerKey(domain, CidsTriggerKey.ALL)));
+        }
+        if (listOneTableInAllDomains != null) {
+            list.addAll(triggers.get(new CidsTriggerKey(CidsTriggerKey.ALL, classKey)));
+        }
+        if (listExplicitTableInDomain != null) {
+            list.addAll(triggers.get(new CidsTriggerKey(domain, classKey)));
+        }
+
+        return list;
     }
 }
