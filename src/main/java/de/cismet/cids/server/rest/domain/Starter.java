@@ -17,6 +17,7 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 import java.io.File;
+import java.io.IOException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,17 +71,7 @@ public class Starter {
         Server server = null;
         try {
             JaxrsApiReader.setFormatString("");
-
-            final String registry = "http://localhost:8888";
-            final String servername = "first";
-
-            final Map<String, String> initParams = new HashMap<String, String>();
-
             final ServletHolder sh = new ServletHolder(ServletContainer.class);
-//            sh.setInitParameter("com.sun.jersey.config.property.packages",
-//                    "com.wordnik.swagger.jaxrs");
-//            sh.setInitParameter("com.sun.jersey.config.property.packages",
-//                    "de.cismet.cids.server.rest.domain");
             sh.setInitParameter(
                 "com.sun.jersey.config.property.packages",
                 "de.cismet.cids.server.rest.domain;de.cismet.cids.server.rest.resourcelistings;com.fasterxml.jackson.jaxrs");
@@ -94,23 +85,21 @@ public class Starter {
             server = new Server(port);
 
             final Client c = Client.create();
-//            WebResource r = c.resource(registry);
-//            r.path("servers").type(MediaType.APPLICATION_JSON).put(new CidsServerInfo(servername, "http://localhost:8890"));
 
             final Context context = new Context(server, "/", Context.SESSIONS);
             context.addServlet(sh, "/*");
 
             server.start();
-            System.out.println("\n\nServer started. Hit enter to shutdown.");
-            System.in.read();
-//            r.path("servers").path(servername).delete();
+            try {
+                System.out.println("\n\nServer started. Hit enter to shutdown.");
+                System.in.read();
+                server.setStopAtShutdown(true);
+                System.exit(0);
+            } catch (final IOException e) {
+                System.out.println("Server running in background, use 'kill' to shutdown.");
+            }
         } catch (Throwable e) {
             e.printStackTrace();
-        } finally {
-            if (server != null) {
-                server.setStopAtShutdown(true);
-            }
-            System.exit(0);
         }
     }
 }
