@@ -1,0 +1,10 @@
+{
+    "$self": "/testDomain.testclass/a5",
+    "id": "a5",
+    "name": "testname5",
+    "description": "desc5",
+    "sub": {
+        "$ref": "/testDomain.testsubclass/b5"
+    },
+    "nil": null
+}

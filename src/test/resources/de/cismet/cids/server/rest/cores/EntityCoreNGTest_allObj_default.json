@@ -1,0 +1,15 @@
+[{
+    "$ref": "/testDomain.testclass/a1"
+},
+{
+    "$ref": "/testDomain.testclass/a2"
+},
+{
+    "$ref": "/testDomain.testclass/a3"
+},
+{
+    "$ref": "/testDomain.testclass/a4"
+},
+{
+    "$ref": "/testDomain.testclass/a5"
+}]

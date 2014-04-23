@@ -1,0 +1,25 @@
+{
+    "$self": "/testDomain.testclass2/m4",
+    "add1": "add1val",
+    "sub": {
+        "$self": "/testDomain.testsubclass/ma4",
+        "subadd1": "subadd1val",
+        "subadd2": "subadd2val",
+        "subsub": {
+            "$self": "/testDomain.testsubsubclass/mb4",
+            "subsubadd1": "subsubadd1val",
+            "subsubadd2": "subsubadd2val"
+        },
+        "subarr": [
+            {
+                "$ref": "/testDomain.testsubarrclass/maa4"
+            },
+            {
+                "$self": "/testDomain.testsubarrclass/mab4",
+                "subarr2add1": "subarr2add1val"
+            },
+            null
+        ]
+    },
+    "add2": "add2val"
+}

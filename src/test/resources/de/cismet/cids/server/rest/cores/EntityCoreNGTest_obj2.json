@@ -1,0 +1,9 @@
+{
+    "$self": "/testDomain.testclass/a2",
+    "id": "a2",
+    "name": "testname2",
+    "description": "desc2",
+    "arr" : [
+        "arrval1","arrval2", "arrval3"
+    ]
+}
