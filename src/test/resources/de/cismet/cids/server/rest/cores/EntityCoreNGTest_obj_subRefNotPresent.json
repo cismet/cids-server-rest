@@ -1,0 +1,9 @@
+{
+    "$self": "/testdomain.testclass/x1",
+    "id": "x1",
+    "name": "xn1",
+    "description": "xd1",
+    "sub":{
+        "$ref":"/testdomain.subclass/iAmNotThere"
+    }
+}

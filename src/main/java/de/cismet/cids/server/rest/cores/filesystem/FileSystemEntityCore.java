@@ -34,10 +34,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
@@ -519,7 +521,8 @@ public class FileSystemEntityCore implements EntityCore {
 
         try {
             lock.lock();
-            writeObj(jsonObject.deepCopy());
+            final Set<String> selfs = new HashSet<String>();
+            writeObj(jsonObject.deepCopy(), selfs);
         } finally {
             lock.unlock();
         }
@@ -538,12 +541,20 @@ public class FileSystemEntityCore implements EntityCore {
      * changes the given parameter by replacing subobjects with refs (normalisation). any obj has to contain the
      * mandatory self reference
      *
-     * @param   obj  DOCUMENT ME!
+     * @param   obj    DOCUMENT ME!
+     * @param   selfs  DOCUMENT ME!
      *
      * @throws  InvalidEntityException  DOCUMENT ME!
      */
-    private void writeObj(final ObjectNode obj) throws InvalidEntityException {
+    private void writeObj(final ObjectNode obj, final Set<String> selfs) throws InvalidEntityException {
         assert obj != null;
+
+        final JsonNode selfNode = obj.get("$self");                                                     // NOI18N
+        if (selfNode == null) {
+            throw new InvalidEntityException("the object node does not contain a self reference", obj); // NOI18N
+        }
+
+        selfs.add(selfNode.asText());
 
         // do DFS
         final Iterator<Entry<String, JsonNode>> it = obj.fields();
@@ -551,16 +562,11 @@ public class FileSystemEntityCore implements EntityCore {
             final Entry<String, JsonNode> e = it.next();
             final JsonNode node = e.getValue();
             if (node.isObject()) {
-                final ObjectNode subObj = handleObj((ObjectNode)node);
+                final ObjectNode subObj = handleObj((ObjectNode)node, selfs);
                 obj.replace(e.getKey(), subObj);
             } else if (node.isArray()) {
-                handleArray((ArrayNode)node);
+                handleArray((ArrayNode)node, selfs);
             }
-        }
-
-        final JsonNode selfNode = obj.get("$self");                                                     // NOI18N
-        if (selfNode == null) {
-            throw new InvalidEntityException("the object node does not contain a self reference", obj); // NOI18N
         }
 
         if (objExists(selfNode.asText())) {
@@ -703,16 +709,17 @@ public class FileSystemEntityCore implements EntityCore {
      * DOCUMENT ME!
      *
      * @param  arrNode  DOCUMENT ME!
+     * @param  selfs    DOCUMENT ME!
      */
-    private void handleArray(final ArrayNode arrNode) {
+    private void handleArray(final ArrayNode arrNode, final Set<String> selfs) {
         assert arrNode != null;
 
         for (int i = 0; i < arrNode.size(); ++i) {
             final JsonNode sub = arrNode.get(i);
             if (sub.isArray()) {
-                handleArray((ArrayNode)sub);
+                handleArray((ArrayNode)sub, selfs);
             } else if (sub.isObject()) {
-                final ObjectNode subObj = handleObj((ObjectNode)sub);
+                final ObjectNode subObj = handleObj((ObjectNode)sub, selfs);
                 arrNode.set(i, subObj);
             }
         }
@@ -722,12 +729,13 @@ public class FileSystemEntityCore implements EntityCore {
      * handles actual object nodes and returns a ref object.
      *
      * @param   objNode  DOCUMENT ME!
+     * @param   selfs    DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      *
      * @throws  InvalidEntityException  DOCUMENT ME!
      */
-    private ObjectNode handleObj(final ObjectNode objNode) {
+    private ObjectNode handleObj(final ObjectNode objNode, final Set<String> selfs) {
         final JsonNode self = objNode.get("$self");                                                               // NOI18N
         if (self == null) {
             final JsonNode ref = objNode.get("$ref");                                                             // NOI18N
@@ -739,6 +747,14 @@ public class FileSystemEntityCore implements EntityCore {
                     throw new InvalidEntityException("ref objects must not contain any other properties", objNode); // NOI18N
                 }
 
+                // issue #28 - we have to ensure the reference is present so that no inconsistent data can be created
+                final String refString = ref.asText();
+                if (!selfs.contains(refString) && !objExists(refString)) {
+                    throw new InvalidEntityException(
+                        "the object node contains ref that does not point to an actual object", // NOI18N
+                        objNode);
+                }
+
                 return objNode;
             }
         } else {
@@ -746,7 +762,7 @@ public class FileSystemEntityCore implements EntityCore {
             final ObjectNode ref = new ObjectNode(JsonNodeFactory.instance);
             ref.put("$ref", self.asText()); // NOI18N
 
-            writeObj(objNode);
+            writeObj(objNode, selfs);
 
             return ref;
         }
