@@ -904,6 +904,22 @@ public abstract class EntityCoreNGTest
             dataProvider = "EntityCoreInstanceDataProvider", 
             expectedExceptions = {InvalidEntityException.class}
     )
+    public void testCreateObject_invalidObj_subRefNotPresent(final EntityCore core) throws IOException
+    {
+        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
+        
+        final User u = new User();
+        u.setValidated(true);
+        
+        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subRefNotPresent.json"));
+        core.createObject(u, "testdomain.testclass", node, "testrole", true);
+    }
+    
+    @Test(
+            groups = {"createObject", "independent"},
+            dataProvider = "EntityCoreInstanceDataProvider", 
+            expectedExceptions = {InvalidEntityException.class}
+    )
     public void testCreateObject_invalidObj_subArrSubNoSelfNoRef(final EntityCore core) throws IOException
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
