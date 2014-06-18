@@ -19,7 +19,6 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import java.io.File;
 import java.io.IOException;
 
-
 /**
  * DOCUMENT ME!
  *
@@ -62,9 +61,9 @@ public class Starter {
         } catch (final Exception e) {
             // unsatisfactory fs cids dir
         }
-        
+
         String noninteractive = "--interactive";
-        if(args.length > 3 && args[3] != null) {
+        if ((args.length > 3) && (args[3] != null)) {
             noninteractive = args[3];
         }
 
@@ -94,8 +93,8 @@ public class Starter {
             context.addServlet(sh, "/*");
 
             server.start();
-            
-            if("--non-interactive".equals(noninteractive)) {
+
+            if ("--non-interactive".equals(noninteractive)) {
                 System.out.println("Server running non-interactive, use 'kill' to shutdown.");
             } else {
                 try {
