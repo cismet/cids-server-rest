@@ -19,8 +19,6 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import java.io.File;
 import java.io.IOException;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * DOCUMENT ME!
@@ -41,6 +39,7 @@ public class Starter {
      *
      * @param  args  DOCUMENT ME!
      */
+    // TODO: proper CLI api
     public static void main(final String[] args) {
         Integer port = 8890;
         try {
@@ -62,6 +61,11 @@ public class Starter {
             }
         } catch (final Exception e) {
             // unsatisfactory fs cids dir
+        }
+        
+        String noninteractive = "--interactive";
+        if(args.length > 3 && args[3] != null) {
+            noninteractive = args[3];
         }
 
         System.out.println("port=" + port);
@@ -90,13 +94,18 @@ public class Starter {
             context.addServlet(sh, "/*");
 
             server.start();
-            try {
-                System.out.println("\n\nServer started. Hit enter to shutdown.");
-                System.in.read();
-                server.setStopAtShutdown(true);
-                System.exit(0);
-            } catch (final IOException e) {
-                System.out.println("Server running in background, use 'kill' to shutdown.");
+            
+            if("--non-interactive".equals(noninteractive)) {
+                System.out.println("Server running non-interactive, use 'kill' to shutdown.");
+            } else {
+                try {
+                    System.out.println("\n\nServer started. Hit enter to shutdown.");
+                    System.in.read();
+                    server.setStopAtShutdown(true);
+                    System.exit(0);
+                } catch (final IOException e) {
+                    System.out.println("Server running in background, use 'kill' to shutdown.");
+                }
             }
         } catch (Throwable e) {
             e.printStackTrace();
