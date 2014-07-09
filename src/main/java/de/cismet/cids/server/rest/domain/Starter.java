@@ -17,9 +17,7 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 import java.io.File;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 
 /**
  * DOCUMENT ME!
@@ -40,6 +38,7 @@ public class Starter {
      *
      * @param  args  DOCUMENT ME!
      */
+    // TODO: proper CLI api
     public static void main(final String[] args) {
         Integer port = 8890;
         try {
@@ -63,6 +62,11 @@ public class Starter {
             // unsatisfactory fs cids dir
         }
 
+        String noninteractive = "--interactive";
+        if ((args.length > 3) && (args[3] != null)) {
+            noninteractive = args[3];
+        }
+
         System.out.println("port=" + port);
         System.out.println("swaggerpath=" + swaggerBasePath);
         System.out.println("fs_cids_dir=" + FS_CIDS_DIR);
@@ -70,17 +74,7 @@ public class Starter {
         Server server = null;
         try {
             JaxrsApiReader.setFormatString("");
-
-            final String registry = "http://localhost:8888";
-            final String servername = "first";
-
-            final Map<String, String> initParams = new HashMap<String, String>();
-
             final ServletHolder sh = new ServletHolder(ServletContainer.class);
-//            sh.setInitParameter("com.sun.jersey.config.property.packages",
-//                    "com.wordnik.swagger.jaxrs");
-//            sh.setInitParameter("com.sun.jersey.config.property.packages",
-//                    "de.cismet.cids.server.rest.domain");
             sh.setInitParameter(
                 "com.sun.jersey.config.property.packages",
                 "de.cismet.cids.server.rest.domain;de.cismet.cids.server.rest.resourcelistings;com.fasterxml.jackson.jaxrs");
@@ -94,23 +88,26 @@ public class Starter {
             server = new Server(port);
 
             final Client c = Client.create();
-//            WebResource r = c.resource(registry);
-//            r.path("servers").type(MediaType.APPLICATION_JSON).put(new CidsServerInfo(servername, "http://localhost:8890"));
 
             final Context context = new Context(server, "/", Context.SESSIONS);
             context.addServlet(sh, "/*");
 
             server.start();
-            System.out.println("\n\nServer started. Hit enter to shutdown.");
-            System.in.read();
-//            r.path("servers").path(servername).delete();
+
+            if ("--non-interactive".equals(noninteractive)) {
+                System.out.println("Server running non-interactive, use 'kill' to shutdown.");
+            } else {
+                try {
+                    System.out.println("\n\nServer started. Hit enter to shutdown.");
+                    System.in.read();
+                    server.setStopAtShutdown(true);
+                    System.exit(0);
+                } catch (final IOException e) {
+                    System.out.println("Server running in background, use 'kill' to shutdown.");
+                }
+            }
         } catch (Throwable e) {
             e.printStackTrace();
-        } finally {
-            if (server != null) {
-                server.setStopAtShutdown(true);
-            }
-            System.exit(0);
         }
     }
 }

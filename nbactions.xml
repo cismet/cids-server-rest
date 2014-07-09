@@ -126,7 +126,7 @@
         </goals>
         <properties>
             <jalopy.skip>true</jalopy.skip>
-            <exec.args>-Dcids-server-rest.fscore.caseSensitivityOverride=true -classpath %classpath de.cismet.cids.server.rest.domain.Starter</exec.args>
+            <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8899 -Dcids-server-rest.fscore.caseSensitivityOverride=true -classpath %classpath de.cismet.cids.server.rest.domain.Starter</exec.args>
             <exec.executable>java</exec.executable>
             <exec.classpathScope>runtime</exec.classpathScope>
         </properties>
