@@ -35,6 +35,7 @@ public class Node implements Key {
     private String dynamicChildren;
     private boolean clientSort = false;
     private boolean derivePermissionsFromClass = true;
+    private boolean isLeaf = false;
     private String icon = null;
     private String iconFactory = null;
     private String policy = "default";
