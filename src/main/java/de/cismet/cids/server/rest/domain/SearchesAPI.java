@@ -231,7 +231,7 @@ public class SearchesAPI extends APIBase {
             @PathParam("searchkey")
             final String searchKey,
             @ApiParam(
-                value = "search paramter.",
+                value = "search parameter",
                 required = false,
                 allowMultiple = true
             )

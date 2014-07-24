@@ -23,10 +23,11 @@ public class FileSystemEntityCoreNGTest extends EntityCoreNGTest
         try
         {
             TEST_DIR.mkdirs();
+            FileSystemBaseCore.baseDir=TEST_DIR.getAbsolutePath();
 
             return new Object[][]{
                 {
-                    new FileSystemEntityCore(TEST_DIR.getAbsolutePath())
+                    new FileSystemEntityCore()
                 }
             };
         }catch(final Exception e)

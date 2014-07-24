@@ -6,14 +6,14 @@ package de.cismet.cids.server.rest.domain;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.spi.container.servlet.ServletContainer;
-import com.wordnik.swagger.jaxrs.JaxrsApiReader;
 import java.io.File;
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.net.URI;
+import java.util.ArrayList;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -26,100 +26,80 @@ import org.mortbay.jetty.Server;
  *
  * @author mscholl
  */
-public class EntitiesAPINGTest
-{
-    private static Server server;
-    private static int port;
-    private static Client client;
-    
+public class EntitiesAPINGTest {
+
+    private static int port=0;
+
     // FIXME: this is not the way to go, the server should be able to create his cores on his own (or at least with proper config)
     private static File fscoreDir;
-    
-    public EntitiesAPINGTest()
-    {
+    static Starter starter = new Starter();
+
+    public EntitiesAPINGTest() {
     }
 
     @BeforeClass
-    public static void setUpClass() throws Exception
-    {
-        JaxrsApiReader.setFormatString("");
+    public static void setUpClass() throws Exception {
 
-        final ServletHolder sh = new ServletHolder(ServletContainer.class);
-        sh.setInitParameter(
-            "com.sun.jersey.config.property.packages",
-            "de.cismet.cids.server.rest.domain;de.cismet.cids.server.rest.resourcelistings;com.fasterxml.jackson.jaxrs");
-        sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
-            "true");
-        sh.setInitParameter(
-            "com.sun.jersey.spi.container.ContainerResponseFilters",
-            "de.cismet.cids.server.rest.CORSResponseFilter");
-        try
-        {
-            port = 38279;
-            server = new Server(port);
-        }catch(Exception e)
-        {
-            port = 47389;
-            server = new Server(port);
-            try
-            {
-                port = 61273;
-                server = new Server(port);
-            }catch(final Exception e1)
-            {
-                try
-                {
-                    port = 49383;
-                    server = new Server(port);
-                }catch(final Exception e2)
-                {
-                    port = 59483;
-                    server = new Server(port);
-                }
+        for (int i = 38279; i < 48279; ++i) {
+            if (available(i)) {
+                port = i;
+                break;
             }
         }
+        if (port == 0) {
+            throw new AssertionError("unbelievable busy error. no port is free.");
+        }
 
-        final Context context = new Context(server, "/", Context.SESSIONS);
-        context.addServlet(sh, "/*");
-        
+        String portString = String.valueOf(port);
         fscoreDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "fscore" + System.currentTimeMillis());
         fscoreDir.mkdir();
-        Starter.FS_CIDS_DIR = fscoreDir.getAbsolutePath();
+        String[] args = {
+            "-domain=CRISMA",
+            "-standalone",
+            "-port", portString,
+            "-enableCore=core.dummy.user",
+            "-enableCore = core.dummy.permission",
+            "-enableCore = core.fs.action",
+            "-enableCore = core.fs",
+            "-enableCore = core.fs.entity",
+            "-enableCore = core.fs.entityInfo",
+            "-enableCore = core.fs.node",
+            "-core.fs.basedir="+ fscoreDir.getAbsolutePath(),
+            "-core.fs.allow-case-insensitive"};
+        starter.init(args);
+        System.out.println("Test Server started on " + port);
 
-        server.start();
-        client = Client.create();
     }
 
     @AfterClass
-    public static void tearDownClass() throws Exception
-    {
-        if(server != null) {
-            server.stop();
+    public static void tearDownClass() throws Exception {
+        System.out.println("tearDown");
+        if (starter.server != null) {
+            starter.server.stop();
         }
-        if(client != null) {
-            client.destroy();
+        if (starter.client != null) {
+            starter.client.destroy();
         }
-        if(fscoreDir != null) {
+        if (fscoreDir != null) {
             FileUtils.deleteDirectory(fscoreDir);
         }
+        System.out.println("tearDown done");
+
     }
 
     @BeforeMethod
-    public void setUpMethod() throws Exception
-    {
+    public void setUpMethod() throws Exception {
     }
 
     @AfterMethod
-    public void tearDownMethod() throws Exception
-    {
+    public void tearDownMethod() throws Exception {
     }
 
     /**
      * Test of getEmptyInstance method, of class EntitiesAPI.
      */
-    @Test ( enabled = false )
-    public void testGetEmptyInstance()
-    {
+    @Test(enabled = false)
+    public void testGetEmptyInstance() {
         System.out.println("getEmptyInstance");
         String domain = "";
         String classKey = "";
@@ -137,22 +117,20 @@ public class EntitiesAPINGTest
      * Test of getAllObjects method, of class EntitiesAPI.
      */
     @Test
-    public void testGetAllObjects() throws Exception
-    {
+    public void testGetAllObjects() throws Exception {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
+
         // FIXME: the domain should be configurable
         final URI uri = new URI("http", null, "localhost", port, "/CRISMA.testclass", null, null);
-        final ClientResponse cr = client.resource(uri).queryParam("level", "11").get(ClientResponse.class);
+        final ClientResponse cr = starter.client.resource(uri).queryParam("level", "11").get(ClientResponse.class);
         assertEquals(cr.getStatus(), 403);
     }
 
     /**
      * Test of updateObject method, of class EntitiesAPI.
      */
-    @Test ( enabled = false )
-    public void testUpdateObject()
-    {
+    @Test(enabled = false)
+    public void testUpdateObject() {
         System.out.println("updateObject");
         String jsonBody = "";
         String domain = "";
@@ -172,9 +150,8 @@ public class EntitiesAPINGTest
     /**
      * Test of createObject method, of class EntitiesAPI.
      */
-    @Test ( enabled = false )
-    public void testCreateObject()
-    {
+    @Test(enabled = false)
+    public void testCreateObject() {
         System.out.println("createObject");
         String jsonBody = "";
         String domain = "";
@@ -194,22 +171,20 @@ public class EntitiesAPINGTest
      * Test of getObject method, of class EntitiesAPI.
      */
     @Test
-    public void testGetObject() throws Exception
-    {
+    public void testGetObject() throws Exception {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
+
         // FIXME: the domain should be configurable
         final URI uri = new URI("http", null, "localhost", port, "/CRISMA.testclass/9", null, null);
-        final ClientResponse cr = client.resource(uri).get(ClientResponse.class);
+        final ClientResponse cr = starter.client.resource(uri).get(ClientResponse.class);
         assertEquals(cr.getStatus(), 403);
     }
 
     /**
      * Test of deleteObject method, of class EntitiesAPI.
      */
-    @Test ( enabled = false )
-    public void testDeleteObject()
-    {
+    @Test(enabled = false)
+    public void testDeleteObject() {
         System.out.println("deleteObject");
         String domain = "";
         String classKey = "";
@@ -223,5 +198,32 @@ public class EntitiesAPINGTest
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
-    
+
+    static boolean available(int port) {
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                    /* should not be thrown */
+                }
+            }
+        }
+
+        return false;
+    }
+
 }

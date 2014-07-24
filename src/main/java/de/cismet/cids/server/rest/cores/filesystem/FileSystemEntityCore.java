@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.server.rest.cores.filesystem;
 
+import com.beust.jcommander.ParametersDelegate;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -20,6 +22,8 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.io.IOUtils;
+
+import org.openide.util.lookup.ServiceProvider;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -46,6 +50,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import de.cismet.cids.server.rest.cores.CidsServerCore;
 import de.cismet.cids.server.rest.cores.EntityCore;
 import de.cismet.cids.server.rest.cores.InvalidClassKeyException;
 import de.cismet.cids.server.rest.cores.InvalidEntityException;
@@ -64,6 +69,7 @@ import de.cismet.cids.server.rest.domain.types.User;
  * @version  1.1 2013/11/26
  */
 @Slf4j
+@ServiceProvider(service = CidsServerCore.class)
 public class FileSystemEntityCore implements EntityCore {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -78,35 +84,12 @@ public class FileSystemEntityCore implements EntityCore {
     // locking on public method level, finer grained locking not supported yet
     private final ReentrantReadWriteLock rwLock;
 
-    private final String baseDir;
-
     //~ Constructors -----------------------------------------------------------
 
     /**
      * Creates a new FileSystemEntityCore object.
-     *
-     * @param   baseDir  DOCUMENT ME!
-     *
-     * @throws  IllegalStateException  DOCUMENT ME!
      */
-    public FileSystemEntityCore(@NonNull final String baseDir) {
-        if (File.separatorChar == baseDir.charAt(baseDir.length() - 1)) {
-            this.baseDir = baseDir.substring(0, baseDir.length() - 1);
-        } else {
-            this.baseDir = baseDir;
-        }
-
-        if (!isCaseSensitiveFS()) {
-            if (System.getProperty("cids-server-rest.fscore.caseSensitivityOverride") == null) {                                          // NOI18N
-                throw new IllegalStateException("FS EntityCore implementation cannot be used on a case-insensitive FS");                  // NOI18N
-            } else {
-                if (log.isWarnEnabled()) {
-                    log.warn(
-                        "FS is not case-sensitive, FS EntityCore implementation will not be fully compliant to interface specification"); // NOI18N
-                }
-            }
-        }
-
+    public FileSystemEntityCore() {
         rwLock = new ReentrantReadWriteLock();
     }
 
@@ -117,30 +100,8 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @return  DOCUMENT ME!
      */
-    private boolean isCaseSensitiveFS() {
-        File tmpFile = null;
-        try {
-            tmpFile = File.createTempFile("caseSensitiveFS", null); // NOI18N
-            final File file2 = new File(tmpFile.getParentFile(), tmpFile.getName().toLowerCase());
-
-            return !file2.exists();
-        } catch (final Exception e) {
-            if (log.isWarnEnabled()) {
-                log.warn("cannot determine case sensitivity of FS", e); // NOI18N
-            }
-        } finally {
-            if (tmpFile != null) {
-                try {
-                    if (!tmpFile.delete()) {
-                        tmpFile.deleteOnExit();
-                    }
-                } catch (final Exception e) {
-                    tmpFile.deleteOnExit();
-                }
-            }
-        }
-
-        return false;
+    private String getBaseDir() {
+        return FileSystemBaseCore.baseDir;
     }
 
     @Override
@@ -675,7 +636,7 @@ public class FileSystemEntityCore implements EntityCore {
         final String domain = split[0];
         final String clazz = split[1];
 
-        final StringBuilder sb = new StringBuilder(baseDir);
+        final StringBuilder sb = new StringBuilder(getBaseDir());
         sb.append(File.separatorChar);
         sb.append(domain);
         sb.append(File.separatorChar);
@@ -1191,5 +1152,10 @@ public class FileSystemEntityCore implements EntityCore {
         {
             return "-1";
         }
+    }
+
+    @Override
+    public String getCoreKey() {
+        return "core.fs.entity"; // NOI18N
     }
 }

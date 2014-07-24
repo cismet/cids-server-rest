@@ -11,11 +11,16 @@
  */
 package de.cismet.cids.server.rest.cores.filesystem;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+
+import org.openide.util.lookup.ServiceProvider;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.cismet.cids.server.rest.cores.ActionCore;
+import de.cismet.cids.server.rest.cores.CidsServerCore;
 import de.cismet.cids.server.rest.domain.data.ActionResultInfo;
 import de.cismet.cids.server.rest.domain.data.ActionTask;
 import de.cismet.cids.server.rest.domain.data.GenericResourceWithContentType;
@@ -41,6 +47,7 @@ import de.cismet.cids.server.rest.domain.types.User;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
+@ServiceProvider(service = CidsServerCore.class)
 public class FileSystemActionCore implements ActionCore {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -49,25 +56,29 @@ public class FileSystemActionCore implements ActionCore {
 
     //~ Instance fields --------------------------------------------------------
 
-    final String baseDir;
     ObjectMapper mapper = new ObjectMapper();
 
     //~ Constructors -----------------------------------------------------------
 
     /**
      * Creates a new FileSystemActionCore object.
-     *
-     * @param  baseDir  DOCUMENT ME!
      */
-    public FileSystemActionCore(final String baseDir) {
-        this.baseDir = baseDir;
+    public FileSystemActionCore() {
     }
 
     //~ Methods ----------------------------------------------------------------
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private String getBaseDir() {
+        return FileSystemBaseCore.baseDir;
+    }
     @Override
     public List<ObjectNode> getAllActions(final User user, final String role) {
-        final File folder = new File(baseDir + SEP + "actions");
+        final File folder = new File(getBaseDir() + SEP + "actions");
         final ArrayList all = new ArrayList();
         for (final File fileEntry : folder.listFiles()) {
             if (!fileEntry.isHidden() && !fileEntry.isDirectory() && fileEntry.getAbsolutePath().endsWith(".json")) {
@@ -86,7 +97,7 @@ public class FileSystemActionCore implements ActionCore {
     public ObjectNode getAction(final User user, final String actionKey, final String role) {
         try {
             final ObjectNode ret = (ObjectNode)(mapper.readTree(
-                        new File(baseDir + SEP + "actions" + SEP + actionKey + ".json")));
+                        new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json")));
             return ret;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -95,7 +106,7 @@ public class FileSystemActionCore implements ActionCore {
 
     @Override
     public List<ObjectNode> getAllTasks(final User user, final String actionKey, final String role) {
-        final File folder = new File(baseDir + SEP + "actions" + SEP + actionKey);
+        final File folder = new File(getBaseDir() + SEP + "actions" + SEP + actionKey);
         final ArrayList all = new ArrayList();
         for (final File fileEntry : folder.listFiles()) {
             if (!fileEntry.isHidden() && !fileEntry.isDirectory() && fileEntry.getAbsolutePath().endsWith(".json")) {
@@ -128,21 +139,22 @@ public class FileSystemActionCore implements ActionCore {
         try {
             actionTask.setStatus(ActionTask.Status.STARTING);
             actionTask.setActionKey(actionKey);
-            final File taskFile = new File(baseDir + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
+            final File taskFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
                             + ".json");
-            final File pidFile = new File(baseDir + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP
+            final File pidFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
+                            + SEP
                             + "pid.txt");
-            final String resultDir = baseDir + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey();
-            final String stderr = baseDir + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP
+            final String resultDir = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey();
+            final String stderr = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP
                         + "stderr.txt";
-            final String stdout = baseDir + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP
+            final String stdout = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP
                         + "stdout.txt";
             final File resultDirFile = new File(resultDir);
             final File stderrFile = new File(stderr);
             final File stdoutFile = new File(stdout);
             mapper.writeValue(taskFile, actionTask);
             final List<String> commandWithParam = new ArrayList<String>();
-            commandWithParam.add(baseDir + SEP + "actions" + SEP + actionKey + SEP + actionKey + ".sh");
+            commandWithParam.add(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionKey + ".sh");
             final StringBuilder paramStringB = new StringBuilder();
             for (final Map.Entry<String, Object> entry : actionTask.getParameters().entrySet()) {
                 final String key = entry.getKey();
@@ -239,7 +251,7 @@ public class FileSystemActionCore implements ActionCore {
         if (requestResultingInstance) {
             try {
                 return (ObjectNode)mapper.readTree(new File(
-                            baseDir
+                            getBaseDir()
                                     + SEP
                                     + "actions"
                                     + SEP
@@ -260,7 +272,7 @@ public class FileSystemActionCore implements ActionCore {
     public ObjectNode getTask(final User user, final String actionKey, final String taskKey, final String role) {
         try {
             final ObjectNode ret = (ObjectNode)(mapper.readTree(
-                        new File(baseDir + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json")));
+                        new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json")));
             return ret;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -270,10 +282,10 @@ public class FileSystemActionCore implements ActionCore {
     @Override
     public void deleteTask(final User user, final String actionKey, final String taskKey, final String role) {
         try {
-            final File taskFile = new File(baseDir + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json");
-            final File pidFile = new File(baseDir + SEP + "actions" + SEP + actionKey + SEP + taskKey + SEP
+            final File taskFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json");
+            final File pidFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + SEP
                             + "pid.txt");
-            final String resultDir = baseDir + SEP + "actions" + SEP + actionKey + SEP + taskKey;
+            final String resultDir = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey;
             final File resultDirFile = new File(resultDir);
 
             final ActionTask task = mapper.readValue(taskFile, ActionTask.class);
@@ -298,7 +310,7 @@ public class FileSystemActionCore implements ActionCore {
             final String actionKey,
             final String taskKey,
             final String role) {
-        final File folder = new File(baseDir + SEP + "actions" + SEP + actionKey + SEP + taskKey);
+        final File folder = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey);
         final ArrayList all = new ArrayList();
         for (final File fileEntry : folder.listFiles()) {
             if (!fileEntry.isHidden() && !fileEntry.isDirectory()) {
@@ -315,7 +327,7 @@ public class FileSystemActionCore implements ActionCore {
             final String resultKey,
             final String role) {
         // Weakness: only one result per key
-        final String resultDir = baseDir + SEP + "actions" + SEP + actionKey + SEP + taskKey;
+        final String resultDir = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey;
         final File folder = new File(resultDir);
         final FileFilter fileFilter = new WildcardFileFilter(resultKey + "*");
         final File[] files = folder.listFiles(fileFilter);
@@ -367,5 +379,10 @@ public class FileSystemActionCore implements ActionCore {
             info.setContentType("unknown/unknown");
         }
         return info;
+    }
+
+    @Override
+    public String getCoreKey() {
+        return "core.fs.actionthe "; // NOI18N
     }
 }
