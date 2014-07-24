@@ -20,7 +20,7 @@ import de.cismet.cids.server.rest.domain.types.User;
  * @author   thorsten
  * @version  1.0
  */
-public interface SearchCore {
+public interface SearchCore extends CidsServerCore {
 
     //~ Methods ----------------------------------------------------------------
 

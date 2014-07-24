@@ -15,7 +15,7 @@ import de.cismet.cids.server.rest.domain.types.User;
  * @author   thorsten
  * @version  1.0
  */
-public interface PermissionCore {
+public interface PermissionCore extends CidsServerCore {
 
     //~ Methods ----------------------------------------------------------------
 
