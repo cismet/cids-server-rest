@@ -383,6 +383,6 @@ public class FileSystemActionCore implements ActionCore {
 
     @Override
     public String getCoreKey() {
-        return "core.fs.action"; // NOI18N
+        return "core.fs.actionthe "; // NOI18N
     }
 }
