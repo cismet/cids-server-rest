@@ -42,6 +42,9 @@ public class Starter {
 
     //~ Instance fields --------------------------------------------------------
 
+    Server server = null;
+    final Client client = Client.create();
+
     @Parameter(
         names = "-interactive",
         description = "If set to interactive server waits for a <enter> to shutdown"
@@ -81,7 +84,7 @@ public class Starter {
      *
      * @param  args  DOCUMENT ME!
      */
-    private void init(final String[] args) {
+    void init(final String[] args) {
         JCommander jcom = null;
         try {
             final Collection<? extends CidsServerCore> cores = Lookup.getDefault().lookupAll(CidsServerCore.class);
@@ -117,7 +120,6 @@ public class Starter {
 
             final String swaggerBasePath = "http://localhost:" + port;
             RuntimeContainer.setServer(cidsCoreHolder);
-            Server server = null;
             try {
                 JaxrsApiReader.setFormatString("");
                 final ServletHolder sh = new ServletHolder(ServletContainer.class);
@@ -135,8 +137,6 @@ public class Starter {
                 sh.setInitParameter("swagger.version", "1.0");
                 sh.setInitParameter("swagger.api.basepath", swaggerBasePath); // no trailing slash please
                 server = new Server(port);
-
-                final Client c = Client.create();
 
                 final Context context = new Context(server, "/", Context.SESSIONS);
                 context.addServlet(sh, "/*");
