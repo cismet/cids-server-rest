@@ -51,7 +51,7 @@ public class SimpleServer implements Server {
 
     @Override
     public EntityCore getEntityCore(final String classKey) {
-        return entityCores.get(classKey);
+        return entityCores.get("*");
     }
 
     /**
