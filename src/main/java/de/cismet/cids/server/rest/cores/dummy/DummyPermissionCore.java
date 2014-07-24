@@ -7,6 +7,9 @@
 ****************************************************/
 package de.cismet.cids.server.rest.cores.dummy;
 
+import org.openide.util.lookup.ServiceProvider;
+
+import de.cismet.cids.server.rest.cores.CidsServerCore;
 import de.cismet.cids.server.rest.cores.PermissionCore;
 import de.cismet.cids.server.rest.domain.types.User;
 
@@ -16,6 +19,7 @@ import de.cismet.cids.server.rest.domain.types.User;
  * @author   thorsten
  * @version  1.0
  */
+@ServiceProvider(service = CidsServerCore.class)
 public class DummyPermissionCore implements PermissionCore {
 
     //~ Methods ----------------------------------------------------------------
@@ -75,5 +79,10 @@ public class DummyPermissionCore implements PermissionCore {
     @Override
     public boolean hasNodeWritePermission(final User user, final String role, final String nodeKey) {
         return true;
+    }
+
+    @Override
+    public String getCoreKey() {
+        return "core.dummy.permission"; // NOI18N
     }
 }

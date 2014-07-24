@@ -7,6 +7,9 @@
 ****************************************************/
 package de.cismet.cids.server.rest.cores.dummy;
 
+import org.openide.util.lookup.ServiceProvider;
+
+import de.cismet.cids.server.rest.cores.CidsServerCore;
 import de.cismet.cids.server.rest.cores.UserCore;
 import de.cismet.cids.server.rest.domain.types.User;
 
@@ -16,6 +19,7 @@ import de.cismet.cids.server.rest.domain.types.User;
  * @author   thorsten
  * @version  1.0
  */
+@ServiceProvider(service = CidsServerCore.class)
 public class DummyUserCore implements UserCore {
 
     //~ Methods ----------------------------------------------------------------
@@ -30,5 +34,9 @@ public class DummyUserCore implements UserCore {
         user.setValidated(true);
 
         return user;
+    }
+    @Override
+    public String getCoreKey() {
+        return "core.dummy.user"; // NOI18N
     }
 }
