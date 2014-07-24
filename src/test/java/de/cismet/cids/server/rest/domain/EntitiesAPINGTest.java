@@ -8,6 +8,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 import com.wordnik.swagger.jaxrs.JaxrsApiReader;
+import de.cismet.cids.server.rest.cores.filesystem.FileSystemBaseCore;
 import java.io.File;
 import java.net.URI;
 import javax.ws.rs.core.Response;
@@ -84,7 +85,8 @@ public class EntitiesAPINGTest
         
         fscoreDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "fscore" + System.currentTimeMillis());
         fscoreDir.mkdir();
-        Starter.FS_CIDS_DIR = fscoreDir.getAbsolutePath();
+        //FileSystemBaseCore.baseDir=fscoreDir.getAbsolutePath();
+        
 
         server.start();
         client = Client.create();
