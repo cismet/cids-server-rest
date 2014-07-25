@@ -1,18 +1,18 @@
 package de.cismet.cids.server.cores;
 
-import de.cismet.cids.server.cores.InvalidClassKeyException;
-import de.cismet.cids.server.cores.InvalidLevelException;
-import de.cismet.cids.server.cores.InvalidFilterFormatException;
-import de.cismet.cids.server.cores.InvalidRoleException;
-import de.cismet.cids.server.cores.InvalidEntityException;
-import de.cismet.cids.server.cores.InvalidUserException;
+import de.cismet.cids.server.exceptions.InvalidRoleException;
+import de.cismet.cids.server.exceptions.InvalidLevelException;
+import de.cismet.cids.server.exceptions.InvalidFilterFormatException;
+import de.cismet.cids.server.exceptions.InvalidClassKeyException;
+import de.cismet.cids.server.exceptions.InvalidEntityException;
+import de.cismet.cids.server.exceptions.InvalidUserException;
 import de.cismet.cids.server.cores.EntityCore;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.cismet.cids.server.api.data.RuntimeContainer;
-import de.cismet.cids.server.api.data.SimpleObjectQuery;
+import de.cismet.cids.server.data.RuntimeContainer;
+import de.cismet.cids.server.api.types.SimpleObjectQuery;
 import de.cismet.cids.server.api.types.User;
 import java.io.IOException;
 import java.util.ArrayList;

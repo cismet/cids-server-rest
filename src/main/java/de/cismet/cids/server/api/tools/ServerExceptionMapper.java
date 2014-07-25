@@ -16,8 +16,8 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import de.cismet.cids.server.api.types.APIException;
-import de.cismet.cids.server.cores.InvalidFilterFormatException;
-import de.cismet.cids.server.cores.InvalidLevelException;
+import de.cismet.cids.server.exceptions.InvalidFilterFormatException;
+import de.cismet.cids.server.exceptions.InvalidLevelException;
 
 /**
  * DOCUMENT ME!

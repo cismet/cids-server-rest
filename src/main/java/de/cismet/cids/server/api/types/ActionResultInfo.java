@@ -5,11 +5,17 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.server.api.data;
+package de.cismet.cids.server.api.types;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Map;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
+import de.cismet.cids.server.data.configkeys.Key;
 
 /**
  * DOCUMENT ME!
@@ -17,13 +23,17 @@ import lombok.NoArgsConstructor;
  * @author   thorsten
  * @version  1.0
  */
+@XmlRootElement
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GenericResourceWithContentType {
+public class ActionResultInfo implements Key {
 
     //~ Instance fields --------------------------------------------------------
 
+    private String key;
+    private String name;
+    private String description;
     private String contentType;
-    private Object res;
+    private Map<String, Object> additionalInfo;
 }

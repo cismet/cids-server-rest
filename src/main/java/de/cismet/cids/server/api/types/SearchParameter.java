@@ -5,11 +5,7 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.server.api.data;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+package de.cismet.cids.server.api.types;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -20,12 +16,5 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @version  1.0
  */
 @XmlRootElement
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class NodeQuery {
-
-    //~ Instance fields --------------------------------------------------------
-
-    private String query;
+public class SearchParameter {
 }

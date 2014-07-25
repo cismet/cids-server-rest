@@ -51,16 +51,16 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import de.cismet.cids.server.api.tools.Tools;
-import de.cismet.cids.server.api.data.SimpleObjectQuery;
+import de.cismet.cids.server.api.types.SimpleObjectQuery;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.CidsServerCore;
 import de.cismet.cids.server.cores.EntityCore;
-import de.cismet.cids.server.cores.InvalidClassKeyException;
-import de.cismet.cids.server.cores.InvalidEntityException;
-import de.cismet.cids.server.cores.InvalidFilterFormatException;
-import de.cismet.cids.server.cores.InvalidLevelException;
-import de.cismet.cids.server.cores.InvalidRoleException;
-import de.cismet.cids.server.cores.InvalidUserException;
+import de.cismet.cids.server.exceptions.InvalidClassKeyException;
+import de.cismet.cids.server.exceptions.InvalidEntityException;
+import de.cismet.cids.server.exceptions.InvalidFilterFormatException;
+import de.cismet.cids.server.exceptions.InvalidLevelException;
+import de.cismet.cids.server.exceptions.InvalidRoleException;
+import de.cismet.cids.server.exceptions.InvalidUserException;
 
 /**
  * DOCUMENT ME!

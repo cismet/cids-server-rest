@@ -10,9 +10,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.cismet.cids.server.api.data;
+package de.cismet.cids.server.data;
 
-import de.cismet.cids.server.api.data.Server;
 import java.util.HashMap;
 
 import de.cismet.cids.server.cores.ActionCore;

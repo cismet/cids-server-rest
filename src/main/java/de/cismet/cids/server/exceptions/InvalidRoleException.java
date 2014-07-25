@@ -5,7 +5,7 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.server.cores;
+package de.cismet.cids.server.exceptions;
 
 /**
  * DOCUMENT ME!
@@ -13,33 +13,33 @@ package de.cismet.cids.server.cores;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-public final class InvalidUserException extends RuntimeException {
+public final class InvalidRoleException extends RuntimeException {
 
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates a new instance of <code>InvalidUserException</code> without detail message.
+     * Creates a new instance of <code>InvalidRoleException</code> without detail message.
      */
-    public InvalidUserException() {
+    public InvalidRoleException() {
     }
 
     /**
-     * Constructs an instance of <code>InvalidUserException</code> with the specified detail message.
+     * Constructs an instance of <code>InvalidRoleException</code> with the specified detail message.
      *
      * @param  msg  the detail message.
      */
-    public InvalidUserException(final String msg) {
+    public InvalidRoleException(final String msg) {
         super(msg);
     }
 
     /**
-     * Constructs an instance of <code>InvalidUserException</code> with the specified detail message and the specified
+     * Constructs an instance of <code>InvalidRoleException</code> with the specified detail message and the specified
      * cause.
      *
      * @param  msg    the detail message.
      * @param  cause  the exception cause
      */
-    public InvalidUserException(final String msg, final Throwable cause) {
+    public InvalidRoleException(final String msg, final Throwable cause) {
         super(msg, cause);
     }
 }

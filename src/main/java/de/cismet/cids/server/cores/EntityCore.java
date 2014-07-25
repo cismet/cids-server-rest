@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 
-import de.cismet.cids.server.api.data.SimpleObjectQuery;
+import de.cismet.cids.server.api.types.SimpleObjectQuery;
 import de.cismet.cids.server.api.types.User;
 
 /**

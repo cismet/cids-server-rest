@@ -5,7 +5,7 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.server.api.data;
+package de.cismet.cids.server.api.types;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,10 +25,18 @@ import de.cismet.cids.server.data.configkeys.Key;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Action implements Key {
+public class Node implements Key {
 
     //~ Instance fields --------------------------------------------------------
 
     private String key;
-    private String description;
+    private String name;
+    private String objectKey;
+    private String dynamicChildren;
+    private boolean clientSort = false;
+    private boolean derivePermissionsFromClass = true;
+    private boolean isLeaf = false;
+    private String icon = null;
+    private String iconFactory = null;
+    private String policy = "default";
 }

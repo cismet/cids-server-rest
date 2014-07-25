@@ -26,11 +26,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.cismet.cids.server.api.data.RuntimeContainer;
-import de.cismet.cids.server.api.data.Node;
+import de.cismet.cids.server.api.types.Node;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.CidsServerCore;
 import de.cismet.cids.server.cores.NodeCore;
+import de.cismet.cids.server.data.RuntimeContainer;
 
 /**
  * DOCUMENT ME!

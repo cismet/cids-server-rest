@@ -5,7 +5,7 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.server.api.data;
+package de.cismet.cids.server.api.types;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

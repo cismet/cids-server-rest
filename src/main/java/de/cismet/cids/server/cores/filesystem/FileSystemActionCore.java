@@ -34,9 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import de.cismet.cids.server.api.data.ActionResultInfo;
-import de.cismet.cids.server.api.data.ActionTask;
-import de.cismet.cids.server.api.data.GenericResourceWithContentType;
+import de.cismet.cids.server.api.types.ActionResultInfo;
+import de.cismet.cids.server.api.types.ActionTask;
+import de.cismet.cids.server.api.types.GenericResourceWithContentType;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.ActionCore;
 import de.cismet.cids.server.cores.CidsServerCore;

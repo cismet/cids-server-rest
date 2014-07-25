@@ -176,7 +176,7 @@ public class RestRegistry {
 
         final ServletHolder sh = new ServletHolder(ServletContainer.class);
         sh.setInitParameter("com.sun.jersey.config.property.packages",
-            "de.cismet.cids.server.rest.registry");
+            "de.cismet.cids.server.registry");
 //                "com.wordnik.swagger.jaxrs;de.cismet.cids.server.rest.registry");
         sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
             "true");

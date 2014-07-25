@@ -5,9 +5,8 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.server.api.data;
+package de.cismet.cids.server.data;
 
-import de.cismet.cids.server.api.data.Server;
 import com.sun.jersey.api.client.Client;
 
 /**

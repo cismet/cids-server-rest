@@ -5,7 +5,7 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.server.api.data;
+package de.cismet.cids.server.data;
 
 import de.cismet.cids.server.cores.ActionCore;
 import de.cismet.cids.server.cores.EntityCore;

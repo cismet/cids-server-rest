@@ -5,7 +5,7 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.server.cores;
+package de.cismet.cids.server.exceptions;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 

@@ -15,9 +15,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 import com.wordnik.swagger.jaxrs.JaxrsApiReader;
-import de.cismet.cids.server.api.data.RuntimeContainer;
-import de.cismet.cids.server.api.ServerConstants;
-import de.cismet.cids.server.api.data.SimpleServer;
 
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
@@ -31,8 +28,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import de.cismet.cids.server.api.ServerConstants;
 import de.cismet.cids.server.cores.CidsServerCore;
 import de.cismet.cids.server.cores.EntityInfoCore;
+import de.cismet.cids.server.data.RuntimeContainer;
+import de.cismet.cids.server.data.SimpleServer;
 
 /**
  * DOCUMENT ME!
@@ -129,7 +129,7 @@ public class Starter {
                 sh.setInitParameter(
                     "com.sun.jersey.config.property.packages",
                     "de.cismet.cids.server.api;"
-//                            + "de.cismet.cids.server.rest.resourcelistings;"
+        //                            + "de.cismet.cids.server.rest.resourcelistings;"
                             + "com.fasterxml.jackson.jaxrs");
 
                 sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",

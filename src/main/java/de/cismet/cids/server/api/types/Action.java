@@ -5,17 +5,16 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.server.api.data;
+package de.cismet.cids.server.api.types;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import de.cismet.cids.server.data.configkeys.Key;
+
 /**
  * DOCUMENT ME!
  *
@@ -26,27 +25,10 @@ import de.cismet.cids.server.data.configkeys.Key;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActionTask implements Key {
-
-    //~ Enums ------------------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @version  1.0
-     */
-    public enum Status {
-
-        //~ Enum constants -----------------------------------------------------
-
-        STARTING, RUNNING, CANCELING, FINISHED, ERROR
-    }
+public class Action implements Key {
 
     //~ Instance fields --------------------------------------------------------
 
     private String key;
-    private String actionKey;
     private String description;
-    private Map<String, Object> parameters;
-    private Status status;
 }

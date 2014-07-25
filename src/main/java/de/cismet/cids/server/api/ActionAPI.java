@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-import de.cismet.cids.server.api.tools.Tools;
-import de.cismet.cids.server.api.data.RuntimeContainer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -34,11 +32,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import de.cismet.cids.server.api.data.ActionResultInfo;
-import de.cismet.cids.server.api.data.ActionTask;
-import de.cismet.cids.server.api.data.CollectionResource;
-import de.cismet.cids.server.api.data.GenericResourceWithContentType;
+import de.cismet.cids.server.api.tools.Tools;
+import de.cismet.cids.server.api.types.ActionResultInfo;
+import de.cismet.cids.server.api.types.ActionTask;
+import de.cismet.cids.server.api.types.CollectionResource;
+import de.cismet.cids.server.api.types.GenericResourceWithContentType;
 import de.cismet.cids.server.api.types.User;
+import de.cismet.cids.server.data.RuntimeContainer;
 
 /**
  * DOCUMENT ME!

@@ -7,7 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-import de.cismet.cids.server.api.tools.Tools;
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiError;
 import com.wordnik.swagger.core.ApiErrors;
@@ -21,6 +20,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import de.cismet.cids.server.api.tools.Tools;
 import de.cismet.cids.server.api.types.User;
 
 /**
