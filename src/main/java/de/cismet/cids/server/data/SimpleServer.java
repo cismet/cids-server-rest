@@ -22,6 +22,10 @@ import de.cismet.cids.server.cores.NodeCore;
 import de.cismet.cids.server.cores.PermissionCore;
 import de.cismet.cids.server.cores.SearchCore;
 import de.cismet.cids.server.cores.UserCore;
+import de.cismet.cids.server.cores.noop.NoOpActionCore;
+import de.cismet.cids.server.cores.noop.NoOpEntityInfoCore;
+import de.cismet.cids.server.cores.noop.NoOpNodeCore;
+import de.cismet.cids.server.cores.noop.NoOpSearchCore;
 import de.cismet.cids.server.data.unused.CustomAttributeCore;
 
 /**
@@ -36,13 +40,13 @@ public class SimpleServer implements Server {
 
     //~ Instance fields --------------------------------------------------------
 
-    EntityInfoCore entityInfoCore;
+    EntityInfoCore entityInfoCore = new NoOpEntityInfoCore();
     PermissionCore permissionCore;
     HashMap<String, EntityCore> entityCores = new HashMap<String, EntityCore>();
     CustomAttributeCore customAttributeCore;
-    NodeCore nodeCore;
-    ActionCore actionCore;
-    SearchCore searchCore;
+    NodeCore nodeCore = new NoOpNodeCore();
+    ActionCore actionCore = new NoOpActionCore();
+    SearchCore searchCore = new NoOpSearchCore();
     UserCore userCore;
     String domainName;
     String registry;
