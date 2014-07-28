@@ -143,6 +143,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.2</version>
         </dependency>
+        <dependency>
+            <groupId>de.cismet</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>1.36-SNAPSHOT</version>
+        </dependency>
         <!-- this is only a helper library that is needed at compile time -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -154,20 +159,20 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.beust</groupId>
+                    <artifactId>jcommander</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>1.36-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
     
     <profiles>
         <profile>
             <id>case-insensitive-test-override</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
