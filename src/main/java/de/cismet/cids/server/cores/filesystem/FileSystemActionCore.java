@@ -12,6 +12,7 @@
 package de.cismet.cids.server.cores.filesystem;
 
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,6 +48,7 @@ import de.cismet.cids.server.cores.CidsServerCore;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
+@Parameters(separators = "=")
 @ServiceProvider(service = CidsServerCore.class)
 public class FileSystemActionCore implements ActionCore {
 
