@@ -61,7 +61,7 @@ public class Starter {
     int port = 8890;
 
     @Parameter(
-        names = "basePath",
+        names = "-basePath",
         description = "Basepath of the server (mainly used by swagger-doc )"
     )
     String basePath = "http://localhost";
