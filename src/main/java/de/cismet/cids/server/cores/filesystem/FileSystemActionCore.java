@@ -55,7 +55,7 @@ public class FileSystemActionCore implements ActionCore {
     static final String SEP = System.getProperty("file.separator");
 
     @Parameter(
-        names = { "-core.fs.action.actionextension", "-core.fs.action.actionextension" },
+        names = { "-core.fs.action.actionextension", "--core.fs.action.actionextension" },
         description = "extension of the action scripts"
     )
     static String actionExtension = ".sh";
