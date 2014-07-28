@@ -129,7 +129,7 @@ public class Starter {
                 sh.setInitParameter(
                     "com.sun.jersey.config.property.packages",
                     "de.cismet.cids.server.api;"
-        //                            + "de.cismet.cids.server.rest.resourcelistings;"
+                            // + "de.cismet.cids.server.rest.resourcelistings;"
                             + "com.fasterxml.jackson.jaxrs");
 
                 sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
