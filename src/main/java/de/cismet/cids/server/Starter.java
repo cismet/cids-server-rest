@@ -136,7 +136,7 @@ public class Starter {
                     "true");
                 sh.setInitParameter(
                     "com.sun.jersey.spi.container.ContainerResponseFilters",
-                    "de.cismet.cids.server.api.CORSResponseFilter");
+                    "de.cismet.cids.server.api.tools.CORSResponseFilter");
                 sh.setInitParameter("swagger.version", "1.0");
                 sh.setInitParameter("swagger.api.basepath", swaggerBasePath); // no trailing slash please
                 server = new Server(port);
