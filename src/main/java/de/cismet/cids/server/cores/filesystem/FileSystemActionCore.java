@@ -54,6 +54,12 @@ public class FileSystemActionCore implements ActionCore {
 
     static final String SEP = System.getProperty("file.separator");
 
+    @Parameter(
+        names = { "-core.fs.action.actionextension", "-core.fs.action.actionextension" },
+        description = "extension of the action scripts"
+    )
+    static String actionExtension = ".sh";
+
     //~ Instance fields --------------------------------------------------------
 
     ObjectMapper mapper = new ObjectMapper();
@@ -76,6 +82,7 @@ public class FileSystemActionCore implements ActionCore {
     private String getBaseDir() {
         return FileSystemBaseCore.baseDir;
     }
+
     @Override
     public List<ObjectNode> getAllActions(final User user, final String role) {
         final File folder = new File(getBaseDir() + SEP + "actions");
@@ -154,7 +161,7 @@ public class FileSystemActionCore implements ActionCore {
             final File stdoutFile = new File(stdout);
             mapper.writeValue(taskFile, actionTask);
             final List<String> commandWithParam = new ArrayList<String>();
-            commandWithParam.add(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionKey + ".sh");
+            commandWithParam.add(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionKey + actionExtension);
             final StringBuilder paramStringB = new StringBuilder();
             for (final Map.Entry<String, Object> entry : actionTask.getParameters().entrySet()) {
                 final String key = entry.getKey();
