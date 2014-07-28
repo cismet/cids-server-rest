@@ -61,6 +61,12 @@ public class Starter {
     int port = 8890;
 
     @Parameter(
+        names = "basePath",
+        description = "Basepath of the server (mainly used by swagger-doc )"
+    )
+    String basePath = "http://localhost";
+
+    @Parameter(
         names = { "-domainname", "-domain" },
         description = "If set to interactive server waits for a <enter> to shutdown"
     )
@@ -121,7 +127,7 @@ public class Starter {
             jcom.setAllowParameterOverwriting(true);
             jcom.parse(args);
 
-            final String swaggerBasePath = "http://localhost:" + port;
+            final String swaggerBasePath = basePath + ":" + port;
             RuntimeContainer.setServer(cidsCoreHolder);
             try {
                 JaxrsApiReader.setFormatString("");
