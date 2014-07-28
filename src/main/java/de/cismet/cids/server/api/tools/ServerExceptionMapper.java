@@ -16,6 +16,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import de.cismet.cids.server.api.types.APIException;
+import de.cismet.cids.server.exceptions.CidsServerException;
 import de.cismet.cids.server.exceptions.InvalidFilterFormatException;
 import de.cismet.cids.server.exceptions.InvalidLevelException;
 
@@ -98,6 +99,35 @@ public final class ServerExceptionMapper {
 
             builder.entity(ex);
             builder.type("application/json"); // NOI18N
+
+            return builder.build();
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    @Provider
+    public static final class CidsServerExceptionMapper implements ExceptionMapper<CidsServerException> {
+
+        //~ Methods ------------------------------------------------------------
+
+        @Override
+        public Response toResponse(final CidsServerException e) {
+            final Response.ResponseBuilder builder = Response.status(e.getHttpErrorCode());
+
+            final APIException ex = new APIException(
+                    e.getDeveloperMessage(),
+                    e.getUserMessage(),
+                    e.getHttpErrorCode(),
+                    (e.getCause() != null) ? e.getCause().toString() : "no further information provided");        // NOI18N
+            if (e.getCause() != null) {
+                log.info("A CidsServerException has been thrown. The cause was a:" + e.getCause(), e.getCause()); // NOI18N
+            }
+            builder.entity(ex);
+            builder.type("application/json");                                                                     // NOI18N
 
             return builder.build();
         }
