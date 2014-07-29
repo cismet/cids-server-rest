@@ -13,7 +13,6 @@ package de.cismet.cids.server.cores.filesystem;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.beust.jcommander.ParametersDelegate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -28,8 +27,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-import java.lang.reflect.Field;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +58,12 @@ public class FileSystemActionCore implements ActionCore {
         description = "extension of the action scripts"
     )
     static String actionExtension = ".sh";
+
+    @Parameter(
+        names = { "-core.fs.action.os", "--core.fs.action.os" },
+        description = "Server OS [Unix, Win]"
+    )
+    static String os = "Unix";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -185,14 +188,15 @@ public class FileSystemActionCore implements ActionCore {
                             fixedTask.setStatus(ActionTask.Status.RUNNING);
                             mapper.writeValue(taskFile, fixedTask);
                             final ProcessBuilder pb = new ProcessBuilder(commandWithParam);
-//                        ProcessBuilder pb = new ProcessBuilder("/Users/thorsten/Desktop/my-cids-on-a-filesystem/actions/beep/beep.sh","2","2");
+
                             pb.directory(new File(resultDir));
                             final Map<String, String> env = pb.environment();
                             env.put("cidsActionDirectory", resultDir);
                             final Process p = pb.start();
-                            final Field f = p.getClass().getDeclaredField("pid");
-                            f.setAccessible(true);
-                            String s = String.valueOf(f.get(p));
+
+                            final Integer i = de.flapdoodle.embed.process.runtime.Processes.processId(p);
+                            String s = String.valueOf(i);
+
                             FileUtils.writeStringToFile(pidFile, s);
                             final BufferedReader stdInput = new BufferedReader(new InputStreamReader(
                                         p.getInputStream()));
@@ -202,13 +206,13 @@ public class FileSystemActionCore implements ActionCore {
                             // read the output from the command
                             final StringBuilder out = new StringBuilder();
                             while ((s = stdInput.readLine()) != null) {
-                                out.append(s).append('\n');
+                                out.append(s).append(System.getProperty("line.separator"));
                             }
 
                             // read any errors from the attempted command
                             final StringBuilder err = new StringBuilder();
                             while ((s = stdError.readLine()) != null) {
-                                err.append(s).append('\n');
+                                err.append(s).append(System.getProperty("line.separator"));
                             }
                             if (taskFile.exists()) {
                                 if (out.length() > 0) {
@@ -303,8 +307,13 @@ public class FileSystemActionCore implements ActionCore {
                 mapper.writeValue(taskFile, task);
 
                 final String pid = FileUtils.readFileToString(pidFile);
-                final ProcessBuilder pb = new ProcessBuilder("kill", pid);
-                pb.start();
+                if (os.equalsIgnoreCase("win")) {
+                    final ProcessBuilder killBuilder = new ProcessBuilder("taskkill", "/PID", pid, "/F", "/T");
+                    killBuilder.start();
+                } else {
+                    final ProcessBuilder killBuilder = new ProcessBuilder("kill", pid);
+                    killBuilder.start();
+                }
             }
 
             FileUtils.forceDelete(taskFile);
