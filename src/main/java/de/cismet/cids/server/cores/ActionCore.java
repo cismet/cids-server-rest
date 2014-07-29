@@ -9,6 +9,8 @@ package de.cismet.cids.server.cores;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.io.InputStream;
+
 import java.util.List;
 
 import de.cismet.cids.server.api.types.ActionResultInfo;
@@ -66,6 +68,7 @@ public interface ActionCore extends CidsServerCore {
      * @param   body                      DOCUMENT ME!
      * @param   role                      DOCUMENT ME!
      * @param   requestResultingInstance  DOCUMENT ME!
+     * @param   fileAttachement           DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -73,7 +76,8 @@ public interface ActionCore extends CidsServerCore {
             String actionKey,
             ActionTask body,
             String role,
-            boolean requestResultingInstance);
+            boolean requestResultingInstance,
+            InputStream fileAttachement);
 
     /**
      * DOCUMENT ME!
