@@ -22,7 +22,7 @@ import javax.ws.rs.Produces;
 @Path("/resources/classes")
 @Api(
     value = "/classes",
-    description = "Operations about classes",
+    description = "list them, get them, get class attributes",
     listingPath = "/resources/classes",
     listingClass = "de.cismet.cids.server.api.ClassesAPI"
 )
