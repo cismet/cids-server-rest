@@ -25,7 +25,7 @@ import javax.ws.rs.Produces;
 @Path("/resources/configattributes")
 @Api(
     value = "/configattributes",
-    description = "Operations about pets",
+    description = "list them, get them",
     listingPath = "/resources/configattributes",
     listingClass = "de.cismet.cids.server.api.ConfigAttributesAPI"
 )

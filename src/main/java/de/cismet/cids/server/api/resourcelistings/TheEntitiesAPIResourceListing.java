@@ -22,7 +22,7 @@ import javax.ws.rs.Produces;
 @Path("/resources/entities")
 @Api(
     value = "/entities",
-    description = "Operations about pets",
+    description = "CRUD them",
     listingPath = "/resources/entities",
     listingClass = "de.cismet.cids.server.api.EntitiesAPI"
 )

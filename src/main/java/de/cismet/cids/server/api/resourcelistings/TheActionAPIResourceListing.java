@@ -22,7 +22,7 @@ import javax.ws.rs.Produces;
 @Path("/resources/actions")
 @Api(
     value = "/actions",
-    description = "Operations about pets",
+    description = "get them, run them, kill them, get results",
     listingPath = "/resources/actions",
     listingClass = "de.cismet.cids.server.api.ActionAPI"
 )

@@ -24,7 +24,7 @@ import javax.ws.rs.Produces;
 @Path("/resources/searches")
 @Api(
     value = "/searches",
-    description = "Operations about pets",
+    description = "get them, describe them, get results",
     listingPath = "/resources/searches",
     listingClass = "de.cismet.cids.server.api.SearchesAPI"
 )
