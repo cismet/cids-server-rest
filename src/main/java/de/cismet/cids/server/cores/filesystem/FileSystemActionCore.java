@@ -26,7 +26,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import java.nio.file.Files;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +45,6 @@ import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.ActionCore;
 import de.cismet.cids.server.cores.CidsServerCore;
 
-import de.cismet.commons.concurrency.CismetConcurrency;
 import de.cismet.commons.concurrency.CismetExecutors;
 
 /**
@@ -153,7 +155,8 @@ public class FileSystemActionCore implements ActionCore {
             final String actionKey,
             ActionTask actionTask,
             final String role,
-            final boolean requestResultingInstance) {
+            final boolean requestResultingInstance,
+            final InputStream attachmentIS) {
         Action action = null;
         if (role != null) {
             throw new UnsupportedOperationException("role not supported yet.");
@@ -182,20 +185,29 @@ public class FileSystemActionCore implements ActionCore {
             final File resultDirFile = new File(resultDir);
             final File stderrFile = new File(stderr);
             final File stdoutFile = new File(stdout);
+            if (attachmentIS != null) {
+                final File attachmentFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP
+                                + actionTask.getKey()
+                                + SEP
+                                + "attachment.file");
 
+                FileUtils.copyInputStreamToFile(attachmentIS, attachmentFile);
+            }
             mapper.writeValue(taskFile, actionTask);
             action = mapper.readValue(actionFile, Action.class);
             final List<String> commandWithParam = new ArrayList<String>();
             commandWithParam.add(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionKey + actionExtension);
             final StringBuilder paramStringB = new StringBuilder();
-            for (final Map.Entry<String, Object> entry : actionTask.getParameters().entrySet()) {
-                final String key = entry.getKey();
-                final String value = String.valueOf(entry.getValue());
-                if (!key.startsWith("$")) {
-                    paramStringB.append(key);
-                    commandWithParam.add(key + "=" + String.valueOf(value));
-                } else {
-                    commandWithParam.add(String.valueOf(value));
+            if (actionTask.getParameters() != null) {
+                for (final Map.Entry<String, Object> entry : actionTask.getParameters().entrySet()) {
+                    final String key = entry.getKey();
+                    final String value = String.valueOf(entry.getValue());
+                    if (!key.startsWith("$")) {
+                        paramStringB.append(key);
+                        commandWithParam.add(key + "=" + String.valueOf(value));
+                    } else {
+                        commandWithParam.add(String.valueOf(value));
+                    }
                 }
             }
             final ActionTask fixedTask = actionTask;
