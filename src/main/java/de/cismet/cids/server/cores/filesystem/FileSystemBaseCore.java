@@ -55,6 +55,12 @@ public class FileSystemBaseCore implements CidsServerCore {
     )
     static boolean allowCaseInsensitiveFilesystem = false;
 
+    @Parameter(
+        names = { "-core.fs.encoding", "--core.fs.encoding" },
+        description = "Encoding of the FS (on windows it is most likely \"Cp1252\" or \"ISO-8859-1\")"
+    )
+    static String fsEncoding = "UTF-8";
+
     //~ Methods ----------------------------------------------------------------
 
     @Override
