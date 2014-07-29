@@ -64,6 +64,12 @@ public class FileSystemActionCore implements ActionCore {
         description = "Server OS [Unix, Win]"
     )
     static String os = "Unix";
+    @Parameter(
+        names = { "-core.fs.action.output.encoding", "--core.fs.action.output.encoding" },
+        description =
+            "Encoding of the output of the action (on windows it is most likely \"Cp1252\" or \"ISO-8859-1\" or \"ISO-850\")"
+    )
+    static String outputEncoding = "UTF-8";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -161,6 +167,7 @@ public class FileSystemActionCore implements ActionCore {
                         + "stderr.txt";
             final String stdout = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP
                         + "stdout.txt";
+
             final File resultDirFile = new File(resultDir);
             final File stderrFile = new File(stderr);
             final File stdoutFile = new File(stdout);
@@ -199,9 +206,11 @@ public class FileSystemActionCore implements ActionCore {
 
                             FileUtils.writeStringToFile(pidFile, s);
                             final BufferedReader stdInput = new BufferedReader(new InputStreamReader(
-                                        p.getInputStream()));
+                                        p.getInputStream(),
+                                        outputEncoding));
                             final BufferedReader stdError = new BufferedReader(new InputStreamReader(
-                                        p.getErrorStream()));
+                                        p.getErrorStream(),
+                                        outputEncoding));
 
                             // read the output from the command
                             final StringBuilder out = new StringBuilder();
@@ -216,10 +225,11 @@ public class FileSystemActionCore implements ActionCore {
                             }
                             if (taskFile.exists()) {
                                 if (out.length() > 0) {
-                                    FileUtils.writeStringToFile(stdoutFile, out.toString());
+                                    FileUtils.writeStringToFile(stdoutFile, out.toString(), FileSystemBaseCore.fsEncoding);
                                 }
+
                                 if (err.length() > 0) {
-                                    FileUtils.writeStringToFile(stderrFile, err.toString());
+                                    FileUtils.writeStringToFile(stderrFile, err.toString(),FileSystemBaseCore.fsEncoding );
                                 }
                             }
                             p.waitFor();
