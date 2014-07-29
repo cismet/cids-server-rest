@@ -31,5 +31,5 @@ public class Action implements Key {
 
     private String key;
     private String description;
-    private int maxConcurrentThreads=99;
+    private int maxConcurrentThreads = 99;
 }

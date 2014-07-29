@@ -16,7 +16,6 @@ import com.beust.jcommander.Parameters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.cismet.cids.server.api.types.Action;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -32,17 +31,19 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 
+import de.cismet.cids.server.api.types.Action;
 import de.cismet.cids.server.api.types.ActionResultInfo;
 import de.cismet.cids.server.api.types.ActionTask;
 import de.cismet.cids.server.api.types.GenericResourceWithContentType;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.ActionCore;
 import de.cismet.cids.server.cores.CidsServerCore;
+
 import de.cismet.commons.concurrency.CismetConcurrency;
 import de.cismet.commons.concurrency.CismetExecutors;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 
 /**
  * DOCUMENT ME!
@@ -76,17 +77,15 @@ public class FileSystemActionCore implements ActionCore {
     )
     static String outputEncoding = "UTF-8";
 
+    static ConcurrentHashMap<String, ExecutorService> actionExecutorServices =
+        new ConcurrentHashMap<String, ExecutorService>();
+
     //~ Instance fields --------------------------------------------------------
 
     ObjectMapper mapper = new ObjectMapper();
 
-    static  ConcurrentHashMap<String,ExecutorService> actionExecutorServices=new ConcurrentHashMap<String, ExecutorService>();
-    
-    
     //~ Constructors -----------------------------------------------------------
-    
-    
-    
+
     /**
      * Creates a new FileSystemActionCore object.
      */
@@ -155,7 +154,7 @@ public class FileSystemActionCore implements ActionCore {
             ActionTask actionTask,
             final String role,
             final boolean requestResultingInstance) {
-        Action action=null;
+        Action action = null;
         if (role != null) {
             throw new UnsupportedOperationException("role not supported yet.");
         }
@@ -166,7 +165,6 @@ public class FileSystemActionCore implements ActionCore {
             actionTask.setKey(String.valueOf(System.currentTimeMillis()));
         }
         try {
-            
             actionTask.setStatus(ActionTask.Status.STARTING);
             actionTask.setActionKey(actionKey);
             final File taskFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
@@ -186,7 +184,7 @@ public class FileSystemActionCore implements ActionCore {
             final File stdoutFile = new File(stdout);
 
             mapper.writeValue(taskFile, actionTask);
-            action=mapper.readValue(actionFile, Action.class);
+            action = mapper.readValue(actionFile, Action.class);
             final List<String> commandWithParam = new ArrayList<String>();
             commandWithParam.add(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionKey + actionExtension);
             final StringBuilder paramStringB = new StringBuilder();
@@ -201,21 +199,21 @@ public class FileSystemActionCore implements ActionCore {
                 }
             }
             final ActionTask fixedTask = actionTask;
-            
-            //get the right ExcutorService
-            ExecutorService es=actionExecutorServices.get(actionKey);
-            if (es==null){
-                if (action.getMaxConcurrentThreads()==1){
-                    actionExecutorServices.putIfAbsent(actionKey,CismetExecutors.newSingleThreadExecutor());
+
+            // get the right ExcutorService
+            ExecutorService es = actionExecutorServices.get(actionKey);
+            if (es == null) {
+                if (action.getMaxConcurrentThreads() == 1) {
+                    actionExecutorServices.putIfAbsent(actionKey, CismetExecutors.newSingleThreadExecutor());
+                } else {
+                    actionExecutorServices.putIfAbsent(
+                        actionKey,
+                        CismetExecutors.newFixedThreadPool(action.getMaxConcurrentThreads()));
                 }
-                else {
-                    actionExecutorServices.putIfAbsent(actionKey,CismetExecutors.newFixedThreadPool(action.getMaxConcurrentThreads()));
-                }
-                es=actionExecutorServices.get(actionKey);
+                es = actionExecutorServices.get(actionKey);
             }
-            
-            
-            Runnable actionRunner=new Runnable() {
+
+            final Runnable actionRunner = new Runnable() {
 
                     @Override
                     public void run() {
@@ -254,11 +252,17 @@ public class FileSystemActionCore implements ActionCore {
                             }
                             if (taskFile.exists()) {
                                 if (out.length() > 0) {
-                                    FileUtils.writeStringToFile(stdoutFile, out.toString(), FileSystemBaseCore.fsEncoding);
+                                    FileUtils.writeStringToFile(
+                                        stdoutFile,
+                                        out.toString(),
+                                        FileSystemBaseCore.fsEncoding);
                                 }
 
                                 if (err.length() > 0) {
-                                    FileUtils.writeStringToFile(stderrFile, err.toString(),FileSystemBaseCore.fsEncoding );
+                                    FileUtils.writeStringToFile(
+                                        stderrFile,
+                                        err.toString(),
+                                        FileSystemBaseCore.fsEncoding);
                                 }
                             }
                             p.waitFor();
@@ -291,12 +295,11 @@ public class FileSystemActionCore implements ActionCore {
                                 }
                             } catch (Exception ex) {
                                 throw new RuntimeException();
-                            } 
+                            }
                         }
                     }
                 };
             es.execute(actionRunner);
-            
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
