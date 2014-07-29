@@ -14,6 +14,8 @@ package de.cismet.cids.server.cores.noop;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.io.InputStream;
+
 import java.util.List;
 
 import de.cismet.cids.server.api.types.ActionResultInfo;
@@ -53,7 +55,8 @@ public class NoOpActionCore implements ActionCore {
             final String actionKey,
             final ActionTask body,
             final String role,
-            final boolean requestResultingInstance) {
+            final boolean requestResultingInstance,
+            final InputStream fileAttachement) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 
