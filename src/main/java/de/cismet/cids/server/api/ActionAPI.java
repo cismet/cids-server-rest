@@ -11,11 +11,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.sun.jersey.multipart.FormDataParam;
 
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
 import com.wordnik.swagger.core.ApiParam;
+
+import java.io.InputStream;
 
 import java.util.List;
 
@@ -29,6 +33,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -298,7 +303,9 @@ public class ActionAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   body                      DOCUMENT ME!
+     * @param   taskParams                DOCUMENT ME!
+     * @param   attachmentInputStream     DOCUMENT ME!
+     * @param   contentdisp               DOCUMENT ME!
      * @param   domain                    DOCUMENT ME!
      * @param   actionKey                 DOCUMENT ME!
      * @param   role                      DOCUMENT ME!
@@ -309,15 +316,25 @@ public class ActionAPI extends APIBase {
      */
     @Path("/{domain}.{actionkey}/tasks")
     @POST
-    @Consumes("application/json")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation(
         value = "Create a new task of this action.",
-        notes = "-"
+        notes = "Swagger has some problems with MULTIPART_FORM_DATA.<br><br> "
+                    + "A File Attachment can only be made with curl.<br>"
+                    + "e.g.:<br>"
+                    + "<img src=\"https://cloud.githubusercontent.com/"
+                    + "assets/837211/3741612/3cc9c206-1761-11e4-8815-025980963441.png\"/> "
+                    + "<br>empty parametersets are also not possible atm: <br>"
+                    + "<br>for actions "
+                    + "with no parameters just post a {} (seems to be that Swagger "
+                    + "has sometimes also problems with that)<br>"
+                    + "therefore ... guess what:<br>"
+                    + "<img src=\"https://cloud.githubusercontent.com/assets/"
+                    + "837211/3741823/613248dc-1763-11e4-99be-2b3cf5b376b9.png\"/>"
     )
-    public Response createNewActionTask(@ApiParam(
-                value = "Task to be created.",
-                required = true
-            ) final ActionTask body,
+    public Response createNewActionTask(@FormDataParam("taskparams") final ActionTask taskParams,
+            @FormDataParam("file") final InputStream attachmentInputStream,
+            @FormDataParam("file") final FormDataContentDisposition contentdisp,
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -356,9 +373,10 @@ public class ActionAPI extends APIBase {
                         .entity(RuntimeContainer.getServer().getActionCore().createNewActionTask(
                                     user,
                                     actionKey,
-                                    body,
+                                    taskParams,
                                     role,
-                                    requestResultingInstance))
+                                    requestResultingInstance,
+                                    attachmentInputStream))
                         .build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -369,7 +387,7 @@ public class ActionAPI extends APIBase {
                         .path(domain + "." + actionKey)
                         .path("tasks")
                         .header("Authorization", authString)
-                        .put(ClientResponse.class, body);
+                        .put(ClientResponse.class, taskParams);
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
     }
