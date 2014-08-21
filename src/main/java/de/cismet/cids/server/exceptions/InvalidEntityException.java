@@ -9,15 +9,12 @@ package de.cismet.cids.server.exceptions;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import lombok.Getter;
-
 /**
  * DOCUMENT ME!
  *
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-@Getter
 public final class InvalidEntityException extends RuntimeException {
 
     //~ Instance fields --------------------------------------------------------
@@ -72,7 +69,18 @@ public final class InvalidEntityException extends RuntimeException {
      */
     public InvalidEntityException(final String message, final Throwable cause, final ObjectNode entity) {
         super(message, cause);
-
         this.entity = entity;
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    @SuppressWarnings("all")
+    public ObjectNode getEntity() {
+        return this.entity;
     }
 }

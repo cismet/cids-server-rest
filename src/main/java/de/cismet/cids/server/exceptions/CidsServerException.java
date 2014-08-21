@@ -12,9 +12,6 @@
  */
 package de.cismet.cids.server.exceptions;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -24,8 +21,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @version  $Revision$, $Date$
  */
 @XmlRootElement
-@AllArgsConstructor
-@Getter
 public class CidsServerException extends RuntimeException {
 
     //~ Instance fields --------------------------------------------------------
@@ -33,4 +28,53 @@ public class CidsServerException extends RuntimeException {
     private final String developerMessage;
     private final String userMessage;
     private final int httpErrorCode;
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new CidsServerException object.
+     *
+     * @param  developerMessage  DOCUMENT ME!
+     * @param  userMessage       DOCUMENT ME!
+     * @param  httpErrorCode     DOCUMENT ME!
+     */
+    @java.beans.ConstructorProperties({ "developerMessage", "userMessage", "httpErrorCode" })
+    @SuppressWarnings("all")
+    public CidsServerException(final String developerMessage, final String userMessage, final int httpErrorCode) {
+        this.developerMessage = developerMessage;
+        this.userMessage = userMessage;
+        this.httpErrorCode = httpErrorCode;
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    @SuppressWarnings("all")
+    public String getDeveloperMessage() {
+        return this.developerMessage;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    @SuppressWarnings("all")
+    public String getUserMessage() {
+        return this.userMessage;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    @SuppressWarnings("all")
+    public int getHttpErrorCode() {
+        return this.httpErrorCode;
+    }
 }

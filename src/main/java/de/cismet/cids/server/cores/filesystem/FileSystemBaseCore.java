@@ -18,8 +18,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.openide.util.lookup.ServiceProvider;
 
 import java.io.File;
@@ -32,29 +30,26 @@ import de.cismet.cids.server.cores.CidsServerCore;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
-@lombok.Getter
-@Slf4j
 @ServiceProvider(service = CidsServerCore.class)
 @Parameters(separators = "=")
 public class FileSystemBaseCore implements CidsServerCore {
 
     //~ Static fields/initializers ---------------------------------------------
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FileSystemBaseCore.class);
+//            ,
+//        converter = FileSystemBaseCore.BaseDirConverter.class
     @Parameter(
         names = { "-core.fs.basedir", "--core.fs.basedir" },
         required = true,
         description = "base directory of the cids file system cores"
-//            ,
-//        converter = FileSystemBaseCore.BaseDirConverter.class
     )
     static String baseDir;
-
     @Parameter(
         names = { "-core.fs.allow-case-insensitive", "--core.fs.allow-case-insensitive" },
         description = "allow FS cores on a case-insensitive FS"
     )
     static boolean allowCaseInsensitiveFilesystem = false;
-
     @Parameter(
         names = { "-core.fs.encoding", "--core.fs.encoding" },
         description = "Encoding of the FS (on windows it is most likely \"Cp1252\" or \"ISO-8859-1\")"
@@ -111,7 +106,6 @@ public class FileSystemBaseCore implements CidsServerCore {
                 }
             }
         }
-
         /**
          * DOCUMENT ME!
          *
@@ -120,9 +114,8 @@ public class FileSystemBaseCore implements CidsServerCore {
         private boolean isCaseSensitiveFS() {
             File tmpFile = null;
             try {
-                tmpFile = File.createTempFile("caseSensitiveFS", null); // NOI18N
+                tmpFile = File.createTempFile("caseSensitiveFS", null);     // NOI18N
                 final File file2 = new File(tmpFile.getParentFile(), tmpFile.getName().toLowerCase());
-
                 return !file2.exists();
             } catch (final Exception e) {
                 if (log.isWarnEnabled()) {
@@ -139,7 +132,6 @@ public class FileSystemBaseCore implements CidsServerCore {
                     }
                 }
             }
-
             return false;
         }
     }
