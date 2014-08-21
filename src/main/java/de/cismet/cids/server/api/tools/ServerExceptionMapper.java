@@ -9,8 +9,6 @@ package de.cismet.cids.server.api.tools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.slf4j.Slf4j;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -26,11 +24,11 @@ import de.cismet.cids.server.exceptions.InvalidLevelException;
  * @author   martin.scholl@cismet.de
  * @version  1.0
  */
-@Slf4j
 public final class ServerExceptionMapper {
 
     //~ Static fields/initializers ---------------------------------------------
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ServerExceptionMapper.class);
     protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     //~ Constructors -----------------------------------------------------------
@@ -56,20 +54,15 @@ public final class ServerExceptionMapper {
         @Override
         public Response toResponse(final InvalidLevelException e) {
             final Response.ResponseBuilder builder = Response.status(403);
-
-            final APIException ex = new APIException(
+            final APIException ex = new APIException(                           // NOI18N
                     e.getMessage()
-                            + ": level=" // NOI18N
+                            + ": level="
                             + e.getLevel(),
-                    "The level / deduplicate parameter combination is not valid. "
-                            + "Remember to explicitely set the level to a value not exceeting 10 "
-                            + "if deduplication shall not be done",
+                    "The level / deduplicate parameter combination is not valid. Remember to explicitely set the level to a value not exceeting 10 if deduplication shall not be done",
                     4030001,
                     "https://github.com/cismet/cids-server-rest/wiki/4030001"); // NOI18N
-
             builder.entity(ex);
-            builder.type("application/json"); // NOI18N
-
+            builder.type("application/json");                                   // NOI18N
             return builder.build();
         }
     }
@@ -88,18 +81,15 @@ public final class ServerExceptionMapper {
         @Override
         public Response toResponse(final InvalidFilterFormatException e) {
             final Response.ResponseBuilder builder = Response.status(400);
-
-            final APIException ex = new APIException(
+            final APIException ex = new APIException(                           // NOI18N
                     e.getMessage()
-                            + ": filter=" // NOI18N
+                            + ": filter="
                             + e.getFilter(),
                     "The format of the provided filter parameter is invalid",
                     4000001,
                     "https://github.com/cismet/cids-server-rest/wiki/4000001"); // NOI18N
-
             builder.entity(ex);
-            builder.type("application/json"); // NOI18N
-
+            builder.type("application/json");                                   // NOI18N
             return builder.build();
         }
     }
@@ -117,9 +107,7 @@ public final class ServerExceptionMapper {
         @Override
         public Response toResponse(final CidsServerException e) {
             final Response.ResponseBuilder builder = Response.status(e.getHttpErrorCode());
-
-            final APIException ex = new APIException(
-                    e.getDeveloperMessage(),
+            final APIException ex = new APIException(e.getDeveloperMessage(),
                     e.getUserMessage(),
                     e.getHttpErrorCode(),
                     (e.getCause() != null) ? e.getCause().toString() : "no further information provided");        // NOI18N
@@ -128,7 +116,6 @@ public final class ServerExceptionMapper {
             }
             builder.entity(ex);
             builder.type("application/json");                                                                     // NOI18N
-
             return builder.build();
         }
     }

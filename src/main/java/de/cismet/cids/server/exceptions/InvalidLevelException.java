@@ -7,15 +7,12 @@
 ****************************************************/
 package de.cismet.cids.server.exceptions;
 
-import lombok.Getter;
-
 /**
  * DOCUMENT ME!
  *
  * @author   martin.scholl@cismet.de
  * @version  1.0
  */
-@Getter
 public final class InvalidLevelException extends RuntimeException {
 
     //~ Instance fields --------------------------------------------------------
@@ -70,7 +67,18 @@ public final class InvalidLevelException extends RuntimeException {
      */
     public InvalidLevelException(final String message, final Throwable cause, final Integer level) {
         super(message, cause);
-
         this.level = level;
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    @SuppressWarnings("all")
+    public Integer getLevel() {
+        return this.level;
     }
 }
