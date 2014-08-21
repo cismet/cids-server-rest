@@ -7,15 +7,12 @@
 ****************************************************/
 package de.cismet.cids.server.exceptions;
 
-import lombok.Getter;
-
 /**
  * DOCUMENT ME!
  *
  * @author   martin.scholl@cismet.de
  * @version  1.0
  */
-@Getter
 public final class InvalidFilterFormatException extends RuntimeException {
 
     //~ Instance fields --------------------------------------------------------
@@ -70,7 +67,18 @@ public final class InvalidFilterFormatException extends RuntimeException {
      */
     public InvalidFilterFormatException(final String message, final Throwable cause, final String filter) {
         super(message, cause);
-
         this.filter = filter;
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    @SuppressWarnings("all")
+    public String getFilter() {
+        return this.filter;
     }
 }

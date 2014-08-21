@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.trigger.builtin;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.openide.util.lookup.ServiceProvider;
 
 import de.cismet.cids.server.api.types.User;
@@ -22,8 +20,11 @@ import de.cismet.cids.server.trigger.CidsTriggerKey;
  * @version  $Revision$, $Date$
  */
 @ServiceProvider(service = CidsTrigger.class)
-@Slf4j
 public class LogTriggerTest implements CidsTrigger {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LogTriggerTest.class);
 
     //~ Methods ----------------------------------------------------------------
 
