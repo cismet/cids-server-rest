@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.server.data.configkeys;
 
+import de.cismet.cids.base.types.Key;
+
 /**
  * DOCUMENT ME!
  *
