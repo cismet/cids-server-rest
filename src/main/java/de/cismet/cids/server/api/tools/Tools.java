@@ -101,11 +101,12 @@ public class Tools {
      * @return  DOCUMENT ME!
      */
     public static User validationHelper(final String authString) {
-        if (true) {
+        if (authString == null) {
             return User.NONE;
         }
         User user = new User(authString);
-        if (user.getDomain().equalsIgnoreCase(RuntimeContainer.getServer().getDomainName())) {
+        if ((user.getDomain() == null) || user.getDomain().equalsIgnoreCase("local")
+                    || user.getDomain().equalsIgnoreCase(RuntimeContainer.getServer().getDomainName())) {
             RuntimeContainer.getServer().getUserCore().validate(user);
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(user.getDomain());
