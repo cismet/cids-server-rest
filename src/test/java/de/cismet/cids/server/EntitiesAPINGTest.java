@@ -60,7 +60,7 @@ public class EntitiesAPINGTest {
             "-domain=CRISMA",
             "-standalone",
             "-port", portString,
-            "-enableCore=core.dummy.user",
+            "-enableCore = core.dummy.user",
             "-enableCore = core.dummy.permission",
             "-enableCore = core.fs.action",
             "-enableCore = core.fs",
