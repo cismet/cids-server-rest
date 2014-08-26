@@ -14,15 +14,11 @@ package de.cismet.cids.server.cores.filesystem;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.mindrot.jbcrypt.BCrypt;
 
 import org.openide.util.lookup.ServiceProvider;
 
 import java.io.File;
-
-import java.util.ArrayList;
 
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.CidsServerCore;
@@ -34,11 +30,12 @@ import de.cismet.cids.server.cores.UserCore;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
-@Slf4j
 @ServiceProvider(service = CidsServerCore.class)
 public class FileSystemUserCore implements UserCore {
 
     //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FileSystemEntityCore.class);
 
     static final String SEP = System.getProperty("file.separator");
 
