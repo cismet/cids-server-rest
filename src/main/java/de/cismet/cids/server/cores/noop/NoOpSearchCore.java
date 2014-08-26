@@ -15,8 +15,10 @@ package de.cismet.cids.server.cores.noop;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.List;
+import java.util.Map;
 
 import de.cismet.cids.server.api.types.SearchInfo;
+import de.cismet.cids.server.api.types.SearchParameter;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.SearchCore;
 import de.cismet.cids.server.exceptions.NotImplementedException;
@@ -44,7 +46,7 @@ public class NoOpSearchCore implements SearchCore {
     @Override
     public List<ObjectNode> executeSearch(final User user,
             final String searchKey,
-            final List<String> params,
+            final List<SearchParameter> params,
             final int limit,
             final int offset,
             final String role) {
