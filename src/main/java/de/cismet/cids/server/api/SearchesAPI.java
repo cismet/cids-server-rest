@@ -7,9 +7,12 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.sun.jersey.multipart.FormDataParam;
 
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
@@ -17,19 +20,23 @@ import com.wordnik.swagger.core.ApiParam;
 
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import de.cismet.cids.server.api.tools.Tools;
 import de.cismet.cids.server.api.types.CollectionResource;
 import de.cismet.cids.server.api.types.SearchInfo;
+import de.cismet.cids.server.api.types.SearchParameters;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.data.RuntimeContainer;
 
@@ -202,9 +209,9 @@ public class SearchesAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
+     * @param   params      DOCUMENT ME!
      * @param   domain      DOCUMENT ME!
      * @param   searchKey   DOCUMENT ME!
-     * @param   params      DOCUMENT ME!
      * @param   role        DOCUMENT ME!
      * @param   limit       DOCUMENT ME!
      * @param   offset      DOCUMENT ME!
@@ -213,12 +220,13 @@ public class SearchesAPI extends APIBase {
      * @return  DOCUMENT ME!
      */
     @Path("/{domain}.{searchkey}/results")
-    @GET
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation(
         value = "Execute a custom search.",
         notes = "-"
     )
-    public Response executeGetSearch(
+    public Response executeGetSearch(@FormDataParam("params") final SearchParameters params,
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -231,13 +239,6 @@ public class SearchesAPI extends APIBase {
             )
             @PathParam("searchkey")
             final String searchKey,
-            @ApiParam(
-                value = "search parameter",
-                required = false,
-                allowMultiple = true
-            )
-            @QueryParam("sp")
-            final List<String> params,
             @ApiParam(value = "role of the user, 'default' role when not submitted")
             @QueryParam("role")
             final String role,
@@ -265,24 +266,26 @@ public class SearchesAPI extends APIBase {
             final String authString) {
         final User user = Tools.validationHelper(authString);
         System.out.println(params);
-        return null;
-//        if (Tools.canHazUserProblems(user)) {
-//            return Tools.getUserProblemResponse();
-//        }
-//        if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-//            List<ObjectNode> allActions = RuntimeContainer.getServer().getSearchCore().executeSearch(user, searchKey,params,limit,offset,role);
-//            CollectionResource result = new CollectionResource(getLocation(), offset, limit, getLocation(), null, "not available", "not available", allActions);
-//            return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
-//        } else {
-//            WebResource delegateCall = Tools.getDomainWebResource(domain);
-//            MultivaluedMap queryParams = new MultivaluedMapImpl();
-//            queryParams.add("domain", domain);
-//            queryParams.add("role", role);
-//            queryParams.add("limit", limit);
-//            queryParams.add("offset", offset);
-//            ClientResponse crDelegateCall = delegateCall.queryParams(queryParams).path("/actions").path(domain + "." + actionKey).path("tasks").header("Authorization", authString).get(ClientResponse.class);
-//            return Response.status(Response.Status.OK).entity(crDelegateCall.getEntity(String.class)).build();
-//        }
+        if (Tools.canHazUserProblems(user)) {
+            return Tools.getUserProblemResponse();
+        }
+        if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+            final List<ObjectNode> allActions = RuntimeContainer.getServer()
+                        .getSearchCore()
+                        .executeSearch(user, searchKey, params.getList(), limit, offset, role);
+            final CollectionResource result = new CollectionResource(
+                    getLocation(),
+                    offset,
+                    limit,
+                    getLocation(),
+                    null,
+                    "not available",
+                    "not available",
+                    allActions);
+            return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
+        } else {
+            return null;
+        }
     }
 
 //    @Path("/{domain}.{searchname}/results")

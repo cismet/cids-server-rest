@@ -10,8 +10,10 @@ package de.cismet.cids.server.cores;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.List;
+import java.util.Map;
 
 import de.cismet.cids.server.api.types.SearchInfo;
+import de.cismet.cids.server.api.types.SearchParameter;
 import de.cismet.cids.server.api.types.User;
 
 /**
@@ -59,7 +61,7 @@ public interface SearchCore extends CidsServerCore {
      */
     List<ObjectNode> executeSearch(User user,
             String searchKey,
-            List<String> params,
+            List<SearchParameter> params,
             int limit,
             int offset,
             String role);
