@@ -26,6 +26,7 @@ public final class CORSResponseFilter implements ContainerResponseFilter {
         cr1.getHttpHeaders().add("Access-Control-Allow-Origin", "*");                                // NOI18N
         cr1.getHttpHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS"); // NOI18N
         cr1.getHttpHeaders().add("Access-Control-Allow-Headers", "Content-Type");                    // NOI18N
+        cr1.getHttpHeaders().add("Access-Control-Allow-Headers", "Authorization");                   // NOI18N
 
         return cr1;
     }
