@@ -160,13 +160,19 @@ public class Starter {
                             .getClassLoader()
                             .getResource("de/cismet/cids/server/swagger")
                             .toExternalForm();
-                String indexFile = IOUtils.toString(new FileInputStream(
-                            new File(resoursceBaseDir + System.getProperty("file.separator") + "index.html")));
+
+                String indexFile = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(
+                            "de/cismet/cids/server/swagger/index.html"));
+
+//                String indexFile = IOUtils.toString(new FileInputStream(
+//                            new File(resoursceBaseDir + System.getProperty("file.separator") + "index.html")));
                 indexFile = indexFile.replaceAll("BASE_URL", basePath + ":" + port + "/resources");
                 IOUtils.write(
                     indexFile,
                     new FileOutputStream(
-                        new File(resoursceBaseDir + System.getProperty("file.separator") + "index.html")));
+                        new File(
+                            this.getClass().getClassLoader().getResource(
+                                "de/cismet/cids/server/swagger/index.html").toURI())));
                 final Context swagger = new Context(server, "/swagger", Context.SESSIONS); // NOI18N
 
                 swagger.setHandler(new ResourceHandler());
