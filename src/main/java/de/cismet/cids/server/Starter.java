@@ -16,21 +16,28 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 import com.wordnik.swagger.jaxrs.JaxrsApiReader;
 
+import org.apache.commons.io.IOUtils;
+
+import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.ContextHandlerCollection;
+import org.mortbay.jetty.handler.ResourceHandler;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 import org.openide.util.Lookup;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import de.cismet.cids.server.api.ServerConstants;
 import de.cismet.cids.server.cores.CidsServerCore;
-import de.cismet.cids.server.cores.EntityInfoCore;
 import de.cismet.cids.server.data.RuntimeContainer;
 import de.cismet.cids.server.data.SimpleServer;
 
@@ -149,6 +156,24 @@ public class Starter {
 
                 final Context context = new Context(server, "/", Context.SESSIONS);
                 context.addServlet(sh, "/*");
+                final String resoursceBaseDir = this.getClass()
+                            .getClassLoader()
+                            .getResource("de/cismet/cids/server/swagger")
+                            .toExternalForm();
+
+                final Context swagger = new Context(server, "/swagger", Context.SESSIONS); // NOI18N
+
+                swagger.setHandler(new ResourceHandler());
+                swagger.setResourceBase(resoursceBaseDir);
+
+                final ContextHandlerCollection contexts = new ContextHandlerCollection();
+                contexts.setHandlers(
+                    new Handler[] {
+                        swagger,
+                        context
+                    });
+
+                server.setHandlers(contexts.getHandlers());
 
                 server.start();
 
