@@ -25,7 +25,7 @@
   <script type="text/javascript">
     $(function () {
       window.swaggerUi = new SwaggerUi({
-      url: "BASE_URL",
+      url: window.location.origin+'/resources',
       dom_id: "swagger-ui-container",
       supportedSubmitMethods: ['get', 'post', 'put', 'delete'],
       onComplete: function(swaggerApi, swaggerUi){
@@ -93,8 +93,8 @@
       </div>
       <div class='input'><input placeholder="http://example.com/api" id="input_baseUrl" name="baseUrl" type="text"/></div>
       <div class='input'>
-          <input style="width: 100px;" placeholder="username" id="input_user" name="user" type="text"/>
-          <input style="width: 100px;"placeholder="password" id="input_pw" name="pw" type="password"/></div>
+          <input style="width: 100px;" placeholder="user@domain" id="input_user" name="user" type="text"/>
+          <input style="width: 100px;" placeholder="password" id="input_pw" name="pw" type="password"/></div>
       <div class='input'><a id="explore" href="#">Explore</a></div>
     </form>
   </div>

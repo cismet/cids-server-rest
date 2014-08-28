@@ -28,13 +28,13 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import org.openide.util.Lookup;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import de.cismet.cids.server.api.ServerConstants;
 import de.cismet.cids.server.cores.CidsServerCore;
@@ -161,18 +161,6 @@ public class Starter {
                             .getResource("de/cismet/cids/server/swagger")
                             .toExternalForm();
 
-                String indexFile = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(
-                            "de/cismet/cids/server/swagger/index.html"));
-
-//                String indexFile = IOUtils.toString(new FileInputStream(
-//                            new File(resoursceBaseDir + System.getProperty("file.separator") + "index.html")));
-                indexFile = indexFile.replaceAll("BASE_URL", basePath + ":" + port + "/resources");
-                IOUtils.write(
-                    indexFile,
-                    new FileOutputStream(
-                        new File(
-                            this.getClass().getClassLoader().getResource(
-                                "de/cismet/cids/server/swagger/index.html").toURI())));
                 final Context swagger = new Context(server, "/swagger", Context.SESSIONS); // NOI18N
 
                 swagger.setHandler(new ResourceHandler());
