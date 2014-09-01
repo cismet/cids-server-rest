@@ -94,7 +94,11 @@ public class NodesAPI extends APIBase {
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -170,7 +174,11 @@ public class NodesAPI extends APIBase {
             )
             @PathParam("nodekey")
             final String nodeKey,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -250,7 +258,11 @@ public class NodesAPI extends APIBase {
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -340,7 +352,11 @@ public class NodesAPI extends APIBase {
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(

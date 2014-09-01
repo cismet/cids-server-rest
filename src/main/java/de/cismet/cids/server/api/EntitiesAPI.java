@@ -123,7 +123,11 @@ public class EntitiesAPI extends APIBase {
             )
             @PathParam("class")
             final String classKey,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -192,7 +196,11 @@ public class EntitiesAPI extends APIBase {
             )
             @PathParam("class")
             final String classKey,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -487,7 +495,11 @@ public class EntitiesAPI extends APIBase {
             @DefaultValue("false")
             @QueryParam("requestResultingInstance")
             final boolean requestResultingInstance,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -589,7 +601,11 @@ public class EntitiesAPI extends APIBase {
             @DefaultValue("false")
             @QueryParam("requestResultingInstance")
             final boolean requestResultingInstance,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -693,7 +709,11 @@ public class EntitiesAPI extends APIBase {
             @ApiParam(value = "version of the object, 'current' version when not submitted")
             @QueryParam("version")
             final String version,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(value = "a list of properties in the resulting objects that should be expanded")
