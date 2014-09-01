@@ -93,7 +93,11 @@ public class ClassesAPI extends APIBase {
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -169,7 +173,11 @@ public class ClassesAPI extends APIBase {
             )
             @PathParam("classkey")
             final String classKey,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -237,7 +245,11 @@ public class ClassesAPI extends APIBase {
             )
             @PathParam("attributekey")
             final String attributeKey,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(

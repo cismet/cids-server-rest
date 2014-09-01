@@ -52,9 +52,9 @@ public class PermissionsAPI {
     public Response getPermissions(
             @DefaultValue("default")
             @ApiParam(
-                value = "role of the user, 'default' role when not submitted",
+                value = "role of the user, 'all' role when not submitted",
                 required = false,
-                defaultValue = "default"
+                defaultValue = "all"
             )
             final String role) {
         return Response.status(Status.SERVICE_UNAVAILABLE).build();
@@ -78,9 +78,9 @@ public class PermissionsAPI {
     public Response getPermission(@PathParam("permission") final String permission,
             @DefaultValue("default")
             @ApiParam(
-                value = "role of the user, 'default' role when not submitted",
+                value = "role of the user, 'all' role when not submitted",
                 required = false,
-                defaultValue = "default"
+                defaultValue = "all"
             )
             final String role) {
         return Response.status(Status.SERVICE_UNAVAILABLE).build();

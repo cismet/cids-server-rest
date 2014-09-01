@@ -98,7 +98,11 @@ public class SearchesAPI extends APIBase {
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -174,7 +178,11 @@ public class SearchesAPI extends APIBase {
             )
             @PathParam("searchkey")
             final String searchKey,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -239,7 +247,11 @@ public class SearchesAPI extends APIBase {
             )
             @PathParam("searchkey")
             final String searchKey,
-            @ApiParam(value = "role of the user, 'default' role when not submitted")
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -310,7 +322,7 @@ public class SearchesAPI extends APIBase {
 //            @ApiParam(value = "a simple object query.", required = true) SimpleObjectQuery query,
 //            @ApiParam(value = "identifier (domainname) of the domain.", required = true) @PathParam("domain") String domain,
 //            @ApiParam(value = "identifier (classkey) of the class.", required = true) @PathParam("class") String classKey,
-//            @ApiParam(value = "role of the user, 'default' role when not submitted") @QueryParam("role") String role,
+//            @ApiParam(value = "role of the user, 'all' role when not submitted", required = false, defaultValue = "all") @QueryParam("role") String role,
 //            @ApiParam(value = "maximum number of results, 100 when not submitted", required = false, defaultValue = "100") @DefaultValue("100") @QueryParam("limit") int limit,
 //            @ApiParam(value = "pagination offset, 0 when not submitted", required = false, defaultValue = "0") @DefaultValue("0") @QueryParam("offset") int offset,
 //            @ApiParam(value = "Basic Auth Authorization String", required = false) @HeaderParam("Authorization") final String authString) {
@@ -334,7 +346,7 @@ public class SearchesAPI extends APIBase {
 //    public Response getObjectsByQuery(
 //            @ApiParam(value = "a simple object query.", required = true) SimpleObjectQuery query,
 //            @ApiParam(value = "identifier (domainname) of the domain.") @PathParam("domain") String domain, //@ApiParam(value = "domain where the query is located", required = true)
-//            @ApiParam(value = "role of the user, 'default' role when not submitted") @QueryParam("role") String role,
+//            @ApiParam(value = "role of the user, 'all' role when not submitted", required = false, defaultValue = "all") @QueryParam("role") String role,
 //            @ApiParam(value = "maximum number of results, 100 when not submitted", required = false, defaultValue = "100") @DefaultValue("100") @QueryParam("limit") int limit,
 //            @ApiParam(value = "pagination offset, 0 when not submitted", required = false, defaultValue = "0") @DefaultValue("0") @QueryParam("offset") int offset,
 //            @ApiParam(value = "Basic Auth Authorization String", required = false) @HeaderParam("Authorization") final String authString) {
