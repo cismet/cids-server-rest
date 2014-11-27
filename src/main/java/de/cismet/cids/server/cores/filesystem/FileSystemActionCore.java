@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +39,6 @@ import de.cismet.cids.server.api.types.Action;
 import de.cismet.cids.server.api.types.ActionResultInfo;
 import de.cismet.cids.server.api.types.ActionTask;
 import de.cismet.cids.server.api.types.GenericResourceWithContentType;
-import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.ActionCore;
 import de.cismet.cids.server.cores.CidsServerCore;
 
@@ -106,7 +103,7 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public List<ObjectNode> getAllActions(final User user, final String role) {
+    public List<Action> getAllActions() {
         final File folder = new File(getBaseDir() + SEP + "actions");
         final ArrayList all = new ArrayList();
         for (final File fileEntry : folder.listFiles()) {
@@ -123,10 +120,10 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public ObjectNode getAction(final User user, final String actionKey, final String role) {
+    public Action getAction(final String actionKey) {
         try {
-            final ObjectNode ret = (ObjectNode)(mapper.readTree(
-                        new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json")));
+            final Action ret = mapper.readValue(new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json"),
+                    Action.class);
             return ret;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -134,7 +131,7 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public List<ObjectNode> getAllTasks(final User user, final String actionKey, final String role) {
+    public List<ActionTask> getAllTasks(final String actionKey) {
         final File folder = new File(getBaseDir() + SEP + "actions" + SEP + actionKey);
         final ArrayList all = new ArrayList();
         for (final File fileEntry : folder.listFiles()) {
@@ -151,16 +148,11 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public ObjectNode createNewActionTask(final User user,
-            final String actionKey,
+    public ActionTask createNewActionTask(final String actionKey,
             ActionTask actionTask,
-            final String role,
             final boolean requestResultingInstance,
-            final InputStream attachmentIS) {
+            final InputStream... attachmentIS) {
         Action action = null;
-        if (role != null) {
-            throw new UnsupportedOperationException("role not supported yet.");
-        }
         if (actionTask == null) {
             actionTask = new ActionTask();
         }
@@ -185,13 +177,13 @@ public class FileSystemActionCore implements ActionCore {
             final File resultDirFile = new File(resultDir);
             final File stderrFile = new File(stderr);
             final File stdoutFile = new File(stdout);
-            if (attachmentIS != null) {
+            if ((attachmentIS != null) && (attachmentIS.length > 0) && (attachmentIS[0] != null)) {
                 final File attachmentFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP
                                 + actionTask.getKey()
                                 + SEP
                                 + "attachment.file");
 
-                FileUtils.copyInputStreamToFile(attachmentIS, attachmentFile);
+                FileUtils.copyInputStreamToFile(attachmentIS[0], attachmentFile);
             }
             mapper.writeValue(taskFile, actionTask);
             action = mapper.readValue(actionFile, Action.class);
@@ -317,7 +309,7 @@ public class FileSystemActionCore implements ActionCore {
         }
         if (requestResultingInstance) {
             try {
-                return (ObjectNode)mapper.readTree(new File(
+                return mapper.readValue(new File(
                             getBaseDir()
                                     + SEP
                                     + "actions"
@@ -325,7 +317,8 @@ public class FileSystemActionCore implements ActionCore {
                                     + actionKey
                                     + SEP
                                     + actionTask.getKey()
-                                    + ".json"));
+                                    + ".json"),
+                        ActionTask.class);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return null;
@@ -336,18 +329,25 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public ObjectNode getTask(final User user, final String actionKey, final String taskKey, final String role) {
+    public ActionTask getTask(final String actionKey, final String taskKey) {
         try {
-            final ObjectNode ret = (ObjectNode)(mapper.readTree(
-                        new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json")));
-            return ret;
+            return mapper.readValue(new File(
+                        getBaseDir()
+                                + SEP
+                                + "actions"
+                                + SEP
+                                + actionKey
+                                + SEP
+                                + taskKey
+                                + ".json"),
+                    ActionTask.class);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
 
     @Override
-    public void deleteTask(final User user, final String actionKey, final String taskKey, final String role) {
+    public void deleteTask(final String actionKey, final String taskKey) {
         try {
             final File taskFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json");
             final File pidFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + SEP
@@ -378,10 +378,7 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public List<ActionResultInfo> getResults(final User user,
-            final String actionKey,
-            final String taskKey,
-            final String role) {
+    public List<ActionResultInfo> getResults(final String actionKey, final String taskKey) {
         final File folder = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey);
         final ArrayList all = new ArrayList();
         for (final File fileEntry : folder.listFiles()) {
@@ -393,11 +390,9 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public GenericResourceWithContentType getResult(final User user,
-            final String actionKey,
+    public GenericResourceWithContentType getResult(final String actionKey,
             final String taskKey,
-            final String resultKey,
-            final String role) {
+            final String resultKey) {
         // Weakness: only one result per key
         final String resultDir = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey;
         final File folder = new File(resultDir);

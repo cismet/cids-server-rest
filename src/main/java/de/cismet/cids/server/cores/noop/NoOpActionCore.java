@@ -12,16 +12,14 @@
  */
 package de.cismet.cids.server.cores.noop;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import java.io.InputStream;
 
 import java.util.List;
 
+import de.cismet.cids.server.api.types.Action;
 import de.cismet.cids.server.api.types.ActionResultInfo;
 import de.cismet.cids.server.api.types.ActionTask;
 import de.cismet.cids.server.api.types.GenericResourceWithContentType;
-import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.ActionCore;
 import de.cismet.cids.server.exceptions.NotImplementedException;
 
@@ -36,54 +34,47 @@ public class NoOpActionCore implements ActionCore {
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public List<ObjectNode> getAllActions(final User user, final String role) {
+    public List<Action> getAllActions() {
         throw new NotImplementedException("ActioCore is not active.");
     }
 
     @Override
-    public ObjectNode getAction(final User user, final String actionKey, final String role) {
+    public Action getAction(final String actionKey) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 
     @Override
-    public List<ObjectNode> getAllTasks(final User user, final String actionKey, final String role) {
+    public List<ActionTask> getAllTasks(final String actionKey) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 
     @Override
-    public ObjectNode createNewActionTask(final User user,
-            final String actionKey,
+    public ActionTask createNewActionTask(final String actionKey,
             final ActionTask body,
-            final String role,
             final boolean requestResultingInstance,
-            final InputStream fileAttachement) {
+            final InputStream... fileAttachement) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 
     @Override
-    public ObjectNode getTask(final User user, final String actionKey, final String taskKey, final String role) {
+    public ActionTask getTask(final String actionKey, final String taskKey) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 
     @Override
-    public List<ActionResultInfo> getResults(final User user,
-            final String actionKey,
+    public List<ActionResultInfo> getResults(final String actionKey, final String taskKey) {
+        throw new NotImplementedException("ActioCore is not active.");
+    }
+
+    @Override
+    public void deleteTask(final String actionKey, final String taskKey) {
+        throw new NotImplementedException("ActioCore is not active.");
+    }
+
+    @Override
+    public GenericResourceWithContentType getResult(final String actionKey,
             final String taskKey,
-            final String role) {
-        throw new NotImplementedException("ActioCore is not active.");
-    }
-
-    @Override
-    public void deleteTask(final User user, final String actionKey, final String taskKey, final String role) {
-        throw new NotImplementedException("ActioCore is not active.");
-    }
-
-    @Override
-    public GenericResourceWithContentType getResult(final User user,
-            final String actionKey,
-            final String taskKey,
-            final String resultKey,
-            final String role) {
+            final String resultKey) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 

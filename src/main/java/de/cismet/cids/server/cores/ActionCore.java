@@ -7,126 +7,177 @@
 ****************************************************/
 package de.cismet.cids.server.cores;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import java.io.InputStream;
 
 import java.util.List;
 
+import de.cismet.cids.server.api.types.Action;
 import de.cismet.cids.server.api.types.ActionResultInfo;
 import de.cismet.cids.server.api.types.ActionTask;
 import de.cismet.cids.server.api.types.GenericResourceWithContentType;
-import de.cismet.cids.server.api.types.User;
+import de.cismet.cids.server.exceptions.TaskException;
 
 /**
- * DOCUMENT ME!
+ * The <code>ActionCore</code> interface provides the core API of the server's capabilities to execute arbitrary tasks.
  *
  * @author   thorsten
- * @version  1.0
+ * @author   martin.scholl@cismet.de
+ * @version  0.1
  */
 public interface ActionCore extends CidsServerCore {
 
     //~ Methods ----------------------------------------------------------------
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   user  DOCUMENT ME!
-     * @param   role  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    List<ObjectNode> getAllActions(User user, String role);
+    // TODO: discussion on exceptions
 
     /**
-     * DOCUMENT ME!
+     * Provides a <code>List</code> of <code>Action</code>s available from this core. The implementation shall return an
+     * empty list if there is no action at all, never <code>null</code>
      *
-     * @param   user       DOCUMENT ME!
-     * @param   actionKey  DOCUMENT ME!
-     * @param   role       DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
+     * @return  a list of action objects available from this core, never <code>null</code>
      */
-    ObjectNode getAction(User user, String actionKey, String role);
+    List<Action> getAllActions();
 
     /**
-     * DOCUMENT ME!
+     * Provides the <code>Action</code> with the given key or <code>null</code> if there is no such action.
      *
-     * @param   user       DOCUMENT ME!
-     * @param   actionKey  DOCUMENT ME!
-     * @param   role       DOCUMENT ME!
+     * @param   actionKey  the key of the action
      *
-     * @return  DOCUMENT ME!
+     * @return  the action object with the given key or <code>null</code> if there is no action with the given key
+     *
+     * @throws  IllegalArgumentException  if the given key is <code>null</code> or an empty string
      */
-    List<ObjectNode> getAllTasks(User user, String actionKey, String role);
+    Action getAction(String actionKey);
 
     /**
-     * DOCUMENT ME!
+     * Provides a <code>List</code> of <code>ActionTask</code>s that are currently available. The implementation shall
+     * return each and every task that has ever been created but has not been deleted yet, no matter its status. It
+     * shall return an empty list if there is no task for the action at all, never <code>null</code>.
      *
-     * @param   user                      DOCUMENT ME!
-     * @param   actionKey                 DOCUMENT ME!
-     * @param   body                      DOCUMENT ME!
-     * @param   role                      DOCUMENT ME!
-     * @param   requestResultingInstance  DOCUMENT ME!
-     * @param   fileAttachement           DOCUMENT ME!
+     * @param   actionKey  the action to list the tasks for
      *
-     * @return  DOCUMENT ME!
+     * @return  a list of tasks currently available for the give action, never <code>null</code>
+     *
+     * @throws  IllegalArgumentException  if the given key is <code>null</code> or an empty string
+     *
+     * @see     #createNewActionTask(java.lang.String, de.cismet.cids.server.api.types.ActionTask, boolean,
+     *          java.io.InputStream)
+     * @see     #deleteTask(java.lang.String, java.lang.String)
      */
-    ObjectNode createNewActionTask(User user,
-            String actionKey,
+    List<ActionTask> getAllTasks(String actionKey);
+
+    /**
+     * Provides the <code>ActionTask</code> with the given key of the given action (key) or <code>null</code> if there
+     * is no such task for the action. The return value shall be the most recent state of the execution.
+     *
+     * @param   actionKey  the key of the action
+     * @param   taskKey    the key of the task
+     *
+     * @return  the task object of <code>null</code> if there is no task with the given key for the action with the
+     *          given key
+     *
+     * @throws  IllegalArgumentException  if any of the given keys is <code>null</code> or an empty string
+     */
+    ActionTask getTask(String actionKey, String taskKey);
+
+    /**
+     * Creates a new <code>ActionTask</code> effectively running/queuing the desired action using the provided
+     * parameters. Implementations shall stick to the following rules:<br>
+     *
+     * <ul>
+     *   <li>This operation shall always run asynchronously so it is considered finished as soon as the implementation
+     *     has been able to store a proper <code>ActionTask</code> object so that it may be retrieved via
+     *     {@link #getTask(java.lang.String, java.lang.String) }.</li>
+     *   <li>The actionKey provided as a parameter and the actionKey of the given <code>ActionTask</code> must match,
+     *     otherwise an <code>IllegalArgumentException</code> is thrown.</li>
+     *   <li>The body may contain a key and a status, however, it shall be ignored.</li>
+     *   <li>The key object shall be generated by the implementation so that it is unique for the particular action at
+     *     the time of creation and should not be reused too frequently if the task has been deleted in order to avoid
+     *     clashes.</li>
+     *   <li>The status of the <code>ActionTask</code> shall be controlled by the implementation and updated as soon as
+     *     it changes in a way that <code>getTask</code> always returns the proper state of the execution.</li>
+     *   <li>The other properties of <code>ActionTask</code> are currently user-controlled and shall be not be changed
+     *     by implementations.</li>
+     *   <li>If the resulting instance is requested the implementation should return the most recent status of the
+     *     execution. Otherwise the operation shall return <code>null</code>.</li>
+     *   <li>If any attachment is provided the implementation may choose to close the streams after usage, however, it
+     *     is not required.</li>
+     * </ul>
+     *
+     * @param   actionKey                 the key of the action to run
+     * @param   body                      the control parameters for the task
+     * @param   requestResultingInstance  whether to return the resulting <code>ActionTask</code> instance or <code>
+     *                                    null</code>
+     * @param   attachement               an array of streams that may be used by the action implementation
+     *
+     * @return  the resulting <code>ActionTask</code> instance or <code>null</code>
+     *
+     * @throws  IllegalArgumentException  if
+     *
+     *                                    <ul>
+     *                                      <li>the actionKey or body is <code>null</code></li>
+     *                                      <li>the actionKey is the empty string</li>
+     *                                      <li>the body does not contain an actionKey</li>
+     *                                      <li>the body's action key is the empty string</li>
+     *                                      <li>the actionKey and the body.actionKey do not match</li>
+     *                                    </ul>
+     */
+    ActionTask createNewActionTask(String actionKey,
             ActionTask body,
-            String role,
             boolean requestResultingInstance,
-            InputStream fileAttachement);
+            InputStream... attachement);
 
     /**
-     * DOCUMENT ME!
+     * Destroys the task with the given taskKey and actionKey. If there is no such task this operation simply does
+     * nothing at all. If the task is running this operation will try to cancel the task. However, it should not block
+     * longer than 60 seconds. If could not be deleted within this time frame the operation shall exit with a <code>
+     * TaskException</code>. Implementations shall ensure that any resources that are attached to this task are cleared,
+     * i.e. releasing any locks, deleting any results, etc.
      *
-     * @param   user       DOCUMENT ME!
-     * @param   actionKey  DOCUMENT ME!
-     * @param   taskKey    DOCUMENT ME!
-     * @param   role       DOCUMENT ME!
+     * @param   actionKey  the key of the action
+     * @param   taskKey    the key of the task
      *
-     * @return  DOCUMENT ME!
+     * @throws  IllegalArgumentException  if any of the given keys is <code>null</code> or an empty string
+     * @throws  TaskException             if the task cannot be deleted for any reason
      */
-    ObjectNode getTask(User user, String actionKey, String taskKey, String role);
+    void deleteTask(String actionKey, String taskKey);
 
     /**
-     * DOCUMENT ME!
+     * Provides a <code>list</code> of <code>ActionResultInfo</code> of the task with the given taskKey and actionKey.
+     * If there is no such action or task this operation shall return an empty list, never <code>null</code>. If the
+     * task is not finished yet an <code>IllegalStateException</code> is thrown. If the task has status
+     * {@link ActionTask.Status.ERROR} the list shall contain at least one item that shall explain the task error. This
+     * item shall always be the first item if the implementation chooses to attach more than one result in case of an
+     * error.
      *
-     * @param   user       DOCUMENT ME!
-     * @param   actionKey  DOCUMENT ME!
-     * @param   taskKey    DOCUMENT ME!
-     * @param   role       DOCUMENT ME!
+     * @param   actionKey  the key of the action
+     * @param   taskKey    the key of the task
      *
-     * @return  DOCUMENT ME!
+     * @return  a list of task results
+     *
+     * @throws  IllegalArgumentException  if any of the given keys is <code>null</code> or an empty string
+     * @throws  IllegalStateException     if the task is not finished at all, i.e. does not have status
+     *                                    {@link ActionTask.Status.FINISHED} or {@link ActionTask.Status.ERROR}
+     * @throws  TaskException             if the task results cannot be retrieved for any reason
      */
-    List<ActionResultInfo> getResults(User user, String actionKey, String taskKey, String role);
+    List<ActionResultInfo> getResults(String actionKey, String taskKey);
 
     /**
-     * DOCUMENT ME!
+     * Provides a <code>GenericResourceWithContentType</code> of the task with the given taskKey and actionKey and
+     * resultKey which is one of the actual results of the task. If there is no such action, task or result this
+     * operation shall return an empty list, never <code>null</code>. If the task is not finished yet an <code>
+     * IllegalStateException</code> is thrown
      *
-     * @param  user       DOCUMENT ME!
-     * @param  actionKey  DOCUMENT ME!
-     * @param  taskKey    DOCUMENT ME!
-     * @param  role       DOCUMENT ME!
+     * @param   actionKey  the key of the action
+     * @param   taskKey    the key of the task
+     * @param   resultKey  the key of the result
+     *
+     * @return  a list of task results
+     *
+     * @throws  IllegalArgumentException  if any of the given keys is <code>null</code> or an empty string
+     * @throws  IllegalStateException     if the task is not finished at all, i.e. does not have status
+     *                                    {@link ActionTask.Status.FINISHED} or {@link ActionTask.Status.ERROR}
+     * @throws  TaskException             if this task results cannot be retrieved for any reason
      */
-    void deleteTask(User user, String actionKey, String taskKey, String role);
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   user       DOCUMENT ME!
-     * @param   actionKey  DOCUMENT ME!
-     * @param   taskKey    DOCUMENT ME!
-     * @param   resultKey  DOCUMENT ME!
-     * @param   role       DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    GenericResourceWithContentType getResult(User user,
-            String actionKey,
-            String taskKey,
-            String resultKey,
-            String role);
+    GenericResourceWithContentType getResult(String actionKey, String taskKey, String resultKey);
 }

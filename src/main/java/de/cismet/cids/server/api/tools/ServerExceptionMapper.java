@@ -119,7 +119,7 @@ public final class ServerExceptionMapper {
             final Response.ResponseBuilder builder = Response.status(e.getHttpErrorCode());
 
             final APIException ex = new APIException(
-                    e.getDeveloperMessage(),
+                    e.getMessage(),
                     e.getUserMessage(),
                     e.getHttpErrorCode(),
                     (e.getCause() != null) ? e.getCause().toString() : "no further information provided");        // NOI18N
