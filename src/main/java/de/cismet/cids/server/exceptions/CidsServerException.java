@@ -5,32 +5,55 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.exceptions;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * DOCUMENT ME!
+ * Basic server exception.
  *
  * @author   thorsten
- * @version  $Revision$, $Date$
+ * @author   martin.scholl@cismet.de
+ * @version  0.1
  */
 @XmlRootElement
-@AllArgsConstructor
 @Getter
 public class CidsServerException extends RuntimeException {
 
     //~ Instance fields --------------------------------------------------------
 
-    private final String developerMessage;
     private final String userMessage;
     private final int httpErrorCode;
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new CidsServerException object.
+     *
+     * @param  developerMessage  DOCUMENT ME!
+     * @param  userMessage       DOCUMENT ME!
+     * @param  httpErrorCode     DOCUMENT ME!
+     */
+    public CidsServerException(final String developerMessage, final String userMessage, final int httpErrorCode) {
+        this(developerMessage, userMessage, httpErrorCode, null);
+    }
+
+    /**
+     * Creates a new CidsServerException object.
+     *
+     * @param  developerMessage  DOCUMENT ME!
+     * @param  userMessage       DOCUMENT ME!
+     * @param  httpErrorCode     DOCUMENT ME!
+     * @param  cause             DOCUMENT ME!
+     */
+    public CidsServerException(final String developerMessage,
+            final String userMessage,
+            final int httpErrorCode,
+            final Throwable cause) {
+        super(developerMessage, cause);
+        this.userMessage = userMessage;
+        this.httpErrorCode = httpErrorCode;
+    }
 }

@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.header.FormDataContentDisposition;
@@ -38,6 +36,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import de.cismet.cids.server.api.tools.Tools;
+import de.cismet.cids.server.api.types.Action;
 import de.cismet.cids.server.api.types.ActionResultInfo;
 import de.cismet.cids.server.api.types.ActionTask;
 import de.cismet.cids.server.api.types.CollectionResource;
@@ -122,7 +121,7 @@ public class ActionAPI extends APIBase {
         }
 
         if (domain.equalsIgnoreCase("local") || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> allActions = RuntimeContainer.getServer().getActionCore().getAllActions(user, role);
+            final List<Action> allActions = RuntimeContainer.getServer().getActionCore().getAllActions();
             final CollectionResource result = new CollectionResource(
                     getLocation(),
                     offset,
@@ -201,7 +200,7 @@ public class ActionAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getActionCore().getAction(user, actionKey, role))
+                        .entity(RuntimeContainer.getServer().getActionCore().getAction(actionKey))
                         .build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -282,9 +281,7 @@ public class ActionAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> allActions = RuntimeContainer.getServer()
-                        .getActionCore()
-                        .getAllTasks(user, actionKey, role);
+            final List<ActionTask> allActions = RuntimeContainer.getServer().getActionCore().getAllTasks(actionKey);
             final CollectionResource result = new CollectionResource(
                     getLocation(),
                     offset,
@@ -387,10 +384,8 @@ public class ActionAPI extends APIBase {
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getActionCore().createNewActionTask(
-                                    user,
                                     actionKey,
                                     taskParams,
-                                    role,
                                     requestResultingInstance,
                                     attachmentInputStream))
                         .build();
@@ -464,7 +459,7 @@ public class ActionAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getActionCore().getTask(user, actionKey, taskKey, role))
+                        .entity(RuntimeContainer.getServer().getActionCore().getTask(actionKey, taskKey))
                         .build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -556,7 +551,7 @@ public class ActionAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             final List<ActionResultInfo> allActions = RuntimeContainer.getServer()
                         .getActionCore()
-                        .getResults(user, actionKey, taskKey, role);
+                        .getResults(actionKey, taskKey);
             final CollectionResource result = new CollectionResource(
                     getLocation(),
                     offset,
@@ -662,7 +657,7 @@ public class ActionAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             final GenericResourceWithContentType r = RuntimeContainer.getServer()
                         .getActionCore()
-                        .getResult(user, actionKey, taskKey, resultKey, role);
+                        .getResult(actionKey, taskKey, resultKey);
             if (r != null) {
                 return Response.status(Response.Status.OK)
                             .header("Content-Type", r.getContentType())
@@ -742,7 +737,7 @@ public class ActionAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            RuntimeContainer.getServer().getActionCore().deleteTask(user, actionKey, taskKey, role);
+            RuntimeContainer.getServer().getActionCore().deleteTask(actionKey, taskKey);
             return Response.status(Response.Status.OK).header("Location", getLocation()).build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
