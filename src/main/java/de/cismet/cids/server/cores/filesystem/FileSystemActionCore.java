@@ -1,10 +1,12 @@
-/***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+/**
+ * *************************************************
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ * 
+* ... and it just works.
+ * 
+***************************************************
+ */
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -50,44 +52,41 @@ import de.cismet.commons.concurrency.CismetExecutors;
 /**
  * DOCUMENT ME!
  *
- * @author   thorsten
- * @version  $Revision$, $Date$
+ * @author thorsten
+ * @version $Revision$, $Date$
  */
 @Parameters(separators = "=")
 @ServiceProvider(service = CidsServerCore.class)
 public class FileSystemActionCore implements ActionCore {
 
     //~ Static fields/initializers ---------------------------------------------
-
     static final String SEP = System.getProperty("file.separator");
 
     @Parameter(
-        names = { "-core.fs.action.actionextension", "--core.fs.action.actionextension" },
-        description = "extension of the action scripts"
+            names = {"-core.fs.action.actionextension", "--core.fs.action.actionextension"},
+            description = "extension of the action scripts"
     )
     static String actionExtension = ".sh";
 
     @Parameter(
-        names = { "-core.fs.action.os", "--core.fs.action.os" },
-        description = "Server OS [Unix, Win]"
+            names = {"-core.fs.action.os", "--core.fs.action.os"},
+            description = "Server OS [Unix, Win]"
     )
     static String os = "Unix";
     @Parameter(
-        names = { "-core.fs.action.output.encoding", "--core.fs.action.output.encoding" },
-        description =
-            "Encoding of the output of the action (on windows it is most likely \"Cp1252\" or \"ISO-8859-1\" or \"ISO-850\")"
+            names = {"-core.fs.action.output.encoding", "--core.fs.action.output.encoding"},
+            description
+            = "Encoding of the output of the action (on windows it is most likely \"Cp1252\" or \"ISO-8859-1\" or \"ISO-850\")"
     )
     static String outputEncoding = "UTF-8";
 
-    static ConcurrentHashMap<String, ExecutorService> actionExecutorServices =
-        new ConcurrentHashMap<String, ExecutorService>();
+    static ConcurrentHashMap<String, ExecutorService> actionExecutorServices
+            = new ConcurrentHashMap<String, ExecutorService>();
 
     //~ Instance fields --------------------------------------------------------
-
     ObjectMapper mapper = new ObjectMapper();
 
     //~ Constructors -----------------------------------------------------------
-
     /**
      * Creates a new FileSystemActionCore object.
      */
@@ -95,11 +94,10 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     //~ Methods ----------------------------------------------------------------
-
     /**
      * DOCUMENT ME!
      *
-     * @return  DOCUMENT ME!
+     * @return DOCUMENT ME!
      */
     private String getBaseDir() {
         return FileSystemBaseCore.baseDir;
@@ -112,7 +110,7 @@ public class FileSystemActionCore implements ActionCore {
         for (final File fileEntry : folder.listFiles()) {
             if (!fileEntry.isHidden() && !fileEntry.isDirectory() && fileEntry.getAbsolutePath().endsWith(".json")) {
                 try {
-                    final ObjectNode on = (ObjectNode)mapper.readTree(fileEntry);
+                    final ObjectNode on = (ObjectNode) mapper.readTree(fileEntry);
                     all.add(on);
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -125,8 +123,8 @@ public class FileSystemActionCore implements ActionCore {
     @Override
     public ObjectNode getAction(final User user, final String actionKey, final String role) {
         try {
-            final ObjectNode ret = (ObjectNode)(mapper.readTree(
-                        new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json")));
+            final ObjectNode ret = (ObjectNode) (mapper.readTree(
+                    new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json")));
             return ret;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -140,7 +138,7 @@ public class FileSystemActionCore implements ActionCore {
         for (final File fileEntry : folder.listFiles()) {
             if (!fileEntry.isHidden() && !fileEntry.isDirectory() && fileEntry.getAbsolutePath().endsWith(".json")) {
                 try {
-                    final ObjectNode on = (ObjectNode)mapper.readTree(fileEntry);
+                    final ObjectNode on = (ObjectNode) mapper.readTree(fileEntry);
                     all.add(on);
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -173,33 +171,37 @@ public class FileSystemActionCore implements ActionCore {
             actionTask.setActionKey(actionKey);
             final File taskFile;
             final File f = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
-                            + ".json");
+                    + ".json");
+            /*
+             * It can happen, that the time in ms is not a unique key, especially when creating multiple ActionTasks in
+             * parallell. We must check if there is already a file that has the same key, and append a large unique number 
+             * in that case to ensure a unique id.
+             */
             if (f.exists()) {
-                System.out.println("There is already an exisitng Task with the key: " + actionTask.getKey());
                 actionTask.setKey(actionTask.getKey() + "_" + Math.floor(Math.random() * 100000));
                 taskFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
-                                + ".json");
+                        + ".json");
             } else {
                 taskFile = f;
             }
             final File actionFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json");
             final File pidFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
-                            + SEP
-                            + "pid.txt");
+                    + SEP
+                    + "pid.txt");
             final String resultDir = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey();
             final String stderr = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP
-                        + "stderr.txt";
+                    + "stderr.txt";
             final String stdout = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP
-                        + "stdout.txt";
+                    + "stdout.txt";
 
             final File resultDirFile = new File(resultDir);
             final File stderrFile = new File(stderr);
             final File stdoutFile = new File(stdout);
             if (attachmentIS != null) {
                 final File attachmentFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP
-                                + actionTask.getKey()
-                                + SEP
-                                + "attachment.file");
+                        + actionTask.getKey()
+                        + SEP
+                        + "attachment.file");
 
                 FileUtils.copyInputStreamToFile(attachmentIS, attachmentFile);
             }
@@ -229,117 +231,113 @@ public class FileSystemActionCore implements ActionCore {
                     actionExecutorServices.putIfAbsent(actionKey, CismetExecutors.newSingleThreadExecutor());
                 } else {
                     actionExecutorServices.putIfAbsent(
-                        actionKey,
-                        CismetExecutors.newFixedThreadPool(action.getMaxConcurrentThreads()));
+                            actionKey,
+                            CismetExecutors.newFixedThreadPool(action.getMaxConcurrentThreads()));
                 }
                 es = actionExecutorServices.get(actionKey);
             }
 
             final Runnable actionRunner = new Runnable() {
 
-                    @Override
-                    public void run() {
-                        try {
-                            System.out.println("start executing task " + fixedTask.getKey());
-                            FileUtils.forceMkdir(resultDirFile);
-                            fixedTask.setStatus(ActionTask.Status.RUNNING);
-                            System.out.println("set status to running for task " + fixedTask.getKey());
-                            mapper.writeValue(taskFile, fixedTask);
-                            final ProcessBuilder pb = new ProcessBuilder(commandWithParam);
+                @Override
+                public void run() {
+                    try {
+                        FileUtils.forceMkdir(resultDirFile);
+                        fixedTask.setStatus(ActionTask.Status.RUNNING);
+                        mapper.writeValue(taskFile, fixedTask);
+                        final ProcessBuilder pb = new ProcessBuilder(commandWithParam);
 
-                            pb.directory(new File(resultDir));
-                            final Map<String, String> env = pb.environment();
-                            env.put("cidsActionDirectory", resultDir);
-                            final Process p = pb.start();
+                        pb.directory(new File(resultDir));
+                        final Map<String, String> env = pb.environment();
+                        env.put("cidsActionDirectory", resultDir);
+                        final Process p = pb.start();
 
-                            final Integer i = de.flapdoodle.embed.process.runtime.Processes.processId(p);
-                            String s = String.valueOf(i);
+                        final Integer i = de.flapdoodle.embed.process.runtime.Processes.processId(p);
+                        String s = String.valueOf(i);
 
-                            FileUtils.writeStringToFile(pidFile, s);
-                            final BufferedReader stdInput = new BufferedReader(new InputStreamReader(
-                                        p.getInputStream(),
-                                        outputEncoding));
-                            final BufferedReader stdError = new BufferedReader(new InputStreamReader(
-                                        p.getErrorStream(),
-                                        outputEncoding));
+                        FileUtils.writeStringToFile(pidFile, s);
+                        final BufferedReader stdInput = new BufferedReader(new InputStreamReader(
+                                p.getInputStream(),
+                                outputEncoding));
+                        final BufferedReader stdError = new BufferedReader(new InputStreamReader(
+                                p.getErrorStream(),
+                                outputEncoding));
 
-                            // read the output from the command
-                            final StringBuilder out = new StringBuilder();
-                            while ((s = stdInput.readLine()) != null) {
-                                out.append(s).append(System.getProperty("line.separator"));
-                            }
+                        // read the output from the command
+                        final StringBuilder out = new StringBuilder();
+                        while ((s = stdInput.readLine()) != null) {
+                            out.append(s).append(System.getProperty("line.separator"));
+                        }
 
-                            // read any errors from the attempted command
-                            final StringBuilder err = new StringBuilder();
-                            while ((s = stdError.readLine()) != null) {
-                                err.append(s).append(System.getProperty("line.separator"));
-                            }
-                            if (taskFile.exists()) {
-                                if (out.length() > 0) {
-                                    FileUtils.writeStringToFile(
+                        // read any errors from the attempted command
+                        final StringBuilder err = new StringBuilder();
+                        while ((s = stdError.readLine()) != null) {
+                            err.append(s).append(System.getProperty("line.separator"));
+                        }
+                        if (taskFile.exists()) {
+                            if (out.length() > 0) {
+                                FileUtils.writeStringToFile(
                                         stdoutFile,
                                         out.toString(),
                                         FileSystemBaseCore.fsEncoding);
-                                }
+                            }
 
-                                if (err.length() > 0) {
-                                    FileUtils.writeStringToFile(
+                            if (err.length() > 0) {
+                                FileUtils.writeStringToFile(
                                         stderrFile,
                                         err.toString(),
                                         FileSystemBaseCore.fsEncoding);
-                                }
                             }
-                            p.waitFor();
-                            if (taskFile.exists()) {
-                                final ActionTask checkForStopped = m.readValue(taskFile, ActionTask.class);
-                                if (!checkForStopped.getStatus().equals(ActionTask.Status.CANCELING)) {
-                                    System.out.println("set status to finished for task " + fixedTask.getKey());
-                                    fixedTask.setStatus(ActionTask.Status.FINISHED);
-                                    m.writeValue(taskFile, fixedTask);
-                                }
+                        }
+                        p.waitFor();
+                        if (taskFile.exists()) {
+                            final ActionTask checkForStopped = m.readValue(taskFile, ActionTask.class);
+                            if (!checkForStopped.getStatus().equals(ActionTask.Status.CANCELING)) {
+                                fixedTask.setStatus(ActionTask.Status.FINISHED);
+                                m.writeValue(taskFile, fixedTask);
                             }
+                        }
+                        if (pidFile.exists()) {
+                            FileUtils.forceDelete(pidFile);
+                        }
+                        if (stderrFile.exists() && (FileUtils.sizeOf(stderrFile) == 0)) {
+                            FileUtils.forceDelete(stderrFile);
+                        }
+                        if (stdoutFile.exists() && (FileUtils.sizeOf(stdoutFile) == 0)) {
+                            FileUtils.forceDelete(stdoutFile);
+                        }
+                        if (resultDirFile.exists() && (FileUtils.sizeOfDirectory(resultDirFile) == 0)) {
+                            FileUtils.forceDelete(resultDirFile);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        fixedTask.setStatus(ActionTask.Status.ERROR);
+                        try {
+                            m.writeValue(taskFile, fixedTask);
                             if (pidFile.exists()) {
                                 FileUtils.forceDelete(pidFile);
                             }
-                            if (stderrFile.exists() && (FileUtils.sizeOf(stderrFile) == 0)) {
-                                FileUtils.forceDelete(stderrFile);
-                            }
-                            if (stdoutFile.exists() && (FileUtils.sizeOf(stdoutFile) == 0)) {
-                                FileUtils.forceDelete(stdoutFile);
-                            }
-                            if (resultDirFile.exists() && (FileUtils.sizeOfDirectory(resultDirFile) == 0)) {
-                                FileUtils.forceDelete(resultDirFile);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            fixedTask.setStatus(ActionTask.Status.ERROR);
-                            try {
-                                m.writeValue(taskFile, fixedTask);
-                                if (pidFile.exists()) {
-                                    FileUtils.forceDelete(pidFile);
-                                }
-                            } catch (Exception ex) {
-                                throw new RuntimeException();
-                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeException();
                         }
                     }
-                };
+                }
+            };
             es.execute(actionRunner);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
         if (requestResultingInstance) {
             try {
-                System.out.println("returning resulting instance");
-                return (ObjectNode)m.readTree(new File(
-                            getBaseDir()
-                                    + SEP
-                                    + "actions"
-                                    + SEP
-                                    + actionKey
-                                    + SEP
-                                    + actionTask.getKey()
-                                    + ".json"));
+                return (ObjectNode) m.readTree(new File(
+                        getBaseDir()
+                        + SEP
+                        + "actions"
+                        + SEP
+                        + actionKey
+                        + SEP
+                        + actionTask.getKey()
+                        + ".json"));
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return null;
@@ -352,8 +350,8 @@ public class FileSystemActionCore implements ActionCore {
     @Override
     public ObjectNode getTask(final User user, final String actionKey, final String taskKey, final String role) {
         try {
-            final ObjectNode ret = (ObjectNode)(mapper.readTree(
-                        new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json")));
+            final ObjectNode ret = (ObjectNode) (mapper.readTree(
+                    new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json")));
             return ret;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -365,7 +363,7 @@ public class FileSystemActionCore implements ActionCore {
         try {
             final File taskFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json");
             final File pidFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + SEP
-                            + "pid.txt");
+                    + "pid.txt");
             final String resultDir = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey;
             final File resultDirFile = new File(resultDir);
 
@@ -428,9 +426,9 @@ public class FileSystemActionCore implements ActionCore {
     /**
      * DOCUMENT ME!
      *
-     * @param   fileEntry  DOCUMENT ME!
+     * @param fileEntry DOCUMENT ME!
      *
-     * @return  DOCUMENT ME!
+     * @return DOCUMENT ME!
      */
     private ActionResultInfo getActionResultInfoByFile(final File fileEntry) {
         final ActionResultInfo info = new ActionResultInfo();
@@ -457,7 +455,7 @@ public class FileSystemActionCore implements ActionCore {
         } else if (extension.equalsIgnoreCase("gif")) {
             info.setContentType("image/gif");
         } else if (extension.equalsIgnoreCase("jpg") || extension.equalsIgnoreCase("jpeg")
-                    || extension.equalsIgnoreCase("jpe")) {
+                || extension.equalsIgnoreCase("jpe")) {
             info.setContentType("image/jpeg");
         } else if (extension.length() > 0) {
             info.setContentType("unknown/" + extension);
