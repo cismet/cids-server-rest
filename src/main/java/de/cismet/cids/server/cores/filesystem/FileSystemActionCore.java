@@ -158,6 +158,7 @@ public class FileSystemActionCore implements ActionCore {
             final boolean requestResultingInstance,
             final InputStream attachmentIS) {
         Action action = null;
+        final ObjectMapper m = new ObjectMapper();
         if (role != null) {
             throw new UnsupportedOperationException("role not supported yet.");
         }
@@ -170,8 +171,17 @@ public class FileSystemActionCore implements ActionCore {
         try {
             actionTask.setStatus(ActionTask.Status.STARTING);
             actionTask.setActionKey(actionKey);
-            final File taskFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
+            final File taskFile;
+            final File f = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
                             + ".json");
+            if (f.exists()) {
+                System.out.println("There is already an exisitng Task with the key: " + actionTask.getKey());
+                actionTask.setKey(actionTask.getKey() + "_" + Math.floor(Math.random() * 100000));
+                taskFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
+                                + ".json");
+            } else {
+                taskFile = f;
+            }
             final File actionFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json");
             final File pidFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
                             + SEP
@@ -193,8 +203,8 @@ public class FileSystemActionCore implements ActionCore {
 
                 FileUtils.copyInputStreamToFile(attachmentIS, attachmentFile);
             }
-            mapper.writeValue(taskFile, actionTask);
-            action = mapper.readValue(actionFile, Action.class);
+            m.writeValue(taskFile, actionTask);
+            action = m.readValue(actionFile, Action.class);
             final List<String> commandWithParam = new ArrayList<String>();
             commandWithParam.add(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionKey + actionExtension);
             final StringBuilder paramStringB = new StringBuilder();
@@ -230,8 +240,10 @@ public class FileSystemActionCore implements ActionCore {
                     @Override
                     public void run() {
                         try {
+                            System.out.println("start executing task " + fixedTask.getKey());
                             FileUtils.forceMkdir(resultDirFile);
                             fixedTask.setStatus(ActionTask.Status.RUNNING);
+                            System.out.println("set status to running for task " + fixedTask.getKey());
                             mapper.writeValue(taskFile, fixedTask);
                             final ProcessBuilder pb = new ProcessBuilder(commandWithParam);
 
@@ -279,10 +291,11 @@ public class FileSystemActionCore implements ActionCore {
                             }
                             p.waitFor();
                             if (taskFile.exists()) {
-                                final ActionTask checkForStopped = mapper.readValue(taskFile, ActionTask.class);
+                                final ActionTask checkForStopped = m.readValue(taskFile, ActionTask.class);
                                 if (!checkForStopped.getStatus().equals(ActionTask.Status.CANCELING)) {
+                                    System.out.println("set status to finished for task " + fixedTask.getKey());
                                     fixedTask.setStatus(ActionTask.Status.FINISHED);
-                                    mapper.writeValue(taskFile, fixedTask);
+                                    m.writeValue(taskFile, fixedTask);
                                 }
                             }
                             if (pidFile.exists()) {
@@ -301,7 +314,7 @@ public class FileSystemActionCore implements ActionCore {
                             e.printStackTrace();
                             fixedTask.setStatus(ActionTask.Status.ERROR);
                             try {
-                                mapper.writeValue(taskFile, fixedTask);
+                                m.writeValue(taskFile, fixedTask);
                                 if (pidFile.exists()) {
                                     FileUtils.forceDelete(pidFile);
                                 }
@@ -317,7 +330,8 @@ public class FileSystemActionCore implements ActionCore {
         }
         if (requestResultingInstance) {
             try {
-                return (ObjectNode)mapper.readTree(new File(
+                System.out.println("returning resulting instance");
+                return (ObjectNode)m.readTree(new File(
                             getBaseDir()
                                     + SEP
                                     + "actions"
