@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -31,6 +29,7 @@ import javax.ws.rs.core.Response;
 
 import de.cismet.cids.server.api.tools.Tools;
 import de.cismet.cids.server.api.types.CollectionResource;
+import de.cismet.cids.server.api.types.EntityInfo;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.data.RuntimeContainer;
 
@@ -41,13 +40,13 @@ import de.cismet.cids.server.data.RuntimeContainer;
  * @version  $Revision$, $Date$
  */
 @Api(
-    value = "/classes",
+    value = "/entityinfo",
     description = "Get information about entities. Retrieve, create update and delete objects.",
-    listingPath = "/resources/classes"
+    listingPath = "/resources/entityinfo"
 )
-@Path("/classes")
+@Path("/entityinfo")
 @Produces("application/json")
-public class ClassesAPI extends APIBase {
+public class EntityInfoAPI extends APIBase {
 
     //~ Methods ----------------------------------------------------------------
 
@@ -64,11 +63,11 @@ public class ClassesAPI extends APIBase {
      */
     @GET
     @ApiOperation(
-        value = "Get all classes.",
+        value = "Get all entityinfos.",
         notes = "-"
     )
     @Produces("application/json")
-    public Response getClasses(
+    public Response getEntityInfos(
             @ApiParam(
                 value = "possible values are 'all','local' or a existing [domainname]. 'all' when not submitted",
                 required = false,
@@ -112,18 +111,18 @@ public class ClassesAPI extends APIBase {
         }
 
         if (domain.equalsIgnoreCase("local") || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> allLocalClasses = RuntimeContainer.getServer()
+            final List<EntityInfo> allLocalEntityInfos = RuntimeContainer.getServer()
                         .getEntityInfoCore()
-                        .getAllClasses(user, role);
+                        .getAllEntityInfos();
             final CollectionResource result = new CollectionResource(
-                    "/classes",
+                    "/entityinfos",
                     offset,
                     limit,
-                    "/classes",
+                    "/entityinfos",
                     null,
                     "not available",
                     "not available",
-                    allLocalClasses);
+                    allLocalEntityInfos);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else if (domain.equalsIgnoreCase("all")) {
             // Iterate through all domains and delegate an dcombine the result
@@ -137,7 +136,7 @@ public class ClassesAPI extends APIBase {
             queryParams.add("domain", domain);
             queryParams.add("role", role);
             final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
-                        .path("/entities/classes")
+                        .path("/entities/entityinfo")
                         .header("Authorization", authString)
                         .get(ClientResponse.class);
             return Response.status(Response.Status.OK).entity(csiDelegateCall.getEntity(String.class)).build();
@@ -147,20 +146,20 @@ public class ClassesAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   domain      DOCUMENT ME!
-     * @param   classKey    DOCUMENT ME!
-     * @param   role        DOCUMENT ME!
-     * @param   authString  DOCUMENT ME!
+     * @param   domain         DOCUMENT ME!
+     * @param   entityInfoKey  DOCUMENT ME!
+     * @param   role           DOCUMENT ME!
+     * @param   authString     DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    @Path("/{domain}.{classkey}")
+    @Path("/{domain}.{entityinfokey}")
     @GET
     @ApiOperation(
-        value = "Get a certain class.",
+        value = "Get a certain entityinfo.",
         notes = "-"
     )
-    public Response getClass(
+    public Response getEntityInfo(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -168,11 +167,11 @@ public class ClassesAPI extends APIBase {
             @PathParam("domain")
             final String domain,
             @ApiParam(
-                value = "identifier (classkey) of the class.",
+                value = "identifier (entityinfokey) of the entityinfo.",
                 required = true
             )
-            @PathParam("classkey")
-            final String classKey,
+            @PathParam("entityinfokey")
+            final String entityInfoKey,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
                 required = false,
@@ -193,7 +192,7 @@ public class ClassesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getEntityInfoCore().getClass(user, classKey, role))
+                        .entity(RuntimeContainer.getServer().getEntityInfoCore().getEntityInfo(entityInfoKey))
                         .build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -201,8 +200,8 @@ public class ClassesAPI extends APIBase {
             queryParams.add("domain", domain);
             queryParams.add("role", role);
             final ClientResponse crDelegateCall = delegateCall.queryParams(queryParams)
-                        .path("/entities/classes")
-                        .path(domain + "." + classKey)
+                        .path("/entities/entityinfos")
+                        .path(domain + "." + entityInfoKey)
                         .header("Authorization", authString)
                         .get(ClientResponse.class);
             return Response.status(Response.Status.OK).entity(crDelegateCall.getEntity(String.class)).build();
@@ -212,18 +211,18 @@ public class ClassesAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   domain        DOCUMENT ME!
-     * @param   classKey      DOCUMENT ME!
-     * @param   attributeKey  DOCUMENT ME!
-     * @param   role          DOCUMENT ME!
-     * @param   authString    DOCUMENT ME!
+     * @param   domain         DOCUMENT ME!
+     * @param   entityInfoKey  DOCUMENT ME!
+     * @param   attributeKey   DOCUMENT ME!
+     * @param   role           DOCUMENT ME!
+     * @param   authString     DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    @Path("/{domain}.{classkey}/{attributekey}")
+    @Path("/{domain}.{entityinfokey}/{attributekey}")
     @GET
     @ApiOperation(
-        value = "Get a certain class.",
+        value = "Get a certain entityinfo.",
         notes = "-"
     )
     public Response getAttribute(
@@ -234,11 +233,11 @@ public class ClassesAPI extends APIBase {
             @PathParam("domain")
             final String domain,
             @ApiParam(
-                value = "identifier (classkey) of the class.",
+                value = "identifier (entityinfokey) of the entityinfo.",
                 required = true
             )
-            @PathParam("classkey")
-            final String classKey,
+            @PathParam("entityinfokey")
+            final String entityInfoKey,
             @ApiParam(
                 value = "identifier (attributekey) of the attribute.",
                 required = true
@@ -266,10 +265,8 @@ public class ClassesAPI extends APIBase {
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityInfoCore().getAttribute(
-                                    user,
-                                    classKey,
-                                    attributeKey,
-                                    role))
+                                    entityInfoKey,
+                                    attributeKey))
                         .build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -277,8 +274,8 @@ public class ClassesAPI extends APIBase {
             queryParams.add("domain", domain);
             queryParams.add("role", role);
             final ClientResponse crDelegateCall = delegateCall.queryParams(queryParams)
-                        .path("/classes")
-                        .path(domain + "." + classKey)
+                        .path("/entityinfo")
+                        .path(domain + "." + entityInfoKey)
                         .path(attributeKey)
                         .header("Authorization", authString)
                         .get(ClientResponse.class);

@@ -28,11 +28,9 @@ public interface ActionCore extends CidsServerCore {
 
     //~ Methods ----------------------------------------------------------------
 
-    // TODO: discussion on exceptions
-
     /**
      * Provides a <code>List</code> of <code>Action</code>s available from this core. The implementation shall return an
-     * empty list if there is no action at all, never <code>null</code>
+     * empty list if there is no action at all, never <code>null</code>.
      *
      * @return  a list of action objects available from this core, never <code>null</code>
      */
@@ -54,9 +52,9 @@ public interface ActionCore extends CidsServerCore {
      * return each and every task that has ever been created but has not been deleted yet, no matter its status. It
      * shall return an empty list if there is no task for the action at all, never <code>null</code>.
      *
-     * @param   actionKey  the action to list the tasks for
+     * @param   actionKey  the key of the action to list the tasks for
      *
-     * @return  a list of tasks currently available for the give action, never <code>null</code>
+     * @return  a list of tasks currently available for the given action, never <code>null</code>
      *
      * @throws  IllegalArgumentException  if the given key is <code>null</code> or an empty string
      *
@@ -73,7 +71,7 @@ public interface ActionCore extends CidsServerCore {
      * @param   actionKey  the key of the action
      * @param   taskKey    the key of the task
      *
-     * @return  the task object of <code>null</code> if there is no task with the given key for the action with the
+     * @return  the task object or <code>null</code> if there is no task with the given key for the action with the
      *          given key
      *
      * @throws  IllegalArgumentException  if any of the given keys is <code>null</code> or an empty string

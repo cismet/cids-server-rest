@@ -97,17 +97,17 @@ public class EntitiesAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   domain      DOCUMENT ME!
-     * @param   classKey    DOCUMENT ME!
-     * @param   role        DOCUMENT ME!
-     * @param   authString  DOCUMENT ME!
+     * @param   domain         DOCUMENT ME!
+     * @param   entityInfoKey  DOCUMENT ME!
+     * @param   role           DOCUMENT ME!
+     * @param   authString     DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    @Path("{domain}.{class}/emptyInstance")
+    @Path("{domain}.{entityinfo}/emptyInstance")
     @GET
     @ApiOperation(
-        value = "Get an empty instance of a certain class.",
+        value = "Get an empty instance of a certain entityinfo.",
         notes = "-"
     )
     public Response getEmptyInstance(
@@ -118,11 +118,11 @@ public class EntitiesAPI extends APIBase {
             @PathParam("domain")
             final String domain,
             @ApiParam(
-                value = "identifier (classkey) of the class.",
+                value = "identifier (entityinfokey) of the entityinfo.",
                 required = true
             )
-            @PathParam("class")
-            final String classKey,
+            @PathParam("entityinfo")
+            final String entityInfoKey,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
                 required = false,
@@ -143,14 +143,14 @@ public class EntitiesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getEntityInfoCore().emptyInstance(user, classKey, role))
+                        .entity(RuntimeContainer.getServer().getEntityInfoCore().emptyInstance(entityInfoKey))
                         .build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
             queryParams.add("role", role);
             final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
-                        .path(domain + "." + classKey)
+                        .path(domain + "." + entityInfoKey)
                         .path("emptyInstance")
                         .header("Authorization", authString)
                         .get(ClientResponse.class);

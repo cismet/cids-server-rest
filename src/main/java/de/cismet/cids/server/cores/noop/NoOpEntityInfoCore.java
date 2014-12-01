@@ -5,18 +5,14 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.cores.noop;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 
-import de.cismet.cids.server.api.types.User;
+import de.cismet.cids.server.api.types.Attribute;
+import de.cismet.cids.server.api.types.EntityInfo;
 import de.cismet.cids.server.cores.EntityInfoCore;
 import de.cismet.cids.server.exceptions.NotImplementedException;
 
@@ -24,37 +20,40 @@ import de.cismet.cids.server.exceptions.NotImplementedException;
  * DOCUMENT ME!
  *
  * @author   thorsten
- * @version  $Revision$, $Date$
+ * @author   martin.scholl@cismet.de
+ * @version  0.1
  */
 public class NoOpEntityInfoCore implements EntityInfoCore {
 
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public List<ObjectNode> getAllClasses(final User user, final String role) {
-        throw new NotImplementedException("EntityInfoCore is not active.");
-    }
-
-    @Override
-    public ObjectNode getClass(final User user, final String classKey, final String role) {
-        throw new NotImplementedException("EntityInfoCore is not active.");
-    }
-
-    @Override
-    public ObjectNode getAttribute(final User user,
-            final String classKey,
-            final String attributeKey,
-            final String role) {
-        throw new NotImplementedException("EntityInfoCore is not active.");
-    }
-
-    @Override
-    public ObjectNode emptyInstance(final User user, final String classKey, final String role) {
-        throw new NotImplementedException("EntityInfoCore is not active.");
-    }
-
-    @Override
     public String getCoreKey() {
         return "core.noop.entityInfo";
+    }
+
+    @Override
+    public List<EntityInfo> getAllEntityInfos() {
+        throw new NotImplementedException("EntityInfoCore is not active.");
+    }
+
+    @Override
+    public EntityInfo getEntityInfo(final String entityInfoKey) {
+        throw new NotImplementedException("EntityInfoCore is not active.");
+    }
+
+    @Override
+    public List<Attribute> getAllAttributes(final String entityInfoKey) {
+        throw new NotImplementedException("EntityInfoCore is not active.");
+    }
+
+    @Override
+    public Attribute getAttribute(final String entityInfoKey, final String attributeKey) {
+        throw new NotImplementedException("EntityInfoCore is not active.");
+    }
+
+    @Override
+    public ObjectNode emptyInstance(final String entityInfoKey) {
+        throw new NotImplementedException("EntityInfoCore is not active.");
     }
 }
