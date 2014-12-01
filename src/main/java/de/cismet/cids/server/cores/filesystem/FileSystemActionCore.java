@@ -329,15 +329,8 @@ public class FileSystemActionCore implements ActionCore {
         }
         if (requestResultingInstance) {
             try {
-                return (ObjectNode) m.readTree(new File(
-                        getBaseDir()
-                        + SEP
-                        + "actions"
-                        + SEP
-                        + actionKey
-                        + SEP
-                        + actionTask.getKey()
-                        + ".json"));
+                final String json = mapper.writeValueAsString(actionTask);
+                return (ObjectNode)mapper.readTree(json);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return null;
