@@ -1,4 +1,4 @@
-ICMM Core API Preview
+ICMM Core API Preview [![Build Status](http://ci.cismet.de/buildStatus/icon?job=cids-server-rest)](https://ci.cismet.de/job/cids-server-rest/)
 ================
 
 
