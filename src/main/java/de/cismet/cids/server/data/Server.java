@@ -89,4 +89,6 @@ public interface Server {
      * @return  DOCUMENT ME!
      */
     String getRegistry();
+    
+    boolean isNoneUserAllowed();
 }

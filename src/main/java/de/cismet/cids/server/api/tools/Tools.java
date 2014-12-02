@@ -127,7 +127,7 @@ public class Tools {
      */
     public static boolean canHazUserProblems(final User user) {
         return (user == null) || !user.isValidated()
-                    || ((user == User.NONE) && !RuntimeContainer.getServer().getUserCore().isNoneUserAllowed());
+                    || ((user == User.NONE) && !RuntimeContainer.getServer().isNoneUserAllowed());
     }
 
     /**

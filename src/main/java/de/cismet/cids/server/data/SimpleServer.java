@@ -50,6 +50,8 @@ public class SimpleServer implements Server {
     UserCore userCore;
     String domainName;
     String registry;
+    // TODO: server parameter initialisation
+    boolean noneUserAllowed = true;
 
     //~ Methods ----------------------------------------------------------------
 

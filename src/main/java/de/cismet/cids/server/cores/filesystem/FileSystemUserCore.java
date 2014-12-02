@@ -56,12 +56,7 @@ public class FileSystemUserCore implements UserCore {
     private String getBaseDir() {
         return FileSystemBaseCore.baseDir;
     }
-
-    @Override
-    public boolean isNoneUserAllowed() {
-        return false;
-    }
-
+    
     @Override
     public User validate(final User user) {
         try {

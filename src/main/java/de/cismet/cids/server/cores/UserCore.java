@@ -18,19 +18,14 @@ import de.cismet.cids.server.api.types.User;
 public interface UserCore extends CidsServerCore {
 
     //~ Methods ----------------------------------------------------------------
-
+    
     /**
-     * DOCUMENT ME!
+     * Validates the provided username and password against the persisted user data. It shall set the validated flag of
+     * the provided user to <code>true</code> if and only if the validation was successful.
      *
-     * @return  DOCUMENT ME!
-     */
-    boolean isNoneUserAllowed();
-    /**
-     * DOCUMENT ME!
+     * @param   user  the user to validate
      *
-     * @param   user  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
+     * @return  the user object with a proper validated flag, same as input object
      */
     User validate(User user);
 }

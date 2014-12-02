@@ -25,11 +25,6 @@ public class DummyUserCore implements UserCore {
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public boolean isNoneUserAllowed() {
-        return true;
-    }
-
-    @Override
     public User validate(final User user) {
         user.setValidated(true);
 
