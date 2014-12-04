@@ -28,6 +28,8 @@ public interface ActionCore extends CidsServerCore {
 
     //~ Methods ----------------------------------------------------------------
 
+    // TODO: discussion on exceptions
+
     /**
      * Provides a <code>List</code> of <code>Action</code>s available from this core. The implementation shall return an
      * empty list if there is no action at all, never <code>null</code>.
