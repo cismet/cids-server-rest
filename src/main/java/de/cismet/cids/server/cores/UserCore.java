@@ -18,7 +18,7 @@ import de.cismet.cids.server.api.types.User;
 public interface UserCore extends CidsServerCore {
 
     //~ Methods ----------------------------------------------------------------
-    
+
     /**
      * Validates the provided username and password against the persisted user data. It shall set the validated flag of
      * the provided user to <code>true</code> if and only if the validation was successful.

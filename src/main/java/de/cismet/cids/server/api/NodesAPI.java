@@ -7,7 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -214,7 +213,7 @@ public class NodesAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   nodeQuery   DOCUMENT ME!
+     * @param   node        nodeQuery DOCUMENT ME!
      * @param   domain      DOCUMENT ME!
      * @param   limit       DOCUMENT ME!
      * @param   offset      DOCUMENT ME!
@@ -277,9 +276,7 @@ public class NodesAPI extends APIBase {
         }
 
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<Node> childrenNodes = RuntimeContainer.getServer()
-                        .getNodeCore()
-                        .getChildren(node);
+            final List<Node> childrenNodes = RuntimeContainer.getServer().getNodeCore().getChildren(node);
             final CollectionResource result = new CollectionResource(
                     getLocation(),
                     offset,
