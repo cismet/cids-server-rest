@@ -7,62 +7,54 @@
 ****************************************************/
 package de.cismet.cids.server.cores;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.cismet.cids.server.api.types.Node;
 
 import java.util.List;
 
-import de.cismet.cids.server.api.types.User;
 
 /**
- * DOCUMENT ME!
+ * The <code>NodeCore</code> provides access a server's node entities that are used to provide a virtual view on actual
+ * entities.
  *
  * @author   thorsten
- * @version  1.0
+ * @author   martin.scholl@cismet.de
+ * @version  0.1
  */
 public interface NodeCore extends CidsServerCore {
+    
+    // TODO: this also has a huge dependency on the entity core implementation because you need to "look up" the actual
+    //       entities from the actual backend. or alternatively the "dynamic part" should be implemented as searches
+    // TODO: maybe the "dynamic children" should be implemented as searches
 
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * DOCUMENT ME!
+     * Provides the top-most nodes of a server. If there are no root nodes available the implementation shall return an
+     * empty list, never <code>null</code>.
      *
-     * @param   user  DOCUMENT ME!
-     * @param   role  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
+     * @return  a list of all available root nodes, never <code>null</code>
      */
-    List<ObjectNode> getRootNodes(User user, String role);
+    List<Node> getRootNodes();
 
     /**
-     * DOCUMENT ME!
+     * Provides a certain node that is identified by the given key. If there is no such key the implementation shall
+     * return <code>null</code>.
      *
-     * @param   user     DOCUMENT ME!
-     * @param   nodeKey  DOCUMENT ME!
-     * @param   role     DOCUMENT ME!
+     * @param   nodeKey  the key of the node to get
      *
-     * @return  DOCUMENT ME!
+     * @return  the desired node or <code>null</code> if there is no such node
+     * 
+     * @throws IllegalArgumentException if the node key is <code>null</code> or the empty string
      */
-    ObjectNode getNode(User user, String nodeKey, String role);
+    Node getNode(String nodeKey);
 
     /**
-     * DOCUMENT ME!
+     * Provides the children of the given node. If there node does not have any children the implementation shall return
+     * an empty list, never <code>null</code>.
      *
-     * @param   user     DOCUMENT ME!
-     * @param   nodeKey  DOCUMENT ME!
-     * @param   role     DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
+     * @return  the list of all children of the given node, never <code>null</code>
+     * 
+     * @throws IllegalArgumentException if the node is <code>null</code>
      */
-    List<ObjectNode> getChildren(User user, String nodeKey, String role);
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   user       DOCUMENT ME!
-     * @param   nodeQuery  DOCUMENT ME!
-     * @param   role       DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    List<ObjectNode> getChildrenByQuery(User user, String nodeQuery, String role);
+    List<Node> getChildren(Node node);
 }

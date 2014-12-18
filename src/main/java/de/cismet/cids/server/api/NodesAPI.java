@@ -7,7 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -33,6 +32,7 @@ import javax.ws.rs.core.Response;
 
 import de.cismet.cids.server.api.tools.Tools;
 import de.cismet.cids.server.api.types.CollectionResource;
+import de.cismet.cids.server.api.types.Node;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.data.RuntimeContainer;
 
@@ -113,7 +113,7 @@ public class NodesAPI extends APIBase {
         }
 
         if (domain.equalsIgnoreCase("local") || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> allRootNodes = RuntimeContainer.getServer().getNodeCore().getRootNodes(user, role);
+            final List<Node> allRootNodes = RuntimeContainer.getServer().getNodeCore().getRootNodes();
             final CollectionResource result = new CollectionResource(
                     "/nodes",
                     offset,
@@ -195,7 +195,7 @@ public class NodesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getNodeCore().getNode(user, nodeKey, role))
+                        .entity(RuntimeContainer.getServer().getNodeCore().getNode(nodeKey))
                         .build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -230,12 +230,12 @@ public class NodesAPI extends APIBase {
         value = "Get the children of a certain node from the dynamicchildren section of the node.",
         notes = "-"
     )
-    public Response getChildrenNodesByQuery(
+    public Response getChildren(
             @ApiParam(
-                name = "nodeQuery (Body)",
-                value = "Dynamic children section of the node.",
+                name = "node (Body)",
+                value = "The parent node json.",
                 required = true
-            ) final String nodeQuery,
+            ) final Node node,
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -277,9 +277,9 @@ public class NodesAPI extends APIBase {
         }
 
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> childrenNodes = RuntimeContainer.getServer()
+            final List<Node> childrenNodes = RuntimeContainer.getServer()
                         .getNodeCore()
-                        .getChildrenByQuery(user, nodeQuery, role);
+                        .getChildren(node);
             final CollectionResource result = new CollectionResource(
                     getLocation(),
                     offset,
@@ -298,100 +298,6 @@ public class NodesAPI extends APIBase {
             final ClientResponse crDelegateCall = delegateCall.queryParams(queryParams)
                         .path("nodes")
                         .path(domain)
-                        .path("children")
-                        .header("Authorization", authString)
-                        .get(ClientResponse.class);
-            return Response.status(Response.Status.OK).entity(crDelegateCall.getEntity(String.class)).build();
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   domain      DOCUMENT ME!
-     * @param   nodeKey     DOCUMENT ME!
-     * @param   limit       DOCUMENT ME!
-     * @param   offset      DOCUMENT ME!
-     * @param   role        DOCUMENT ME!
-     * @param   authString  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    @Path("/{domain}.{nodekey}/children")
-    @GET
-    @ApiOperation(
-        value = "Get the children of a certain node.",
-        notes = "-"
-    )
-    public Response getChildrenNodes(
-            @ApiParam(
-                value = "identifier (domainname) of the domain.",
-                required = true
-            )
-            @PathParam("domain")
-            final String domain,
-            @ApiParam(
-                value = "identifier (nodekey) of the node.",
-                required = true
-            )
-            @PathParam("nodekey")
-            final String nodeKey,
-            @ApiParam(
-                value = "maximum number of results, 100 when not submitted",
-                required = false,
-                defaultValue = "100"
-            )
-            @DefaultValue("100")
-            @QueryParam("limit")
-            final int limit,
-            @ApiParam(
-                value = "pagination offset, 0 when not submitted",
-                required = false,
-                defaultValue = "0"
-            )
-            @DefaultValue("0")
-            @QueryParam("offset")
-            final int offset,
-            @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            @QueryParam("role")
-            final String role,
-            @ApiParam(
-                value = "Basic Auth Authorization String",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString) {
-        final User user = Tools.validationHelper(authString);
-        if (Tools.canHazUserProblems(user)) {
-            return Tools.getUserProblemResponse();
-        }
-
-        if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> childrenNodes = RuntimeContainer.getServer()
-                        .getNodeCore()
-                        .getChildren(user, nodeKey, role);
-            final CollectionResource result = new CollectionResource(
-                    getLocation(),
-                    offset,
-                    limit,
-                    getLocation(),
-                    null,
-                    "not available",
-                    "not available",
-                    childrenNodes);
-            return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
-        } else {
-            final WebResource delegateCall = Tools.getDomainWebResource(domain);
-            final MultivaluedMap queryParams = new MultivaluedMapImpl();
-            queryParams.add("domain", domain);
-            queryParams.add("role", role);
-            final ClientResponse crDelegateCall = delegateCall.queryParams(queryParams)
-                        .path("nodes")
-                        .path(domain + "." + nodeKey)
                         .path("children")
                         .header("Authorization", authString)
                         .get(ClientResponse.class);

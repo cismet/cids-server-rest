@@ -12,11 +12,10 @@
  */
 package de.cismet.cids.server.cores.noop;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.cismet.cids.server.api.types.Node;
 
 import java.util.List;
 
-import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.NodeCore;
 import de.cismet.cids.server.exceptions.NotImplementedException;
 
@@ -31,22 +30,17 @@ public class NoOpNodeCore implements NodeCore {
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public List<ObjectNode> getRootNodes(final User user, final String role) {
+    public List<Node> getRootNodes() {
         throw new NotImplementedException("NodeCore is not active.");
     }
 
     @Override
-    public ObjectNode getNode(final User user, final String nodeKey, final String role) {
+    public Node getNode(final String nodeKey) {
         throw new NotImplementedException("NodeCore is not active.");
     }
 
     @Override
-    public List<ObjectNode> getChildren(final User user, final String nodeKey, final String role) {
-        throw new NotImplementedException("NodeCore is not active.");
-    }
-
-    @Override
-    public List<ObjectNode> getChildrenByQuery(final User user, final String nodeQuery, final String role) {
+    public List<Node> getChildren(final Node node) {
         throw new NotImplementedException("NodeCore is not active.");
     }
 

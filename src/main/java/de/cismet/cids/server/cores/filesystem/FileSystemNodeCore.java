@@ -5,18 +5,11 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.cores.filesystem;
 
-import com.beust.jcommander.ParametersDelegate;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.openide.util.lookup.ServiceProvider;
 
@@ -27,10 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.cismet.cids.server.api.types.Node;
-import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.CidsServerCore;
 import de.cismet.cids.server.cores.NodeCore;
 import de.cismet.cids.server.data.RuntimeContainer;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DOCUMENT ME!
@@ -39,6 +32,7 @@ import de.cismet.cids.server.data.RuntimeContainer;
  * @version  $Revision$, $Date$
  */
 @ServiceProvider(service = CidsServerCore.class)
+@Slf4j
 public class FileSystemNodeCore implements NodeCore {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -57,19 +51,18 @@ public class FileSystemNodeCore implements NodeCore {
     }
 
     @Override
-    public List<ObjectNode> getRootNodes(final User user, final String role) {
+    public List<Node> getRootNodes() {
         final File folder = new File(getBaseDir() + File.separator
                         + RuntimeContainer.getServer().getDomainName()
-                        + File.separator + "nodes");
-        final ArrayList all = new ArrayList();
+                        + File.separator + "nodes"); // NOI18N
+        final ArrayList<Node> all = new ArrayList<Node>();
         for (final File fileEntry : folder.listFiles()) {
             if (!fileEntry.isHidden() && !fileEntry.isDirectory()) {
                 try {
                     final Node on = MAPPER.readValue(fileEntry, Node.class);
-                    System.out.println("key=" + on.getKey());
                     all.add(on);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    log.error("cannot get root nodes", ex); // NOI18N
                 }
             }
         }
@@ -77,7 +70,7 @@ public class FileSystemNodeCore implements NodeCore {
     }
 
     @Override
-    public ObjectNode getNode(final User user, final String nodeKey, final String role) {
+    public Node getNode(final String nodeKey) {
         String filePath;
         if (nodeKey.lastIndexOf(".") == -1) {
             // RootNode
@@ -92,11 +85,9 @@ public class FileSystemNodeCore implements NodeCore {
                         + nodeKey + ".json");
         if (fileEntry.exists()) {
             try {
-                // Lazy check
-                MAPPER.readValue(fileEntry, Node.class);
+                final Node node = MAPPER.readValue(fileEntry, Node.class);
 
-                final ObjectNode ret = (ObjectNode)(MAPPER.readTree(fileEntry));
-                return ret;
+                return node;
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -106,30 +97,28 @@ public class FileSystemNodeCore implements NodeCore {
     }
 
     @Override
-    public List<ObjectNode> getChildren(final User user, final String nodeKey, final String role) {
+    public List<Node> getChildren(final Node node) {
+        if(node == null) {
+            throw new IllegalArgumentException("node must not be null"); // NOI18N
+        }
+        
+        final String nodeKey = node.getKey();
         final File folder = new File(getBaseDir() + File.separator
                         + RuntimeContainer.getServer().getDomainName()
                         + File.separator + "nodes" + File.separator + nodeKey.replaceAll("\\.", File.separator));
-        final ArrayList all = new ArrayList();
+        final ArrayList<Node> all = new ArrayList<Node>();
         for (final File fileEntry : folder.listFiles()) {
             if (!fileEntry.isHidden() && !fileEntry.isDirectory()) {
                 try {
                     final Node on = MAPPER.readValue(fileEntry, Node.class);
-                    System.out.println("key=" + on.getKey());
                     all.add(on);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    log.error("cannot get node children: " + node, ex);
                 }
             }
         }
+        
         return all;
-    }
-
-    @Override
-    public List<ObjectNode> getChildrenByQuery(final User user, final String nodeQuery, final String role) {
-        throw new UnsupportedOperationException("Not supported in Filesystemcore."); // To change body of generated
-        // methods, choose Tools |
-        // Templates.
     }
 
     @Override
