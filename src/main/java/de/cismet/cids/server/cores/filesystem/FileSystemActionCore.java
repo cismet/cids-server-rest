@@ -5,10 +5,6 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cids.server.cores.filesystem;
 
 import com.beust.jcommander.Parameter;
@@ -152,6 +148,7 @@ public class FileSystemActionCore implements ActionCore {
             ActionTask actionTask,
             final boolean requestResultingInstance,
             final InputStream... attachmentIS) {
+        final ObjectMapper m = new ObjectMapper();
         Action action = null;
         if (actionTask == null) {
             actionTask = new ActionTask();
