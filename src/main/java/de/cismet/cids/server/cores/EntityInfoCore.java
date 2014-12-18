@@ -27,7 +27,6 @@ public interface EntityInfoCore extends CidsServerCore {
 
     // TODO: what about create/update/delete entity info
     // TODO: getAttr may be convenience only thus not really needed
-    // TODO: class should not be used anywhere
 
     /**
      * Provides a <code>List</code> of <code>EntityInfo</code>s available from this core, effectively the complete

@@ -10,7 +10,7 @@ package de.cismet.cids.server.cores;
 import de.cismet.cids.server.api.types.User;
 
 /**
- * DOCUMENT ME!
+ * The <code>UserCore</code> simply makes tests if the provided user is a valid one.
  *
  * @author   thorsten
  * @version  1.0
