@@ -51,7 +51,7 @@ import de.cismet.cids.server.api.tools.Tools;
 import de.cismet.cids.server.api.types.SimpleObjectQuery;
 import de.cismet.cids.server.cores.CidsServerCore;
 import de.cismet.cids.server.cores.EntityCore;
-import de.cismet.cids.server.exceptions.InvalidClassKeyException;
+import de.cismet.cids.server.exceptions.InvalidEntityInfoKeyException;
 import de.cismet.cids.server.exceptions.InvalidEntityException;
 import de.cismet.cids.server.exceptions.InvalidFilterFormatException;
 import de.cismet.cids.server.exceptions.InvalidLevelException;
@@ -110,7 +110,7 @@ public class FileSystemEntityCore implements EntityCore {
             final boolean omitNullValues,
             final boolean deduplicate) {
         if (classKey.isEmpty()) {
-            throw new InvalidClassKeyException("class key is empty"); // NOI18N
+            throw new InvalidEntityInfoKeyException("class key is empty"); // NOI18N
         }
 
         // FIXME: what is the format of the expand parameter, why is the expand parameter not concrete (list of fields)?
@@ -451,7 +451,7 @@ public class FileSystemEntityCore implements EntityCore {
             @NonNull final ObjectNode jsonObject,
             final boolean requestResultingInstance) {
         if (classKey.isEmpty()) {
-            throw new InvalidClassKeyException("class key is empty"); // NOI18N
+            throw new InvalidEntityInfoKeyException("class key is empty"); // NOI18N
         }
 
         final Lock lock = rwLock.writeLock();
@@ -588,7 +588,7 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @return  DOCUMENT ME!
      *
-     * @throws  InvalidClassKeyException  DOCUMENT ME!
+     * @throws  InvalidEntityInfoKeyException  DOCUMENT ME!
      */
     private String buildObjPath(final String ref) {
         assert ref != null;
@@ -598,7 +598,7 @@ public class FileSystemEntityCore implements EntityCore {
         final int to = ref.lastIndexOf('/');
 
         if ((from == -1) || (to == -1)) {
-            throw new InvalidClassKeyException("reference does not contain two '/': " + ref); // NOI18N
+            throw new InvalidEntityInfoKeyException("reference does not contain two '/': " + ref); // NOI18N
         }
 
         final String strippedRef = ref.substring(from + 1, to);
@@ -606,7 +606,7 @@ public class FileSystemEntityCore implements EntityCore {
 
         final String[] split = strippedRef.split("\\.");                            // NOI18N
         if (split.length != 2) {
-            throw new InvalidClassKeyException("invalid reference format: " + ref); // NOI18N
+            throw new InvalidEntityInfoKeyException("invalid reference format: " + ref); // NOI18N
         }
 
         final String domain = split[0];
@@ -716,7 +716,7 @@ public class FileSystemEntityCore implements EntityCore {
             final boolean omitNullValues,
             final boolean deduplicate) {
         if (classKey.isEmpty()) {
-            throw new InvalidClassKeyException("class key is empty"); // NOI18N
+            throw new InvalidEntityInfoKeyException("class key is empty"); // NOI18N
         }
         if (objectId.isEmpty()) {
             throw new IllegalArgumentException("objectId is empty");  // NOI18N
@@ -993,7 +993,7 @@ public class FileSystemEntityCore implements EntityCore {
     @Override
     public boolean deleteObject(@NonNull final String classKey, @NonNull final String objectId) {
         if (classKey.isEmpty()) {
-            throw new InvalidClassKeyException("class key is empty"); // NOI18N
+            throw new InvalidEntityInfoKeyException("class key is empty"); // NOI18N
         }
         if (objectId.isEmpty()) {
             throw new IllegalArgumentException("objectId is empty");  // NOI18N

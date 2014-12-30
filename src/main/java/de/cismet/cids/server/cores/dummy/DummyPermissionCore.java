@@ -25,17 +25,17 @@ public class DummyPermissionCore implements PermissionCore {
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public boolean hasClassReadPermission(final User user, final String role, final String classKey) {
+    public boolean hasEntityReadPermission(final User user, final String role, final String classKey) {
         return true;
     }
 
     @Override
-    public boolean hasClassWritePermission(final User user, final String role, final String classKey) {
+    public boolean hasEntityWritePermission(final User user, final String role, final String classKey) {
         return true;
     }
 
     @Override
-    public boolean isCustomObjectPermissionEnabled(final String classKey) {
+    public boolean isObjectPermissionEnabled(final String classKey) {
         return true;
     }
 

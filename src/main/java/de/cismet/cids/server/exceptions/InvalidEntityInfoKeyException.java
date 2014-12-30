@@ -13,14 +13,14 @@ package de.cismet.cids.server.exceptions;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-public final class InvalidClassKeyException extends RuntimeException {
+public final class InvalidEntityInfoKeyException extends RuntimeException {
 
     //~ Constructors -----------------------------------------------------------
-
+    
     /**
      * Creates a new instance of <code>InvalidClassKeyException</code> without detail message.
      */
-    public InvalidClassKeyException() {
+    public InvalidEntityInfoKeyException() {
     }
 
     /**
@@ -28,7 +28,7 @@ public final class InvalidClassKeyException extends RuntimeException {
      *
      * @param  msg  the detail message.
      */
-    public InvalidClassKeyException(final String msg) {
+    public InvalidEntityInfoKeyException(final String msg) {
         super(msg);
     }
 
@@ -39,7 +39,7 @@ public final class InvalidClassKeyException extends RuntimeException {
      * @param  msg    the detail message.
      * @param  cause  the exception cause
      */
-    public InvalidClassKeyException(final String msg, final Throwable cause) {
+    public InvalidEntityInfoKeyException(final String msg, final Throwable cause) {
         super(msg, cause);
     }
 }

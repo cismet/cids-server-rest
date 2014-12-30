@@ -2,7 +2,7 @@ package de.cismet.cids.server.cores;
 
 import de.cismet.cids.server.exceptions.InvalidLevelException;
 import de.cismet.cids.server.exceptions.InvalidFilterFormatException;
-import de.cismet.cids.server.exceptions.InvalidClassKeyException;
+import de.cismet.cids.server.exceptions.InvalidEntityInfoKeyException;
 import de.cismet.cids.server.exceptions.InvalidEntityException;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -555,7 +555,7 @@ public abstract class EntityCoreNGTest
     @Test(
             groups = {"getAllObjects", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidClassKeyException.class}
+            expectedExceptions = {InvalidEntityInfoKeyException.class}
     )
     public void testGetAllObjects_invalidClassKey_emptyString(final EntityCore core)
     {
@@ -568,7 +568,7 @@ public abstract class EntityCoreNGTest
             enabled = false,
             groups = {"getAllObjects", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidClassKeyException.class}
+            expectedExceptions = {InvalidEntityInfoKeyException.class}
     )
     public void testGetAllObjects_invalidClassKey_unknownClass(final EntityCore core)
     {
@@ -624,7 +624,7 @@ public abstract class EntityCoreNGTest
             enabled = false,
             groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidClassKeyException.class}
+            expectedExceptions = {InvalidEntityInfoKeyException.class}
     )
     public void testCreateObject_invalidClassKey_emptyString(final EntityCore core)
     {
@@ -637,7 +637,7 @@ public abstract class EntityCoreNGTest
             enabled = false,
             groups = {"createObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidClassKeyException.class}
+            expectedExceptions = {InvalidEntityInfoKeyException.class}
     )
     public void testCreateObject_invalidClassKey_unknownClass(final EntityCore core)
     {
@@ -1285,7 +1285,7 @@ public abstract class EntityCoreNGTest
     @Test(
             groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidClassKeyException.class}
+            expectedExceptions = {InvalidEntityInfoKeyException.class}
     )
     public void testGetObject_invalidClassKey_emptyString(final EntityCore core)
     {
@@ -1298,7 +1298,7 @@ public abstract class EntityCoreNGTest
             enabled = false,
             groups = {"getObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidClassKeyException.class}
+            expectedExceptions = {InvalidEntityInfoKeyException.class}
     )
     public void testGetObject_invalidClassKey_unknownClass(final EntityCore core)
     {
@@ -1409,7 +1409,7 @@ public abstract class EntityCoreNGTest
     @Test(
             groups = {"deleteObject", "independent"},
             dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidClassKeyException.class}
+            expectedExceptions = {InvalidEntityInfoKeyException.class}
     )
     public void testDeleteObject_invalidClassKey_emptyString(final EntityCore core)
     {
