@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.cores.filesystem;
 
-import com.beust.jcommander.ParametersDelegate;
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,21 +44,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import de.cismet.cids.server.api.tools.Tools;
 import de.cismet.cids.server.api.types.SimpleObjectQuery;
-import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.CidsServerCore;
 import de.cismet.cids.server.cores.EntityCore;
 import de.cismet.cids.server.exceptions.InvalidClassKeyException;
 import de.cismet.cids.server.exceptions.InvalidEntityException;
 import de.cismet.cids.server.exceptions.InvalidFilterFormatException;
 import de.cismet.cids.server.exceptions.InvalidLevelException;
-import de.cismet.cids.server.exceptions.InvalidRoleException;
-import de.cismet.cids.server.exceptions.InvalidUserException;
 
 /**
  * DOCUMENT ME!
@@ -105,9 +99,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public List<ObjectNode> getAllObjects(@NonNull final User user,
-            @NonNull final String classKey,
-            @NonNull final String role,
+    public List<ObjectNode> getAllObjects(@NonNull final String classKey,
             final int limit,
             final int offset,
             final String expand,
@@ -117,14 +109,8 @@ public class FileSystemEntityCore implements EntityCore {
             final String filter,
             final boolean omitNullValues,
             final boolean deduplicate) {
-        if (!user.isValidated()) {
-            throw new InvalidUserException("user is not validated");  // NOI18N
-        }
         if (classKey.isEmpty()) {
             throw new InvalidClassKeyException("class key is empty"); // NOI18N
-        }
-        if (role.isEmpty()) {
-            throw new InvalidRoleException("role is empty");          // NOI18N
         }
 
         // FIXME: what is the format of the expand parameter, why is the expand parameter not concrete (list of fields)?
@@ -451,31 +437,21 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public ObjectNode updateObject(final User user,
-            final String classKey,
+    public ObjectNode updateObject(final String classKey,
             final String objectId,
             final ObjectNode jsonObject,
-            final String role,
             final boolean requestResultingInstance) {
         // FIXME: what is the difference between update and create (except that update usually only works for existing
         // top-level objects)? This is related to the behaviour of create in case of existing objects
-        return createObject(user, classKey, jsonObject, role, requestResultingInstance);
+        return createObject(classKey, jsonObject, requestResultingInstance);
     }
 
     @Override
-    public ObjectNode createObject(@NonNull final User user,
-            @NonNull final String classKey,
+    public ObjectNode createObject(@NonNull final String classKey,
             @NonNull final ObjectNode jsonObject,
-            @NonNull final String role,
             final boolean requestResultingInstance) {
-        if (!user.isValidated()) {
-            throw new InvalidUserException("user is not validated");  // NOI18N
-        }
         if (classKey.isEmpty()) {
             throw new InvalidClassKeyException("class key is empty"); // NOI18N
-        }
-        if (role.isEmpty()) {
-            throw new InvalidRoleException("role is empty");          // NOI18N
         }
 
         final Lock lock = rwLock.writeLock();
@@ -492,7 +468,7 @@ public class FileSystemEntityCore implements EntityCore {
             final String ref = jsonObject.get("$self").asText(); // NOI18N
             final String objId = stripObjId(ref);
 
-            return getObject(user, classKey, objId, null, null, null, null, null, role, false, true);
+            return getObject(classKey, objId, null, null, null, null, null, false, true);
         } else {
             return jsonObject;
         }
@@ -730,28 +706,20 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public ObjectNode getObject(@NonNull final User user,
-            @NonNull final String classKey,
+    public ObjectNode getObject(@NonNull final String classKey,
             @NonNull final String objectId,
             final String version,
             final String expand,
             final String level,
             final String fields,
             final String profile,
-            @NonNull final String role,
             final boolean omitNullValues,
             final boolean deduplicate) {
-        if (!user.isValidated()) {
-            throw new InvalidUserException("user is not validated");  // NOI18N
-        }
         if (classKey.isEmpty()) {
             throw new InvalidClassKeyException("class key is empty"); // NOI18N
         }
         if (objectId.isEmpty()) {
             throw new IllegalArgumentException("objectId is empty");  // NOI18N
-        }
-        if (role.isEmpty()) {
-            throw new InvalidRoleException("role is empty");          // NOI18N
         }
 
         // FIXME: what is the format of the expand parameter, why is the expand parameter not concrete (list of fields)?
@@ -1016,30 +984,19 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public ObjectNode getObjectsByQuery(final User user,
-            final SimpleObjectQuery query,
-            final String role,
+    public ObjectNode getObjectsByQuery(final SimpleObjectQuery query,
             final int limit,
             final int offset) {
         throw new UnsupportedOperationException("not supported yet");
     }
 
     @Override
-    public boolean deleteObject(@NonNull final User user,
-            @NonNull final String classKey,
-            @NonNull final String objectId,
-            @NonNull final String role) {
-        if (!user.isValidated()) {
-            throw new InvalidUserException("user is not validated");  // NOI18N
-        }
+    public boolean deleteObject(@NonNull final String classKey, @NonNull final String objectId) {
         if (classKey.isEmpty()) {
             throw new InvalidClassKeyException("class key is empty"); // NOI18N
         }
         if (objectId.isEmpty()) {
             throw new IllegalArgumentException("objectId is empty");  // NOI18N
-        }
-        if (role.isEmpty()) {
-            throw new InvalidRoleException("role is empty");          // NOI18N
         }
 
         final String ref = buildRef(classKey, objectId);
@@ -1099,59 +1056,6 @@ public class FileSystemEntityCore implements EntityCore {
         final File file = new File(buildObjPath(ref));
 
         return file.delete();
-    }
-
-    @Override
-    /**
-     * Returns the parsed class name from the $self or $ref properties of the
-     * object or throws an error, if the properties are not found or invalid.
-     */
-    public String getClassKey(final ObjectNode jsonObject) {
-        if (jsonObject.hasNonNull("$self")) {
-            final Matcher matcher = CLASSKEY_PATTERN.matcher(jsonObject.get("$self").asText());
-            if (matcher.find()) {
-                return matcher.group(1);
-            } else {
-                throw new Error("Object with malformed self reference: " + jsonObject.get("$self"));
-            }
-        } else if (jsonObject.hasNonNull("$ref")) {
-            final Matcher matcher = CLASSKEY_PATTERN.matcher(jsonObject.get("$ref").asText());
-            if (matcher.find()) {
-                return matcher.group(1);
-            } else {
-                throw new Error("Object with malformed reference: " + jsonObject.get("$ref"));
-            }
-        } else {
-            throw new Error("Object without (self) reference is invalid!");
-        }
-    }
-
-    @Override
-    /**
-     * Returns the value of the object property 'id' or tries to extract the id
-     * from the $self or $ref properties. Returns -1 if no id is found.
-     */
-    public String getObjectId(final ObjectNode jsonObject) {
-        if (jsonObject.hasNonNull("id")) {
-            return jsonObject.get("id").asText();
-        } else if (jsonObject.hasNonNull("$self")) {
-            final Matcher matcher = OBJECTID_PATTERN.matcher(jsonObject.get("$self").asText());
-            if (matcher.find()) {
-                return matcher.group(1);
-            } else {
-                throw new Error("Object with malformed self reference: " + jsonObject.get("$ref"));
-            }
-        } else if (jsonObject.hasNonNull("$ref")) {
-            final Matcher matcher = OBJECTID_PATTERN.matcher(jsonObject.get("$ref").asText());
-            if (matcher.find()) {
-                return matcher.group(1);
-            } else {
-                throw new Error("Object with malformed reference: " + jsonObject.get("$ref"));
-            }
-        }
-        {
-            return "-1";
-        }
     }
 
     @Override

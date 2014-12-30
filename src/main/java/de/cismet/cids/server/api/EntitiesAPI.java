@@ -262,11 +262,9 @@ public class EntitiesAPI extends APIBase {
             final List l = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
                         .getAllObjects(
-                            user,
+
                             // FIXME: what is the correct class key and format
                             baseref,
-                            // FIXME: what is the default
-                            (role == null) ? "default" : role,
                             limit,
                             offset,
                             expand,
@@ -280,11 +278,9 @@ public class EntitiesAPI extends APIBase {
             final List allobjs = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
                         .getAllObjects(
-                            user,
+
                             // FIXME: what is the correct class key and format
                             baseref,
-                            // FIXME: what is the default
-                            (role == null) ? "default" : role,
                             Integer.MAX_VALUE,
                             0,
                             null,
@@ -530,15 +526,13 @@ public class EntitiesAPI extends APIBase {
             final Response r = Response.status(Response.Status.OK)
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).updateObject(
-                                    user,
+
                                     // FIXME: what is the correct class key and format
                                     domain
                                     + "."
                                     + classKey,
                                     objectId,
                                     body,
-                                    // FIXME: what is the default
-                                    (role == null) ? "default" : role,
                                     requestResultingInstance))
                         .build();
             for (final CidsTrigger ct : rightTriggers) {
@@ -636,14 +630,12 @@ public class EntitiesAPI extends APIBase {
             final Response r = Response.status(Response.Status.CREATED)
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).createObject(
-                                    user,
+
                                     // FIXME: what is the correct class key and format
                                     domain
                                     + "."
                                     + classKey,
                                     body,
-                                    // FIXME: what is the default
-                                    (role == null) ? "default" : role,
                                     requestResultingInstance))
                         .build();
             for (final CidsTrigger ct : rightTriggers) {
@@ -755,7 +747,7 @@ public class EntitiesAPI extends APIBase {
             final ObjectNode result = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
                         .getObject(
-                            user,
+
                             // FIXME: what is the correct class key and format
                             domain
                             + "."
@@ -766,8 +758,6 @@ public class EntitiesAPI extends APIBase {
                             level,
                             fields,
                             profile,
-                            // FIXME: what is the default
-                            (role == null) ? "default" : role,
                             omitNullValues,
                             deduplicate);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
@@ -848,14 +838,12 @@ public class EntitiesAPI extends APIBase {
             }
 
             core.deleteObject(
-                user,
+
                 // FIXME: what is the correct class key and format
                 domain
                         + "."
                         + classKey,
-                objectId,
-                // FIXME: what is the default
-                (role == null) ? "default" : role);
+                objectId);
             for (final CidsTrigger ct : rightTriggers) {
                 ct.afterDelete(domain, classKey, objectId, user);
             }

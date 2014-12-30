@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 
 import de.cismet.cids.server.api.types.SimpleObjectQuery;
-import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.EntityCore;
 import de.cismet.cids.server.exceptions.NotImplementedException;
 
@@ -32,9 +31,7 @@ public class NoOpEntityCore implements EntityCore {
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public List<ObjectNode> getAllObjects(final User user,
-            final String classkey,
-            final String role,
+    public List<ObjectNode> getAllObjects(final String classkey,
             final int limit,
             final int offset,
             final String expand,
@@ -48,60 +45,42 @@ public class NoOpEntityCore implements EntityCore {
     }
 
     @Override
-    public ObjectNode updateObject(final User user,
-            final String classKey,
+    public ObjectNode updateObject(final String classKey,
             final String objectId,
             final ObjectNode jsonObject,
-            final String role,
             final boolean requestResultingInstance) {
         throw new NotImplementedException("EntityCore is not active.");
     }
 
     @Override
-    public ObjectNode createObject(final User user,
-            final String classKey,
+    public ObjectNode createObject(final String classKey,
             final ObjectNode jsonObject,
-            final String role,
             final boolean requestResultingInstance) {
         throw new NotImplementedException("EntityCore is not active.");
     }
 
     @Override
-    public ObjectNode getObjectsByQuery(final User user,
-            final SimpleObjectQuery query,
-            final String role,
+    public ObjectNode getObjectsByQuery(final SimpleObjectQuery query,
             final int limit,
             final int offset) {
         throw new NotImplementedException("EntityCore is not active.");
     }
 
     @Override
-    public ObjectNode getObject(final User user,
-            final String classKey,
+    public ObjectNode getObject(final String classKey,
             final String objectId,
             final String version,
             final String expand,
             final String level,
             final String fields,
             final String profile,
-            final String role,
             final boolean ommitNullValues,
             final boolean deduplicate) {
         throw new NotImplementedException("EntityCore is not active.");
     }
 
     @Override
-    public boolean deleteObject(final User user, final String classKey, final String objectId, final String role) {
-        throw new NotImplementedException("EntityCore is not active.");
-    }
-
-    @Override
-    public String getClassKey(final ObjectNode jsonObject) {
-        throw new NotImplementedException("EntityCore is not active.");
-    }
-
-    @Override
-    public String getObjectId(final ObjectNode jsonObject) {
+    public boolean deleteObject(final String classKey, final String objectId) {
         throw new NotImplementedException("EntityCore is not active.");
     }
 

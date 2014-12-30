@@ -1,19 +1,15 @@
 package de.cismet.cids.server.cores;
 
-import de.cismet.cids.server.exceptions.InvalidRoleException;
 import de.cismet.cids.server.exceptions.InvalidLevelException;
 import de.cismet.cids.server.exceptions.InvalidFilterFormatException;
 import de.cismet.cids.server.exceptions.InvalidClassKeyException;
 import de.cismet.cids.server.exceptions.InvalidEntityException;
-import de.cismet.cids.server.exceptions.InvalidUserException;
-import de.cismet.cids.server.cores.EntityCore;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.cismet.cids.server.data.RuntimeContainer;
 import de.cismet.cids.server.api.types.SimpleObjectQuery;
-import de.cismet.cids.server.api.types.User;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -42,11 +38,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
         final List<ObjectNode> expected = new ArrayList<ObjectNode>();
@@ -54,22 +46,22 @@ public abstract class EntityCoreNGTest
             expected.add((ObjectNode)it.next());
         }
          
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, null, false, false);
+        List<ObjectNode> result = core.getAllObjects(classKey, -1, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 5);
         assertEquals(result, expected);
         
-        result = core.getAllObjects(user, classKey, role, 0, -1, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 0, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 5);
         assertEquals(result, expected);
         
-        result = core.getAllObjects(user, classKey, role, -1, 0, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, -1, 0, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 5);
         assertEquals(result, expected);
         
-        result = core.getAllObjects(user, classKey, role, 0, 0, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 0, 0, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 5);
         assertEquals(result, expected);
@@ -84,11 +76,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
         final List<ObjectNode> all = new ArrayList<ObjectNode>();
@@ -98,7 +86,7 @@ public abstract class EntityCoreNGTest
         
         List<ObjectNode> expected = new ArrayList<ObjectNode>();
         expected.add(all.get(0));
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 1, -1, null, null, null, null, null, false, false);
+        List<ObjectNode> result = core.getAllObjects(classKey, 1, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
@@ -107,7 +95,7 @@ public abstract class EntityCoreNGTest
         expected.add(all.get(0));
         expected.add(all.get(1));
         expected.add(all.get(2));
-        result = core.getAllObjects(user, classKey, role, 3, -1, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 3, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 3);
         assertEquals(result, expected);
@@ -118,7 +106,7 @@ public abstract class EntityCoreNGTest
         expected.add(all.get(2));
         expected.add(all.get(3));
         expected.add(all.get(4));
-        result = core.getAllObjects(user, classKey, role, 5, -1, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 5, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 5);
         assertEquals(result, expected);
@@ -129,7 +117,7 @@ public abstract class EntityCoreNGTest
         expected.add(all.get(2));
         expected.add(all.get(3));
         expected.add(all.get(4));
-        result = core.getAllObjects(user, classKey, role, 6, -1, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 6, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 5);
         assertEquals(result, expected);
@@ -144,11 +132,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
         final List<ObjectNode> all = new ArrayList<ObjectNode>();
@@ -161,26 +145,26 @@ public abstract class EntityCoreNGTest
         expected.add(all.get(2));
         expected.add(all.get(3));
         expected.add(all.get(4));
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 0, 1, null, null, null, null, null, false, false);
+        List<ObjectNode> result = core.getAllObjects(classKey, 0, 1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 4);
         assertEquals(result, expected);
         
         expected = new ArrayList<ObjectNode>();
         expected.add(all.get(4));
-        result = core.getAllObjects(user, classKey, role, 0, 4, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 0, 4, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
         
         expected = new ArrayList<ObjectNode>();
-        result = core.getAllObjects(user, classKey, role, 0, 5, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 0, 5, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 0);
         assertEquals(result, expected);
         
         expected = new ArrayList<ObjectNode>();
-        result = core.getAllObjects(user, classKey, role, 0, 6, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 0, 6, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 0);
         assertEquals(result, expected);
@@ -195,11 +179,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
         final List<ObjectNode> all = new ArrayList<ObjectNode>();
@@ -209,7 +189,7 @@ public abstract class EntityCoreNGTest
         
         List<ObjectNode> expected = new ArrayList<ObjectNode>();
         expected.add(all.get(1));
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 1, 1, null, null, null, null, null, false, false);
+        List<ObjectNode> result = core.getAllObjects(classKey, 1, 1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
@@ -218,20 +198,20 @@ public abstract class EntityCoreNGTest
         expected.add(all.get(2));
         expected.add(all.get(3));
         expected.add(all.get(4));
-        result = core.getAllObjects(user, classKey, role, 3, 2, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 3, 2, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 3);
         assertEquals(result, expected);
         
         expected = new ArrayList<ObjectNode>();
         expected.add(all.get(4));
-        result = core.getAllObjects(user, classKey, role, 3, 4, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 3, 4, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
         
         expected = new ArrayList<ObjectNode>();
-        result = core.getAllObjects(user, classKey, role, 6, 5, null, null, null, null, null, false, false);
+        result = core.getAllObjects(classKey, 6, 5, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 0);
         assertEquals(result, expected);
@@ -246,11 +226,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj1.json")).elements();
         final List<ObjectNode> expected = new ArrayList<ObjectNode>();
@@ -258,7 +234,7 @@ public abstract class EntityCoreNGTest
             expected.add((ObjectNode)it.next());
         }
         
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 3, 1, null, "2", "id,sub,subsub,subarr", null, null, false, false);
+        List<ObjectNode> result = core.getAllObjects(classKey, 3, 1, null, "2", "id,sub,subsub,subarr", null, null, false, false);
         
         assertEquals(result.size(), 3);
         assertEquals(result, expected);
@@ -273,14 +249,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = "";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -292,14 +264,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = ",";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -311,14 +279,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = ",,";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -330,14 +294,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = ",kv";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -349,14 +309,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = "kv,";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -368,14 +324,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = "kv1,,kv2";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -387,14 +339,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = "kv";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -406,14 +354,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = ":v";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -425,14 +369,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = ".:v";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -444,14 +384,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = "..:v";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -463,14 +399,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = "k.:v";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -482,14 +414,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = ".k:v";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -501,14 +429,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         final String filter = "k:\\";
-        core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
     }
     
     @Test(
@@ -520,11 +444,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         final String classKey = "testDomain.testclass";
-        final String role = "testrole";
         
         Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter1_res.json")).elements();
         List<ObjectNode> expected = new ArrayList<ObjectNode>();
@@ -533,7 +453,7 @@ public abstract class EntityCoreNGTest
         }
         
         String filter = "id:a2";
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        List<ObjectNode> result = core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
@@ -545,7 +465,7 @@ public abstract class EntityCoreNGTest
         }
         
         filter = "id:a1|a4|a5";
-        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        result = core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 3);
         assertEquals(result, expected);
@@ -557,20 +477,20 @@ public abstract class EntityCoreNGTest
         }
         
         filter = "id:a1|a4|a5,sub.sub1:sub1val";
-        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        result = core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 2);
         assertEquals(result, expected);
         
         // as there is no trim there shouldn't be a match
         filter = "id:a1|a4|a5,sub.sub1: sub1val";
-        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        result = core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 0);
         
         // as there is no trim there shouldn't be a match
         filter = "id:a1|a4|a5, sub.sub1:sub1val";
-        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        result = core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 0);
         
@@ -581,7 +501,7 @@ public abstract class EntityCoreNGTest
         }
         
         filter = "id:a1|a4|a5,sub.subnil:";
-        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        result = core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
@@ -594,7 +514,7 @@ public abstract class EntityCoreNGTest
         
         // although using such patterns is discouraged, it should work
         filter = "sub.subsub:..\\$ref.../testDomain.+";
-        result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        result = core.getAllObjects(classKey, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 2);
         assertEquals(result, expected);
@@ -609,28 +529,15 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
+        
+        
         
         // case-sensitivity test
         final String classKey = "testdomain.idontexist";
-        final String role = "testrole";
         
-        final List<ObjectNode> result = core.getAllObjects(user, classKey, role, 0, -1, null, null, null, null, null, false, false);
+        final List<ObjectNode> result = core.getAllObjects(classKey, 0, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 0);
-    }
-    
-    @Test(
-            groups = {"getAllObjects", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {NullPointerException.class}
-    )
-    public void testGetAllObjects_NullUser(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.getAllObjects(null, null, null, -1, -1, null, null, null, null, null, false, false);
     }
     
     @Test(
@@ -642,31 +549,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        core.getAllObjects(new User(), null, null, -1, -1, null, null, null, null, null, false, false);
-    }
-    
-    @Test(
-            groups = {"getAllObjects", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {NullPointerException.class}
-    )
-    public void testGetAllObjects_NullRole(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.getAllObjects(new User(), "", null, -1, -1, null, null, null, null, null, false, false);
-    }
-    
-    @Test(
-            groups = {"getAllObjects", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidUserException.class}
-    )
-    public void testGetAllObjects_invalidUser(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.getAllObjects(new User(), "", "", -1, -1, null, null, null, null, null, false, false);
+        core.getAllObjects(null, -1, -1, null, null, null, null, null, false, false);
     }
     
     @Test(
@@ -678,10 +561,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
-        core.getAllObjects(user, "", "", -1, -1, null, null, null, null, null, false, false);
+        core.getAllObjects("", -1, -1, null, null, null, null, null, false, false);
     }
     
     @Test(
@@ -694,27 +574,9 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
-        core.getAllObjects(user, "idontexist", "", -1, -1, null, null, null, null, null, false, false);
+        core.getAllObjects("idontexist", -1, -1, null, null, null, null, null, false, false);
     }
     
-    @Test(
-            groups = {"getAllObjects", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidRoleException.class}
-    )
-    public void testGetAllObjects_invalidRole_emptyString(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        final User user = new User();
-        user.setValidated(true);
-        
-        core.getAllObjects(user, "testclass", "", -1, -1, null, null, null, null, null, false, false);
-    }
-
     /**
      * update and create shall work in the very same way because no ids or defaults are generated, however
      */
@@ -722,30 +584,16 @@ public abstract class EntityCoreNGTest
     public void testUpdateObject()
     {
         System.out.println("updateObject");
-        User user = null;
         String classKey = "";
         String objectId = "";
         ObjectNode jsonObject = null;
-        String role = "";
         boolean requestResultingInstance = false;
         EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
         ObjectNode expResult = null;
-        ObjectNode result = instance.updateObject(user, classKey, objectId, jsonObject, role, requestResultingInstance);
+        ObjectNode result = instance.updateObject(classKey, objectId, jsonObject, requestResultingInstance);
         assertEquals(result, expResult);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
-    }
-
-    @Test(
-            groups = {"createObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {NullPointerException.class}
-    )
-    public void testCreateObject_NullUser(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.createObject(null, null, null, null, true);
     }
 
     @Test(
@@ -757,7 +605,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        core.createObject(new User(), null, null, null, true);
+        core.createObject(null, null, true);
     }
 
     @Test(
@@ -769,31 +617,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        core.createObject(new User(), "", null, null, true);
-    }
-
-    @Test(
-            groups = {"createObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {NullPointerException.class}
-    )
-    public void testCreateObject_NullRole(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.createObject(new User(), "", new ObjectNode(JsonNodeFactory.instance), null, true);
-    }
-
-    @Test(
-            groups = {"createObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidUserException.class}
-    )
-    public void testCreateObject_invalidUser(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.createObject(new User(), "", new ObjectNode(JsonNodeFactory.instance), "", true);
+        core.createObject("", null, true);
     }
 
     @Test(
@@ -806,10 +630,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
-        core.createObject(u, "", new ObjectNode(JsonNodeFactory.instance), "", true);
+        core.createObject("", new ObjectNode(JsonNodeFactory.instance), true);
     }
 
     @Test(
@@ -822,40 +643,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
-        core.createObject(u, "idontexist", new ObjectNode(JsonNodeFactory.instance), "", true);
-    }
-    @Test(
-            groups = {"createObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidRoleException.class}
-    )
-    public void testCreateObject_invalidRole_emptyString(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        final User u = new User();
-        u.setValidated(true);
-        
-        core.createObject(u, "testclass@testdomain", new ObjectNode(JsonNodeFactory.instance), "", true);
-    }
-
-    @Test(
-            enabled = false,
-            groups = {"createObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidRoleException.class}
-    )
-    public void testCreateObject_invalidRole_unknownRole(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        final User u = new User();
-        u.setValidated(true);
-        
-        core.createObject(u, "testclass@testdomain", new ObjectNode(JsonNodeFactory.instance), "idontexist", true);
+        core.createObject("idontexist", new ObjectNode(JsonNodeFactory.instance), true);
     }
     
     @Test(
@@ -867,11 +655,8 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         final ObjectNode node = JsonNodeFactory.instance.objectNode();
-        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+        core.createObject("testclass@testdomain", node, true);
     }
     
     @Test(
@@ -883,11 +668,8 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_noself.json"));
-        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+        core.createObject("testclass@testdomain", node, true);
     }
     
     @Test(
@@ -899,11 +681,8 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subNoSelfNoRef.json"));
-        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+        core.createObject("testclass@testdomain", node, true);
     }
     
     @Test(
@@ -915,11 +694,8 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subRefNotPresent.json"));
-        core.createObject(u, "testdomain.testclass", node, "testrole", true);
+        core.createObject("testdomain.testclass", node, true);
     }
     
     @Test(
@@ -931,11 +707,8 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subArrSubNoSelfNoRef.json"));
-        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+        core.createObject("testclass@testdomain", node, true);
     }
     
     @Test(
@@ -947,11 +720,8 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subArrSubNoSelfRef_tooManyProps.json"));
-        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+        core.createObject("testclass@testdomain", node, true);
     }
     
     @Test(
@@ -962,16 +732,12 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-                
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1_caseSensitivity.json"));
         
-        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "A1", null, null, "10", null, null, role, false, false);
+        ObjectNode storeRes = core.createObject(classKey, node, true);
+        ObjectNode readRes = core.getObject(classKey, "A1", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, storeRes);
     }
@@ -985,13 +751,9 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-                
         String classKey = "testdomain.testclass";
-        String role = "testrole";
         
-        ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, "10", null, null, role, false, false);
+        ObjectNode readRes = core.getObject(classKey, "a1", null, null, "10", null, null, false, false);
         
         assertNull(readRes);
     }
@@ -1004,15 +766,11 @@ public abstract class EntityCoreNGTest
     public void testGetAllObjects_caseSensitivity(final EntityCore core) throws IOException
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        final User u = new User();
-        u.setValidated(true);
                 
         String classKey = "testdomain.testclass";
-        String role = "testrole";
         
         // test case-sensitivity 
-        final List<ObjectNode> result = core.getAllObjects(u, classKey, role, 0, -1, null, null, null, null, null, false, false);
+        final List<ObjectNode> result = core.getAllObjects(classKey, 0, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 0);
     }
@@ -1031,60 +789,56 @@ public abstract class EntityCoreNGTest
     public void testSymmetricRW_new(final EntityCore core) throws IOException
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        final User u = new User();
-        u.setValidated(true);
                 
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1.json"));
         
-        ObjectNode expected = core.createObject(u, classKey, node, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, "10", null, null, role, false, false);
+        ObjectNode expected = core.createObject(classKey, node, true);
+        ObjectNode readRes = core.getObject(classKey, "a1", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, expected);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj2.json"));
         
-        expected = core.createObject(u, classKey, node, role, true);
-        readRes = core.getObject(u, classKey, "a2", null, null, "10", null, null, role, false, false);
+        expected = core.createObject(classKey, node, true);
+        readRes = core.getObject(classKey, "a2", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, expected, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj3.json"));
         
-        expected = core.createObject(u, classKey, node, role, true);
-        readRes = core.getObject(u, classKey, "a3", null, null, "10", null, null, role, false, false);
+        expected = core.createObject(classKey, node, true);
+        readRes = core.getObject(classKey, "a3", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, expected, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj4.json"));
         
-        expected = core.createObject(u, classKey, node, role, true);
-        readRes = core.getObject(u, classKey, "a4", null, null, "10", null, null, role, false, false);
+        expected = core.createObject(classKey, node, true);
+        readRes = core.getObject(classKey, "a4", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, expected, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5.json"));
         
-        expected = core.createObject(u, classKey, node, role, true);
-        readRes = core.getObject(u, classKey, "a5", null, null, "10", null, null, role, false, false);
+        expected = core.createObject(classKey, node, true);
+        readRes = core.getObject(classKey, "a5", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, expected, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6.json"));
         
         // we have to limit this request because of a cycle in it, but thats the point
-        expected = core.createObject(u, "testDomain.testclass2", node, role, false);
-        readRes = core.getObject(u, "testDomain.testclass2", "a6", null, null, "3", null, null, role, false, false);
+        expected = core.createObject("testDomain.testclass2", node, false);
+        readRes = core.getObject("testDomain.testclass2", "a6", null, null, "3", null, null, false, false);
         
         assertEquals(readRes, expected, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7.json"));
         
-        expected = core.createObject(u, "testDomain.testclass2", node, role, false);
-        readRes = core.getObject(u, "testDomain.testclass2", "a7", null, null, "10", null, null, role, false, false);
+        expected = core.createObject("testDomain.testclass2", node, false);
+        readRes = core.getObject("testDomain.testclass2", "a7", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, expected, null);
     }
@@ -1097,38 +851,34 @@ public abstract class EntityCoreNGTest
     public void testSymmetricRW_mergeFull_create(final EntityCore core) throws IOException
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        final User u = new User();
-        u.setValidated(true);
                 
         String classKey = "testDomain.testclass2";
-        String role = "testrole";
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1.json"));
         
         // setup
-        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
+        ObjectNode storeRes = core.createObject(classKey, node, true);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_addPlain_res.json"));
         
-        storeRes = core.createObject(u, classKey, node, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "m1", null, null, "10", null, null, role, false, false);
+        storeRes = core.createObject(classKey, node, true);
+        ObjectNode readRes = core.getObject(classKey, "m1", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, storeRes);
         assertEquals(readRes, node);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_changePlain_res.json"));
         
-        storeRes = core.createObject(u, classKey, node, role, true);
-        readRes = core.getObject(u, classKey, "m1", null, null, "10", null, null, role, false, false);
+        storeRes = core.createObject(classKey, node, true);
+        readRes = core.getObject(classKey, "m1", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, storeRes);
         assertEquals(readRes, node);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_addObj_res.json"));
         
-        storeRes = core.createObject(u, classKey, node, role, true);
-        readRes = core.getObject(u, classKey, "m1", null, null, "10", null, null, role, false, false);
+        storeRes = core.createObject(classKey, node, true);
+        readRes = core.getObject(classKey, "m1", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, storeRes);
         assertEquals(readRes, node);
@@ -1143,25 +893,21 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-                
         String classKey = "testDomain.testclass2";
-        String role = "testrole";
         
         ObjectNode insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2.json"));
         
         // setup
-        ObjectNode storeRes = core.createObject(u, classKey, insert, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "m2", null, null, "10", null, null, role, false, false);
+        ObjectNode storeRes = core.createObject(classKey, insert, true);
+        ObjectNode readRes = core.getObject(classKey, "m2", null, null, "10", null, null, false, false);
         
         assertNotNull(readRes);
         
         insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addPlain_part.json"));
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addPlain_res.json"));
         
-        storeRes = core.createObject(u, classKey, insert, role, true);
-        readRes = core.getObject(u, classKey, "m2", null, null, "10", null, null, role, false, false);
+        storeRes = core.createObject(classKey, insert, true);
+        readRes = core.getObject(classKey, "m2", null, null, "10", null, null, false, false);
         
         // we cannot use assertEqual as both the json objects can be equal without taking the property ordering into account
         assertTrue(readRes.equals(expected));
@@ -1169,16 +915,16 @@ public abstract class EntityCoreNGTest
         insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_changePlain_part.json"));
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_changePlain_res.json"));
         
-        storeRes = core.createObject(u, classKey, insert, role, true);
-        readRes = core.getObject(u, classKey, "m2", null, null, "10", null, null, role, false, false);
+        storeRes = core.createObject(classKey, insert, true);
+        readRes = core.getObject(classKey, "m2", null, null, "10", null, null, false, false);
         
         assertTrue(readRes.equals(expected));
         
         insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addObj_part.json"));
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addObj_res.json"));
         
-        storeRes = core.createObject(u, classKey, insert, role, true);
-        readRes = core.getObject(u, classKey, "m2", null, null, "10", null, null, role, false, false);
+        storeRes = core.createObject(classKey, insert, true);
+        readRes = core.getObject(classKey, "m2", null, null, "10", null, null, false, false);
         
         assertTrue(readRes.equals(expected));
     }
@@ -1192,37 +938,33 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-                
         String classKey = "testDomain.testclass2";
-        String role = "testrole";
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3.json"));
         
         // setup
-        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
+        ObjectNode storeRes = core.createObject(classKey, node, true);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_addPlain_res.json"));
         
-        storeRes = core.updateObject(u, classKey, "m3", node, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "m3", null, null, "10", null, null, role, false, false);
+        storeRes = core.updateObject(classKey, "m3", node, true);
+        ObjectNode readRes = core.getObject(classKey, "m3", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, storeRes);
         assertEquals(readRes, node);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_changePlain_res.json"));
         
-        storeRes = core.updateObject(u, classKey, "m3", node, role, true);
-        readRes = core.getObject(u, classKey, "m3", null, null, "10", null, null, role, false, false);
+        storeRes = core.updateObject(classKey, "m3", node, true);
+        readRes = core.getObject(classKey, "m3", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, storeRes);
         assertEquals(readRes, node);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_addObj_res.json"));
         
-        storeRes = core.updateObject(u, classKey, "m3", node, role, true);
-        readRes = core.getObject(u, classKey, "m3", null, null, "10", null, null, role, false, false);
+        storeRes = core.updateObject(classKey, "m3", node, true);
+        readRes = core.getObject(classKey, "m3", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, storeRes);
         assertEquals(readRes, node);
@@ -1237,25 +979,21 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-                
         String classKey = "testDomain.testclass2";
-        String role = "testrole";
         
         ObjectNode insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4.json"));
         
         // setup
-        ObjectNode storeRes = core.createObject(u, classKey, insert, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "m4", null, null, "10", null, null, role, false, false);
+        ObjectNode storeRes = core.createObject(classKey, insert, true);
+        ObjectNode readRes = core.getObject(classKey, "m4", null, null, "10", null, null, false, false);
         
         assertNotNull(readRes);
         
         insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addPlain_part.json"));
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addPlain_res.json"));
         
-        storeRes = core.updateObject(u, classKey, "m4", insert, role, true);
-        readRes = core.getObject(u, classKey, "m4", null, null, "10", null, null, role, false, false);
+        storeRes = core.updateObject(classKey, "m4", insert, true);
+        readRes = core.getObject(classKey, "m4", null, null, "10", null, null, false, false);
         
         // we cannot use assertEqual as both the json objects can be equal without taking the property ordering into account
         assertTrue(readRes.equals(expected));
@@ -1263,16 +1001,16 @@ public abstract class EntityCoreNGTest
         insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_changePlain_part.json"));
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_changePlain_res.json"));
         
-        storeRes = core.updateObject(u, classKey, "m4", insert, role, true);
-        readRes = core.getObject(u, classKey, "m4", null, null, "10", null, null, role, false, false);
+        storeRes = core.updateObject(classKey, "m4", insert, true);
+        readRes = core.getObject(classKey, "m4", null, null, "10", null, null, false, false);
         
         assertTrue(readRes.equals(expected));
         
         insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addObj_part.json"));
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addObj_res.json"));
         
-        storeRes = core.updateObject(u, classKey, "m4", insert, role, true);
-        readRes = core.getObject(u, classKey, "m4", null, null, "10", null, null, role, false, false);
+        storeRes = core.updateObject(classKey, "m4", insert, true);
+        readRes = core.getObject(classKey, "m4", null, null, "10", null, null, false, false);
         
         assertTrue(readRes.equals(expected));
     }
@@ -1286,14 +1024,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_omitNull.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "10", null, null, role, true, false);
+        ObjectNode readRes = core.getObject(classKey, "a5", null, null, "10", null, null, true, false);
         
         assertEquals(readRes, expected);
     }
@@ -1307,14 +1041,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
 
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fields.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "10", "id, sub, subarr, nil", null, role, false, false);
+        ObjectNode readRes = core.getObject(classKey, "a5", null, null, "10", "id, sub, subarr, nil", null, false, false);
         
         assertEquals(readRes, expected);
     }
@@ -1328,14 +1058,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fieldsOmitNull.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "10", "id, sub, subarr, nil", null, role, true, false);
+        ObjectNode readRes = core.getObject(classKey, "a5", null, null, "10", "id, sub, subarr, nil", null, true, false);
         
         assertEquals(readRes, expected);
     }
@@ -1349,19 +1075,15 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level1.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "1", null, null, role, false, false);
+        ObjectNode readRes = core.getObject(classKey, "a5", null, null, "1", null, null, false, false);
         
         assertEquals(readRes, expected);
         
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level2.json"));
-        readRes = core.getObject(u, classKey, "a5", null, null, "2", null, null, role, false, false);
+        readRes = core.getObject(classKey, "a5", null, null, "2", null, null, false, false);
         
         assertEquals(readRes, expected);
         
@@ -1369,12 +1091,12 @@ public abstract class EntityCoreNGTest
         classKey = "testDomain.testclass2";
         
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6_level4.json"));
-        readRes = core.getObject(u, classKey, "a6", null, null, "4", null, null, role, false, false);
+        readRes = core.getObject(classKey, "a6", null, null, "4", null, null, false, false);
         
         assertEquals(readRes, expected);
         
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6_level7.json"));
-        readRes = core.getObject(u, classKey, "a6", null, null, "7", null, null, role, false, false);
+        readRes = core.getObject(classKey, "a6", null, null, "7", null, null, false, false);
         
         assertEquals(readRes, expected);
     }
@@ -1388,13 +1110,9 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
-        core.getObject(u, classKey, "a5", null, null, "11", null, null, role, false, false);
+        core.getObject(classKey, "a5", null, null, "11", null, null, false, false);
     }
     
     @Test(
@@ -1406,13 +1124,9 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
-        core.getObject(u, classKey, "a5", null, null, "0", null, null, role, false, false);
+        core.getObject(classKey, "a5", null, null, "0", null, null, false, false);
     }
     
     @Test(
@@ -1424,13 +1138,9 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
-        core.getObject(u, classKey, "a5", null, null, "-1", null, null, role, false, false);
+        core.getObject(classKey, "a5", null, null, "-1", null, null, false, false);
     }
     
     @Test(
@@ -1442,13 +1152,9 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
-        core.getObject(u, classKey, "a5", null, null, null, null, null, role, false, false);
+        core.getObject(classKey, "a5", null, null, null, null, null, false, false);
     }
         
     @Test(
@@ -1460,25 +1166,21 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass2";
-        String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a7", null, null, "10", null, null, role, false, false);
+        ObjectNode readRes = core.getObject(classKey, "a7", null, null, "10", null, null, false, false);
         
         assertEquals(readRes, expected);
         
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7_deduplicate.json"));
-        readRes = core.getObject(u, classKey, "a7", null, null, null, null, null, role, false, true);
+        readRes = core.getObject(classKey, "a7", null, null, null, null, null, false, true);
         
         assertEquals(readRes, expected);
         
         // read cyclic ref
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6.json"));
-        readRes = core.getObject(u, classKey, "a6", null, null, null, null, null, role, false, true);
+        readRes = core.getObject(classKey, "a6", null, null, null, null, null, false, true);
         
         assertEquals(readRes, expected);
     }
@@ -1492,19 +1194,15 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_expand1.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, "sub", "10", null, null, role, false, false);
+        ObjectNode readRes = core.getObject(classKey, "a5", null, "sub", "10", null, null, false, false);
 
         assertEquals(readRes, expected);
         
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_expand2.json"));
-        readRes = core.getObject(u, classKey, "a5", null, "sub, subarr", "10", null, null, role, false, false);
+        readRes = core.getObject(classKey, "a5", null, "sub, subarr", "10", null, null, false, false);
         
         assertEquals(readRes, expected);
     }
@@ -1518,15 +1216,11 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testdomain.testclass";
-        String role = "testrole";
         
         fail("not implemented");
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level1.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "1", null, null, role, false, false);
+        ObjectNode readRes = core.getObject(classKey, "a5", null, null, "1", null, null, false, false);
         
         assertEquals(readRes, expected);
     }
@@ -1539,13 +1233,9 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User u = new User();
-        u.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
-        ObjectNode readRes = core.getObject(u, classKey, "idontexist", null, null, null, null, null, role, false, true);
+        ObjectNode readRes = core.getObject(classKey, "idontexist", null, null, null, null, null, false, true);
         
         assertNull(readRes);
     }
@@ -1557,29 +1247,15 @@ public abstract class EntityCoreNGTest
     public void testGetObjectsByQuery()
     {
         System.out.println("getObjectsByQuery");
-        User user = null;
         SimpleObjectQuery query = null;
-        String role = "";
         int limit = 0;
         int offset = 0;
         EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
         ObjectNode expResult = null;
-        ObjectNode result = instance.getObjectsByQuery(user, query, role, limit, offset);
+        ObjectNode result = instance.getObjectsByQuery(query, limit, offset);
         assertEquals(result, expResult);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
-    }
-    
-    @Test(
-            groups = {"getObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {NullPointerException.class}
-    )
-    public void testGetObject_NullUser(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.getObject(null, null, null, null, null, null, null, null, null, true, false);
     }
     
     @Test(
@@ -1591,7 +1267,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        core.getObject(new User(), null, null, null, null, null, null, null, null, true, false);
+        core.getObject(null, null, null, null, null, null, null, true, false);
     }
     
     @Test(
@@ -1603,31 +1279,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        core.getObject(new User(), "", null, null, null, null, null, null, null, true, false);
-    }
-    
-    @Test(
-            groups = {"getObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {NullPointerException.class}
-    )
-    public void testGetObject_NullRole(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.getObject(new User(), "", "", null, null, null, null, null, null, true, false);
-    }
-    
-    @Test(
-            groups = {"getObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidUserException.class}
-    )
-    public void testGetObject_invalidUser(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.getObject(new User(), "", "", null, null, null, null, null, "", true, false);
+        core.getObject("", null, null, null, null, null, null, true, false);
     }
     
     @Test(
@@ -1639,10 +1291,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
-        core.getObject(user, "", "", null, null, null, null, null, "", true, false);
+        core.getObject("", "", null, null, null, null, "", true, false);
     }
     
     @Test(
@@ -1655,10 +1304,10 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
         
-        core.getObject(user, "idontexist", "", null, null, null, null, null, "", true, false);
+        
+        
+        core.getObject("idontexist", "", null, null, null, null, "", true, false);
     }
     
     @Test(
@@ -1670,41 +1319,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
-        core.getObject(user, "testclass", "", null, null, null, null, null, "", true, false);
-    }
-    
-    @Test(
-            groups = {"getObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidRoleException.class}
-    )
-    public void testGetObject_invalidRole_emptyString(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        final User user = new User();
-        user.setValidated(true);
-        
-        core.getObject(user, "testclass", "testid", null, null, null, null, null, "", true, false);
-    }
-    
-    @Test(
-            enabled = false,
-            groups = {"getObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidRoleException.class}
-    )
-    public void testGetObject_invalidRole_unknownClass(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        final User user = new User();
-        user.setValidated(true);
-        
-        core.getObject(user, "testclass", "testid", null, null, null, null, null, "idontexist", true, false);
+        core.getObject("testclass", "", null, null, null, null, "", true, false);
     }
 
     /**
@@ -1720,22 +1335,18 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         String classKey = "testdomain.testclass";
-        String role = "testrole";
         
-        boolean result = core.deleteObject(user, classKey, "a4", role);
+        boolean result = core.deleteObject(classKey, "a4");
         assertFalse(result);
         
         classKey = "testDomain.testclass";
-        result = core.deleteObject(user, classKey, "a4", role);
+        result = core.deleteObject(classKey, "a4");
         
         // test actual deletion
-        ObjectNode get1 = core.getObject(user, classKey, "a4", null, null, "10", null, null, role, false, false);
+        ObjectNode get1 = core.getObject(classKey, "a4", null, null, "10", null, null, false, false);
         // test subobj remained
-        ObjectNode get2 = core.getObject(user, "testDomain.testsubclass", "b4", null, null, "10", null, null, role, false, false);
+        ObjectNode get2 = core.getObject("testDomain.testsubclass", "b4", null, null, "10", null, null, false, false);
         
         assertTrue(result);
         assertNull(get1);
@@ -1745,7 +1356,6 @@ public abstract class EntityCoreNGTest
     /**
      * Test of deleteObject method, of class EntityCore.
      */
-    
     @Test(
             dependsOnGroups = {"data_producing", "data_consuming"}, // ensure getobject tests are done
             groups = {"deleteObject", "data_destroying"},
@@ -1755,37 +1365,21 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
         String classKey = "testDomain.testclass";
-        String role = "testrole";
         
-        boolean result = core.deleteObject(user, classKey, "idontexist", role);
+        boolean result = core.deleteObject(classKey, "idontexist");
         
         assertFalse(result);
         
-        result = core.deleteObject(user, classKey, "a3", role);
+        result = core.deleteObject(classKey, "a3");
         // test actual deletion
-        ObjectNode get1 = core.getObject(user, classKey, "a3", null, null, "10", null, null, role, false, false);
+        ObjectNode get1 = core.getObject(classKey, "a3", null, null, "10", null, null, false, false);
         // test subobj remained
-        ObjectNode get2 = core.getObject(user, "testDomain.testsubclass", "b1", null, null, "10", null, null, role, false, false);
+        ObjectNode get2 = core.getObject("testDomain.testsubclass", "b1", null, null, "10", null, null, false, false);
         
         assertTrue(result);
         assertNull(get1);
         assertNotNull(get2);
-    }
-    
-    @Test(
-            groups = {"deleteObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {NullPointerException.class}
-    )
-    public void testDeleteObject_NullUser(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.deleteObject(null, null, null, null);
     }
     
     @Test(
@@ -1797,7 +1391,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        core.deleteObject(new User(), null, null, null);
+        core.deleteObject(null, null);
     }
     
     @Test(
@@ -1809,31 +1403,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        core.deleteObject(new User(), "", null, null);
-    }
-    
-    @Test(
-            groups = {"deleteObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {NullPointerException.class}
-    )
-    public void testDeleteObject_NullRole(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.deleteObject(new User(), "", "", null);
-    }
-    
-    @Test(
-            groups = {"deleteObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidUserException.class}
-    )
-    public void testDeleteObject_invalidUser(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        core.deleteObject(new User(), "", "", "");
+        core.deleteObject("", null);
     }
     
     @Test(
@@ -1845,10 +1415,7 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
-        core.deleteObject(user, "", "", "");
+        core.deleteObject("", "");
     }
     
     @Test(
@@ -1860,58 +1427,6 @@ public abstract class EntityCoreNGTest
     {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
         
-        final User user = new User();
-        user.setValidated(true);
-        
-        core.deleteObject(user, "testclass", "", "");
+        core.deleteObject("testclass", "");
     }
-    
-    @Test(
-            groups = {"deleteObject", "independent"},
-            dataProvider = "EntityCoreInstanceDataProvider", 
-            expectedExceptions = {InvalidRoleException.class}
-    )
-    public void testDeleteObject_invalidRole_emptyString(final EntityCore core)
-    {
-        System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
-        
-        final User user = new User();
-        user.setValidated(true);
-        
-        core.deleteObject(user, "testclass", "testid", "");
-    }
-
-    /**
-     * Test of getClassKey method, of class EntityCore.
-     */
-    @Test(enabled = false)
-    public void testGetClassKey()
-    {
-        System.out.println("getClassKey");
-        ObjectNode jsonObject = null;
-        EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
-        String expResult = "";
-        String result = instance.getClassKey(jsonObject);
-        assertEquals(result, expResult);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getObjectId method, of class EntityCore.
-     */
-    @Test(enabled = false)
-    public void testGetObjectId()
-    {
-        System.out.println("getObjectId");
-        ObjectNode jsonObject = null;
-        EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
-        String expResult = "";
-        String result = instance.getObjectId(jsonObject);
-        assertEquals(result, expResult);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    
 }

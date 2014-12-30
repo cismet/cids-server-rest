@@ -17,7 +17,6 @@ import org.openide.util.lookup.ServiceProvider;
 
 import java.io.File;
 
-
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.CidsServerCore;
 import de.cismet.cids.server.cores.UserCore;
