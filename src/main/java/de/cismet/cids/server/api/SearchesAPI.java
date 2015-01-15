@@ -229,12 +229,12 @@ public class SearchesAPI extends APIBase {
      */
     @Path("/{domain}.{searchkey}/results")
     @POST
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Consumes("application/json")
     @ApiOperation(
         value = "Execute a custom search.",
         notes = "-"
     )
-    public Response executeGetSearch(@FormDataParam("params") final SearchParameters params,
+    public Response executeGetSearch(final SearchParameters params,
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
