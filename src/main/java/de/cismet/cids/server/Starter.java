@@ -35,7 +35,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.cismet.cids.server.api.ServerConstants;
 import de.cismet.cids.server.cores.CidsServerCore;
@@ -218,7 +219,12 @@ public class Starter {
             jcom.setAllowParameterOverwriting(true);
             jcom.parse(args);
 
-            final String swaggerBasePath = basePath + ":" + port;
+            final String swaggerBasePath;
+            if (basePath.matches(".*:\\d+$")) {
+                swaggerBasePath = basePath;
+            } else {
+                swaggerBasePath = basePath + ":" + port;
+            }
             RuntimeContainer.setServer(cidsCoreHolder);
             JaxrsApiReader.setFormatString("");
             final ServletHolder sh = new ServletHolder(ServletContainer.class);
