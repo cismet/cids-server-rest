@@ -4,9 +4,6 @@
  */
 package de.cismet.cids.server;
 
-import de.cismet.cids.server.api.EntitiesAPI;
-import de.cismet.cids.server.Starter;
-import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import de.cismet.cids.server.api.EntitiesAPI;
 import java.io.File;
@@ -14,7 +11,6 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.URI;
-import java.util.ArrayList;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
 import static org.testng.Assert.*;
@@ -23,7 +19,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.mortbay.jetty.Server;
 
 /**
  *
@@ -57,7 +52,7 @@ public class EntitiesAPINGTest {
         fscoreDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "fscore" + System.currentTimeMillis());
         fscoreDir.mkdir();
         String[] args = {
-            "-domain=CRISMA",
+            "-domain=testDomain",
             "-standalone",
             "-port", portString,
             "-enableCore = core.dummy.user",
@@ -124,7 +119,7 @@ public class EntitiesAPINGTest {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
 
         // FIXME: the domain should be configurable
-        final URI uri = new URI("http", null, "localhost", port, "/CRISMA.testclass", null, null);
+        final URI uri = new URI("http", null, "localhost", port, "/testDomain.testclass", null, null);
         final ClientResponse cr = starter.client.resource(uri).queryParam("level", "11").get(ClientResponse.class);
         assertEquals(cr.getStatus(), 403);
     }
@@ -178,7 +173,7 @@ public class EntitiesAPINGTest {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
 
         // FIXME: the domain should be configurable
-        final URI uri = new URI("http", null, "localhost", port, "/CRISMA.testclass/9", null, null);
+        final URI uri = new URI("http", null, "localhost", port, "/testDomain.testclass/9", null, null);
         final ClientResponse cr = starter.client.resource(uri).get(ClientResponse.class);
         assertEquals(cr.getStatus(), 403);
     }

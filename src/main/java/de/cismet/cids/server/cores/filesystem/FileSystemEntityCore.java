@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.cores.filesystem;
 
-import com.beust.jcommander.ParametersDelegate;
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -55,6 +53,7 @@ import de.cismet.cids.server.api.types.SimpleObjectQuery;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.cores.CidsServerCore;
 import de.cismet.cids.server.cores.EntityCore;
+import de.cismet.cids.server.data.RuntimeContainer;
 import de.cismet.cids.server.exceptions.InvalidClassKeyException;
 import de.cismet.cids.server.exceptions.InvalidEntityException;
 import de.cismet.cids.server.exceptions.InvalidFilterFormatException;
@@ -1061,13 +1060,22 @@ public class FileSystemEntityCore implements EntityCore {
      * @param   objectId  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  RuntimeException  DOCUMENT ME!
      */
     private String buildRef(final String classKey, final String objectId) {
         assert classKey != null;
         assert objectId != null;
 
+        final String domain;
+        if (RuntimeContainer.getServer() != null) {
+            domain = RuntimeContainer.getServer().getDomainName();
+        } else {
+            throw new RuntimeException("could not determine the domainName the server is running on");
+        }
+
         // FIXME: is this the correct way to build the obj ref? what is the expected format of the classkey?
-        return "/" + classKey + "/" + objectId; // NOI18N
+        return "/" + domain + "." + classKey + "/" + objectId; // NOI18N
     }
 
     /**

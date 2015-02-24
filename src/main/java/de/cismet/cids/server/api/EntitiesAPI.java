@@ -258,13 +258,12 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final String baseref = domain + "." + classKey;
             final List l = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
                         .getAllObjects(
                             user,
                             // FIXME: what is the correct class key and format
-                            baseref,
+                            classKey,
                             // FIXME: what is the default
                             (role == null) ? "default" : role,
                             limit,
@@ -281,8 +280,7 @@ public class EntitiesAPI extends APIBase {
                         .getEntityCore(classKey)
                         .getAllObjects(
                             user,
-                            // FIXME: what is the correct class key and format
-                            baseref,
+                            classKey,
                             // FIXME: what is the default
                             (role == null) ? "default" : role,
                             Integer.MAX_VALUE,
@@ -295,6 +293,7 @@ public class EntitiesAPI extends APIBase {
                             omitNullValues,
                             deduplicate);
 
+            final String baseref = domain + "." + classKey;
             // FIXME: maybe has to be done even before sending the data to the core so that the core won't have to
             // care about that, too
             final int _limit = Math.max(0, limit);
@@ -531,10 +530,7 @@ public class EntitiesAPI extends APIBase {
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).updateObject(
                                     user,
-                                    // FIXME: what is the correct class key and format
-                                    domain
-                                    + "."
-                                    + classKey,
+                                    classKey,
                                     objectId,
                                     body,
                                     // FIXME: what is the default
@@ -637,10 +633,7 @@ public class EntitiesAPI extends APIBase {
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).createObject(
                                     user,
-                                    // FIXME: what is the correct class key and format
-                                    domain
-                                    + "."
-                                    + classKey,
+                                    classKey,
                                     body,
                                     // FIXME: what is the default
                                     (role == null) ? "default" : role,
@@ -756,10 +749,7 @@ public class EntitiesAPI extends APIBase {
                         .getEntityCore(classKey)
                         .getObject(
                             user,
-                            // FIXME: what is the correct class key and format
-                            domain
-                            + "."
-                            + classKey,
+                            classKey,
                             objectId,
                             version,
                             expand,
@@ -849,10 +839,7 @@ public class EntitiesAPI extends APIBase {
 
             core.deleteObject(
                 user,
-                // FIXME: what is the correct class key and format
-                domain
-                        + "."
-                        + classKey,
+                classKey,
                 objectId,
                 // FIXME: what is the default
                 (role == null) ? "default" : role);
