@@ -6,7 +6,6 @@ import de.cismet.cids.server.exceptions.InvalidFilterFormatException;
 import de.cismet.cids.server.exceptions.InvalidClassKeyException;
 import de.cismet.cids.server.exceptions.InvalidEntityException;
 import de.cismet.cids.server.exceptions.InvalidUserException;
-import de.cismet.cids.server.cores.EntityCore;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -45,7 +44,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
@@ -87,7 +86,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
@@ -147,7 +146,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
@@ -198,7 +197,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
@@ -249,7 +248,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj1.json")).elements();
@@ -276,7 +275,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = "";
@@ -295,7 +294,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = ",";
@@ -314,7 +313,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = ",,";
@@ -333,7 +332,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = ",kv";
@@ -352,7 +351,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = "kv,";
@@ -371,7 +370,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = "kv1,,kv2";
@@ -390,7 +389,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = "kv";
@@ -409,7 +408,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = ":v";
@@ -428,7 +427,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = ".:v";
@@ -447,7 +446,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = "..:v";
@@ -466,7 +465,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = "k.:v";
@@ -485,7 +484,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = ".k:v";
@@ -504,7 +503,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         final String filter = "k:\\";
@@ -523,7 +522,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        final String classKey = "testDomain.testclass";
+        final String classKey = "testclass";
         final String role = "testrole";
         
         Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter1_res.json")).elements();
@@ -613,7 +612,7 @@ public abstract class EntityCoreNGTest
         user.setValidated(true);
         
         // case-sensitivity test
-        final String classKey = "testdomain.idontexist";
+        final String classKey = "idontexist";
         final String role = "testrole";
         
         final List<ObjectNode> result = core.getAllObjects(user, classKey, role, 0, -1, null, null, null, null, null, false, false);
@@ -839,7 +838,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        core.createObject(u, "testclass@testdomain", new ObjectNode(JsonNodeFactory.instance), "", true);
+        core.createObject(u, "testclass", new ObjectNode(JsonNodeFactory.instance), "", true);
     }
 
     @Test(
@@ -855,7 +854,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        core.createObject(u, "testclass@testdomain", new ObjectNode(JsonNodeFactory.instance), "idontexist", true);
+        core.createObject(u, "testclass", new ObjectNode(JsonNodeFactory.instance), "idontexist", true);
     }
     
     @Test(
@@ -871,7 +870,7 @@ public abstract class EntityCoreNGTest
         u.setValidated(true);
         
         final ObjectNode node = JsonNodeFactory.instance.objectNode();
-        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+        core.createObject(u, "testclass", node, "testrole", true);
     }
     
     @Test(
@@ -887,7 +886,7 @@ public abstract class EntityCoreNGTest
         u.setValidated(true);
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_noself.json"));
-        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+        core.createObject(u, "testclass", node, "testrole", true);
     }
     
     @Test(
@@ -903,7 +902,7 @@ public abstract class EntityCoreNGTest
         u.setValidated(true);
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subNoSelfNoRef.json"));
-        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+        core.createObject(u, "testclass", node, "testrole", true);
     }
     
     @Test(
@@ -919,7 +918,7 @@ public abstract class EntityCoreNGTest
         u.setValidated(true);
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subRefNotPresent.json"));
-        core.createObject(u, "testdomain.testclass", node, "testrole", true);
+        core.createObject(u, "testclass", node, "testrole", true);
     }
     
     @Test(
@@ -935,7 +934,7 @@ public abstract class EntityCoreNGTest
         u.setValidated(true);
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subArrSubNoSelfNoRef.json"));
-        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+        core.createObject(u, "testclass", node, "testrole", true);
     }
     
     @Test(
@@ -951,7 +950,7 @@ public abstract class EntityCoreNGTest
         u.setValidated(true);
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subArrSubNoSelfRef_tooManyProps.json"));
-        core.createObject(u, "testclass@testdomain", node, "testrole", true);
+        core.createObject(u, "testclass", node, "testrole", true);
     }
     
     @Test(
@@ -965,7 +964,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
                 
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1_caseSensitivity.json"));
@@ -988,7 +987,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
                 
-        String classKey = "testdomain.testclass";
+        String classKey = "testClass";
         String role = "testrole";
         
         ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, "10", null, null, role, false, false);
@@ -1008,7 +1007,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
                 
-        String classKey = "testdomain.testclass";
+        String classKey = "testClass";
         String role = "testrole";
         
         // test case-sensitivity 
@@ -1035,7 +1034,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
                 
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1.json"));
@@ -1076,15 +1075,15 @@ public abstract class EntityCoreNGTest
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6.json"));
         
         // we have to limit this request because of a cycle in it, but thats the point
-        expected = core.createObject(u, "testDomain.testclass2", node, role, false);
-        readRes = core.getObject(u, "testDomain.testclass2", "a6", null, null, "3", null, null, role, false, false);
+        expected = core.createObject(u, "testclass2", node, role, false);
+        readRes = core.getObject(u, "testclass2", "a6", null, null, "3", null, null, role, false, false);
         
         assertEquals(readRes, expected, null);
         
         node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7.json"));
         
-        expected = core.createObject(u, "testDomain.testclass2", node, role, false);
-        readRes = core.getObject(u, "testDomain.testclass2", "a7", null, null, "10", null, null, role, false, false);
+        expected = core.createObject(u, "testclass2", node, role, false);
+        readRes = core.getObject(u, "testclass2", "a7", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, expected, null);
     }
@@ -1101,7 +1100,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
                 
-        String classKey = "testDomain.testclass2";
+        String classKey = "testclass2";
         String role = "testrole";
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1.json"));
@@ -1146,7 +1145,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
                 
-        String classKey = "testDomain.testclass2";
+        String classKey = "testclass2";
         String role = "testrole";
         
         ObjectNode insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2.json"));
@@ -1195,7 +1194,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
                 
-        String classKey = "testDomain.testclass2";
+        String classKey = "testclass2";
         String role = "testrole";
         
         ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3.json"));
@@ -1240,7 +1239,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
                 
-        String classKey = "testDomain.testclass2";
+        String classKey = "testclass2";
         String role = "testrole";
         
         ObjectNode insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4.json"));
@@ -1289,7 +1288,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_omitNull.json"));
@@ -1310,7 +1309,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
 
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fields.json"));
@@ -1331,7 +1330,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fieldsOmitNull.json"));
@@ -1352,7 +1351,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level1.json"));
@@ -1366,7 +1365,7 @@ public abstract class EntityCoreNGTest
         assertEquals(readRes, expected);
         
         // read cyclic ref
-        classKey = "testDomain.testclass2";
+        classKey = "testclass2";
         
         expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6_level4.json"));
         readRes = core.getObject(u, classKey, "a6", null, null, "4", null, null, role, false, false);
@@ -1391,7 +1390,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         core.getObject(u, classKey, "a5", null, null, "11", null, null, role, false, false);
@@ -1409,7 +1408,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         core.getObject(u, classKey, "a5", null, null, "0", null, null, role, false, false);
@@ -1427,7 +1426,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         core.getObject(u, classKey, "a5", null, null, "-1", null, null, role, false, false);
@@ -1445,7 +1444,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         core.getObject(u, classKey, "a5", null, null, null, null, null, role, false, false);
@@ -1463,7 +1462,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass2";
+        String classKey = "testclass2";
         String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7.json"));
@@ -1495,7 +1494,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_expand1.json"));
@@ -1521,7 +1520,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testdomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         fail("not implemented");
@@ -1542,7 +1541,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         ObjectNode readRes = core.getObject(u, classKey, "idontexist", null, null, null, null, null, role, false, true);
@@ -1723,19 +1722,19 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        String classKey = "testdomain.testclass";
+        String classKey = "testClass";
         String role = "testrole";
         
         boolean result = core.deleteObject(user, classKey, "a4", role);
         assertFalse(result);
         
-        classKey = "testDomain.testclass";
+        classKey = "testclass";
         result = core.deleteObject(user, classKey, "a4", role);
         
         // test actual deletion
         ObjectNode get1 = core.getObject(user, classKey, "a4", null, null, "10", null, null, role, false, false);
         // test subobj remained
-        ObjectNode get2 = core.getObject(user, "testDomain.testsubclass", "b4", null, null, "10", null, null, role, false, false);
+        ObjectNode get2 = core.getObject(user, "testsubclass", "b4", null, null, "10", null, null, role, false, false);
         
         assertTrue(result);
         assertNull(get1);
@@ -1758,7 +1757,7 @@ public abstract class EntityCoreNGTest
         final User user = new User();
         user.setValidated(true);
         
-        String classKey = "testDomain.testclass";
+        String classKey = "testclass";
         String role = "testrole";
         
         boolean result = core.deleteObject(user, classKey, "idontexist", role);
@@ -1769,7 +1768,7 @@ public abstract class EntityCoreNGTest
         // test actual deletion
         ObjectNode get1 = core.getObject(user, classKey, "a3", null, null, "10", null, null, role, false, false);
         // test subobj remained
-        ObjectNode get2 = core.getObject(user, "testDomain.testsubclass", "b1", null, null, "10", null, null, role, false, false);
+        ObjectNode get2 = core.getObject(user, "testsubclass", "b1", null, null, "10", null, null, role, false, false);
         
         assertTrue(result);
         assertNull(get1);

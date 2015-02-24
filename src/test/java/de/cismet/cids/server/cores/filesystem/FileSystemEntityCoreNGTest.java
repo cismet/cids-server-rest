@@ -1,9 +1,10 @@
 
 package de.cismet.cids.server.cores.filesystem;
 
-import de.cismet.cids.server.cores.filesystem.FileSystemBaseCore;
-import de.cismet.cids.server.cores.filesystem.FileSystemEntityCore;
+import de.cismet.cids.server.api.ServerConstants;
 import de.cismet.cids.server.cores.EntityCoreNGTest;
+import de.cismet.cids.server.data.RuntimeContainer;
+import de.cismet.cids.server.data.SimpleServer;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;
@@ -45,6 +46,10 @@ public class FileSystemEntityCoreNGTest extends EntityCoreNGTest
     @BeforeClass
     public static void setUpClass() throws Exception
     {
+        final SimpleServer cidsCoreHolder = new SimpleServer();
+        cidsCoreHolder.setRegistry(ServerConstants.STANDALONE);
+        cidsCoreHolder.setDomainName("testDomain");
+        RuntimeContainer.setServer(cidsCoreHolder);
         FileUtils.deleteQuietly(TEST_DIR);
     }
 
