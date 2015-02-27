@@ -38,6 +38,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import de.cismet.cids.server.annotations.PATCH;
 import de.cismet.cids.server.api.tools.Tools;
 import de.cismet.cids.server.api.types.CollectionResource;
 import de.cismet.cids.server.api.types.User;
@@ -546,6 +547,110 @@ public class EntitiesAPI extends APIBase {
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
             queryParams.add("role", role);
             queryParams.add("requestResultingInstance", requestResultingInstance);
+            final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
+                        .path(domain + "." + classKey)
+                        .path(objectId)
+                        .header("Authorization", authString)
+                        .put(ClientResponse.class, jsonBody);
+            return Tools.clientResponseToResponse(csiDelegateCall);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   jsonBody    DOCUMENT ME!
+     * @param   domain      DOCUMENT ME!
+     * @param   classKey    DOCUMENT ME!
+     * @param   objectId    DOCUMENT ME!
+     * @param   role        DOCUMENT ME!
+     * @param   authString  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    @PATCH
+    @Path("{domain}.{class}/{objectid}")
+    @Consumes("application/json")
+    @ApiOperation(
+        httpMethod = "PATCH",
+        value = "Patches an object.",
+        notes = "-"
+    )
+    public Response patchObject(@ApiParam(
+                value = "Object to be patched.",
+                required = true
+            ) final String jsonBody,
+            @ApiParam(
+                value = "identifier (domainname) of the domain.",
+                required = true
+            )
+            @PathParam("domain")
+            final String domain,
+            @ApiParam(
+                value = "identifier (classkey) of the class.",
+                required = true
+            )
+            @PathParam("class")
+            final String classKey,
+            @ApiParam(
+                value = "identifier (objectkey) of the object.",
+                required = true
+            )
+            @PathParam("objectid")
+            final String objectId,
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
+            @QueryParam("role")
+            final String role,
+            @ApiParam(
+                value = "Basic Auth Authorization String",
+                required = false
+            )
+            @HeaderParam("Authorization")
+            final String authString) {
+        final User user = Tools.validationHelper(authString);
+        if (Tools.canHazUserProblems(user)) {
+            return Tools.getUserProblemResponse();
+        }
+        if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+            ObjectNode body = null;
+            try {
+                body = (ObjectNode)MAPPER.readTree(jsonBody);
+            } catch (Exception ex) {
+                // ProblemHandling
+            }
+            final Collection<CidsTrigger> rightTriggers = getRightTriggers(domain, classKey);
+            final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
+            for (final CidsTrigger ct : rightTriggers) {
+                if (ct instanceof EntityCoreAwareCidsTrigger) {
+                    ((EntityCoreAwareCidsTrigger)ct).setEntityCore(core);
+                }
+                ct.beforeUpdate(jsonBody, user);
+            }
+            final Response r = Response.status(Response.Status.OK)
+                        .header("Location", getLocation())
+                        .entity(RuntimeContainer.getServer().getEntityCore(classKey).patchObject(
+                                    user,
+                                    // FIXME: what is the correct class key and format
+                                    domain
+                                    + "."
+                                    + classKey,
+                                    objectId,
+                                    body,
+                                    // FIXME: what is the default
+                                    (role == null) ? "default" : role))
+                        .build();
+            for (final CidsTrigger ct : rightTriggers) {
+                ct.afterUpdate(jsonBody, user);
+            }
+            return r;
+        } else {
+            final WebResource delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            queryParams.add("role", role);
             final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
                         .path(domain + "." + classKey)
                         .path(objectId)

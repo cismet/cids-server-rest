@@ -462,6 +462,16 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
+    public ObjectNode patchObject(final User user,
+            final String classKey,
+            final String objectId,
+            final ObjectNode jsonObject,
+            final String role) {
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+                                                                       // Tools | Templates.
+    }
+
+    @Override
     public ObjectNode createObject(@NonNull final User user,
             @NonNull final String classKey,
             @NonNull final ObjectNode jsonObject,

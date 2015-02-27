@@ -77,6 +77,23 @@ public interface EntityCore extends CidsServerCore {
     /**
      * DOCUMENT ME!
      *
+     * @param   user        DOCUMENT ME!
+     * @param   classKey    DOCUMENT ME!
+     * @param   objectId    DOCUMENT ME!
+     * @param   jsonObject  DOCUMENT ME!
+     * @param   role        DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    ObjectNode patchObject(User user,
+            String classKey,
+            String objectId,
+            ObjectNode jsonObject,
+            String role);
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param   user                      DOCUMENT ME!
      * @param   classKey                  DOCUMENT ME!
      * @param   jsonObject                DOCUMENT ME!
