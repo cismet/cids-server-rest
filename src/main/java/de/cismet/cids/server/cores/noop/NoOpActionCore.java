@@ -91,4 +91,13 @@ public class NoOpActionCore implements ActionCore {
     public String getCoreKey() {
         return "core.noop.action";
     }
+
+    @Override
+    public GenericResourceWithContentType executeNewAction(final User user,
+            final String actionKey,
+            final ActionTask body,
+            final String role,
+            final InputStream fileAttachement) {
+        throw new NotImplementedException("ActioCore is not active.");
+    }
 }
