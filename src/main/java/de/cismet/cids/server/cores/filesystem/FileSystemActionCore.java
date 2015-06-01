@@ -464,4 +464,14 @@ public class FileSystemActionCore implements ActionCore {
     public String getCoreKey() {
         return "core.fs.action"; // NOI18N
     }
+
+    @Override
+    public GenericResourceWithContentType executeNewAction(final User user,
+            final String actionKey,
+            final ActionTask body,
+            final String role,
+            final InputStream fileAttachement) {
+        throw new UnsupportedOperationException("Not supported yet.");    // To change body of generated methods, choose
+                                                                          // Tools | Templates.
+    }
 }

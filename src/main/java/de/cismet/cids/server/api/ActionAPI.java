@@ -321,6 +321,7 @@ public class ActionAPI extends APIBase {
      * @param   domain                    DOCUMENT ME!
      * @param   actionKey                 DOCUMENT ME!
      * @param   role                      DOCUMENT ME!
+     * @param   resultingInstanceType     DOCUMENT ME!
      * @param   requestResultingInstance  DOCUMENT ME!
      * @param   authString                DOCUMENT ME!
      *
@@ -368,9 +369,17 @@ public class ActionAPI extends APIBase {
             final String role,
             @ApiParam(
                 value =
+                    "if this parameter is set to \"task\", the task object of the task is returned. if it is set to \"result\", the result is returned, without creating a task object"
+            )
+            @DefaultValue("task")
+            @QueryParam("resultingInstanceType")
+            final String resultingInstanceType,
+            @ApiParam(
+                value =
                     "if this parameter is set to true the resulting instance is returned in the response, 'false' when not submitted"
             )
             @DefaultValue("false")
+            @Deprecated
             @QueryParam("requestResultingInstance")
             final boolean requestResultingInstance,
             @ApiParam(
@@ -384,16 +393,30 @@ public class ActionAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            return Response.status(Response.Status.OK)
-                        .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getActionCore().createNewActionTask(
-                                    user,
-                                    actionKey,
-                                    taskParams,
-                                    role,
-                                    requestResultingInstance,
-                                    attachmentInputStream))
-                        .build();
+            if ("task".equals(resultingInstanceType)) {
+                return Response.status(Response.Status.OK)
+                            .header("Location", getLocation())
+                            .entity(RuntimeContainer.getServer().getActionCore().createNewActionTask(
+                                        user,
+                                        actionKey,
+                                        taskParams,
+                                        role,
+                                        requestResultingInstance,
+                                        attachmentInputStream))
+                            .build();
+            } else if ("result".equals(resultingInstanceType)) {
+                return Response.status(Response.Status.OK)
+                            .header("Location", getLocation())
+                            .entity(RuntimeContainer.getServer().getActionCore().executeNewAction(
+                                        user,
+                                        actionKey,
+                                        taskParams,
+                                        role,
+                                        attachmentInputStream))
+                            .build();
+            } else {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
