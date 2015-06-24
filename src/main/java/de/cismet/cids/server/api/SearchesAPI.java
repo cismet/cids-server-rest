@@ -234,7 +234,11 @@ public class SearchesAPI extends APIBase {
         value = "Execute a custom search.",
         notes = "-"
     )
-    public Response executeGetSearch(final SearchParameters params,
+    public Response executeGetSearch(
+            @ApiParam(
+                value = "Search Parameters.",
+                required = true
+            ) final SearchParameters params,
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
