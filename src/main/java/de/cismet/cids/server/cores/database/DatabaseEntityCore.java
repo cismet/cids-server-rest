@@ -63,42 +63,42 @@ public class DatabaseEntityCore implements EntityCore {
     private static final Pattern CLASSKEY_PATTERN = Pattern.compile("^/([^/]*)/");
     private static final Pattern OBJECTID_PATTERN = Pattern.compile("([^/?]+)(?=/?(?:$|\\?))");
 
-    //~ Instance fields --------------------------------------------------------
-
     @Parameter(
         names = { "-core.db.connection.driver_class", "--core.db.connection.driver_class" },
         required = true,
         description = "Database Connection JDBC Driver Class"
     )
-    String connectionDriver = "org.postgresql.Driver";
+    static String connectionDriver = "org.postgresql.Driver";
 
     @Parameter(
         names = { "-core.db.connection.url", "--core.db.connection.url" },
         required = true,
         description = "JDBC Database Connection URL"
     )
-    String connectionUrl = "jdbc:postgresql://switchon.cismet.de:5434/switchon_dev";
+    static String connectionUrl = "jdbc:postgresql://switchon.cismet.de:5434/switchon_dev";
 
     @Parameter(
         names = { "-core.db.connection.schema", "--core.db.connection.schema" },
         required = true,
         description = "JDBC Database Connection Schema"
     )
-    String connectionSchema = "cids";
+    static String connectionSchema = "cids";
 
     @Parameter(
         names = { "-core.db.connection.username", "--core.db.connection.username" },
         required = true,
         description = "Database Connection Username"
     )
-    String connectionUsername = "postgres";
+    static String connectionUsername = "postgres";
 
     @Parameter(
         names = { "-core.db.connection.password", "--core.db.connection.password" },
         required = true,
         description = "Database Connection Password"
     )
-    String connectionPassword = " ";
+    static String connectionPassword = "GUKoij0AY5HEEFtiv6SU";
+
+    //~ Instance fields --------------------------------------------------------
 
     private Connection connection;
     private PreparedStatement getEntityStatement;
@@ -186,7 +186,8 @@ public class DatabaseEntityCore implements EntityCore {
         final String classReference = this.buildClassRef(classKey);
 
         if (log.isDebugEnabled()) {
-            log.debug("getAllObjects: '" + classReference + "', limit: " + limit + ", offset: " + offset);
+            log.debug("getAllObjects: '" + classReference + "', limit: " + limit
+                        + ", offset: " + offset + ", level: " + this.getInteger(level));
         }
 
         final List<ObjectNode> entities = new ArrayList<ObjectNode>();
@@ -196,6 +197,9 @@ public class DatabaseEntityCore implements EntityCore {
             statement = this.getEntitiesStatement;
             refOnly = false;
         } else {
+            if (log.isDebugEnabled()) {
+                log.debug("level is 0, getting only element references");
+            }
             statement = this.getEntityReferencesStatement;
             refOnly = true;
         }
@@ -544,7 +548,7 @@ public class DatabaseEntityCore implements EntityCore {
     protected int getInteger(final String integerString) {
         int integer = -1;
 
-        if ((integerString != null) && integerString.isEmpty()) {
+        if ((integerString != null) && !integerString.isEmpty()) {
             try {
                 integer = Integer.parseInt(integerString);
             } catch (Exception ex) {
