@@ -194,7 +194,7 @@ public class DatabaseEntityCore implements EntityCore {
         final PreparedStatement statement;
         final boolean refOnly;
         final int intLevel = this.getInteger(level);
-        if (-1 >= intLevel && intLevel > 1) {
+        if (-1 >= intLevel || intLevel > 1) {
             statement = this.getEntitiesStatement;
             refOnly = false;
         } else {
