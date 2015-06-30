@@ -96,7 +96,7 @@ public class DatabaseEntityCore implements EntityCore {
         required = true,
         description = "Database Connection Password"
     )
-    static String connectionPassword = "GUKoij0AY5HEEFtiv6SU";
+    static String connectionPassword = "";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -193,7 +193,8 @@ public class DatabaseEntityCore implements EntityCore {
         final List<ObjectNode> entities = new ArrayList<ObjectNode>();
         final PreparedStatement statement;
         final boolean refOnly;
-        if (this.getInteger(level) != 0) {
+        final int intLevel = this.getInteger(level);
+        if (-1 >= intLevel && intLevel > 1) {
             statement = this.getEntitiesStatement;
             refOnly = false;
         } else {
