@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.header.FormDataContentDisposition;
@@ -41,6 +39,7 @@ import de.cismet.cids.server.api.tools.Tools;
 import de.cismet.cids.server.api.types.ActionResultInfo;
 import de.cismet.cids.server.api.types.ActionTask;
 import de.cismet.cids.server.api.types.CollectionResource;
+import de.cismet.cids.server.api.types.GenericCollectionResource;
 import de.cismet.cids.server.api.types.GenericResourceWithContentType;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.data.RuntimeContainer;
@@ -122,7 +121,9 @@ public class ActionAPI extends APIBase {
         }
 
         if (domain.equalsIgnoreCase("local") || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> allActions = RuntimeContainer.getServer().getActionCore().getAllActions(user, role);
+            final List<com.fasterxml.jackson.databind.JsonNode> allActions = RuntimeContainer.getServer()
+                        .getActionCore()
+                        .getAllActions(user, role);
             final CollectionResource result = new CollectionResource(
                     getLocation(),
                     offset,
@@ -282,10 +283,11 @@ public class ActionAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> allActions = RuntimeContainer.getServer()
+            final List<com.fasterxml.jackson.databind.JsonNode> allActions = RuntimeContainer.getServer()
                         .getActionCore()
                         .getAllTasks(user, actionKey, role);
-            final CollectionResource result = new CollectionResource(
+            final GenericCollectionResource<com.fasterxml.jackson.databind.JsonNode> result =
+                new GenericCollectionResource<com.fasterxml.jackson.databind.JsonNode>(
                     getLocation(),
                     offset,
                     limit,

@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -31,6 +29,7 @@ import javax.ws.rs.core.Response;
 
 import de.cismet.cids.server.api.tools.Tools;
 import de.cismet.cids.server.api.types.CollectionResource;
+import de.cismet.cids.server.api.types.GenericCollectionResource;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.data.RuntimeContainer;
 
@@ -112,10 +111,11 @@ public class ClassesAPI extends APIBase {
         }
 
         if (domain.equalsIgnoreCase("local") || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> allLocalClasses = RuntimeContainer.getServer()
+            final List<com.fasterxml.jackson.databind.JsonNode> allLocalClasses = RuntimeContainer.getServer()
                         .getEntityInfoCore()
                         .getAllClasses(user, role);
-            final CollectionResource result = new CollectionResource(
+            final GenericCollectionResource<com.fasterxml.jackson.databind.JsonNode> result =
+                new GenericCollectionResource<com.fasterxml.jackson.databind.JsonNode>(
                     "/classes",
                     offset,
                     limit,

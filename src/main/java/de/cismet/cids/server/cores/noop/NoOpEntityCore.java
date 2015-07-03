@@ -12,7 +12,7 @@
  */
 package de.cismet.cids.server.cores.noop;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class NoOpEntityCore implements EntityCore {
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public List<ObjectNode> getAllObjects(final User user,
+    public List<JsonNode> getAllObjects(final User user,
             final String classkey,
             final String role,
             final int limit,
@@ -48,36 +48,36 @@ public class NoOpEntityCore implements EntityCore {
     }
 
     @Override
-    public ObjectNode updateObject(final User user,
+    public JsonNode updateObject(final User user,
             final String classKey,
             final String objectId,
-            final ObjectNode jsonObject,
+            final JsonNode jsonObject,
             final String role,
             final boolean requestResultingInstance) {
         throw new NotImplementedException("EntityCore is not active.");
     }
 
     @Override
-    public ObjectNode patchObject(final User user,
+    public JsonNode patchObject(final User user,
             final String classKey,
             final String objectId,
-            final ObjectNode jsonObject,
+            final JsonNode jsonObject,
             final String role) {
         throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
                                                                        // Tools | Templates.
     }
 
     @Override
-    public ObjectNode createObject(final User user,
+    public JsonNode createObject(final User user,
             final String classKey,
-            final ObjectNode jsonObject,
+            final JsonNode jsonObject,
             final String role,
             final boolean requestResultingInstance) {
         throw new NotImplementedException("EntityCore is not active.");
     }
 
     @Override
-    public ObjectNode getObjectsByQuery(final User user,
+    public JsonNode getObjectsByQuery(final User user,
             final SimpleObjectQuery query,
             final String role,
             final int limit,
@@ -86,7 +86,7 @@ public class NoOpEntityCore implements EntityCore {
     }
 
     @Override
-    public ObjectNode getObject(final User user,
+    public JsonNode getObject(final User user,
             final String classKey,
             final String objectId,
             final String version,
@@ -106,12 +106,12 @@ public class NoOpEntityCore implements EntityCore {
     }
 
     @Override
-    public String getClassKey(final ObjectNode jsonObject) {
+    public String getClassKey(final JsonNode jsonObject) {
         throw new NotImplementedException("EntityCore is not active.");
     }
 
     @Override
-    public String getObjectId(final ObjectNode jsonObject) {
+    public String getObjectId(final JsonNode jsonObject) {
         throw new NotImplementedException("EntityCore is not active.");
     }
 

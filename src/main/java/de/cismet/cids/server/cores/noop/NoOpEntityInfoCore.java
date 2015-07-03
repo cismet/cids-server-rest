@@ -12,7 +12,7 @@
  */
 package de.cismet.cids.server.cores.noop;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
 
@@ -31,17 +31,17 @@ public class NoOpEntityInfoCore implements EntityInfoCore {
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public List<ObjectNode> getAllClasses(final User user, final String role) {
+    public List<JsonNode> getAllClasses(final User user, final String role) {
         throw new NotImplementedException("EntityInfoCore is not active.");
     }
 
     @Override
-    public ObjectNode getClass(final User user, final String classKey, final String role) {
+    public JsonNode getClass(final User user, final String classKey, final String role) {
         throw new NotImplementedException("EntityInfoCore is not active.");
     }
 
     @Override
-    public ObjectNode getAttribute(final User user,
+    public JsonNode getAttribute(final User user,
             final String classKey,
             final String attributeKey,
             final String role) {
@@ -49,7 +49,7 @@ public class NoOpEntityInfoCore implements EntityInfoCore {
     }
 
     @Override
-    public ObjectNode emptyInstance(final User user, final String classKey, final String role) {
+    public JsonNode emptyInstance(final User user, final String classKey, final String role) {
         throw new NotImplementedException("EntityInfoCore is not active.");
     }
 

@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.cores;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import java.util.List;
 
 import de.cismet.cids.server.api.types.User;
@@ -31,7 +29,7 @@ public interface NodeCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    List<ObjectNode> getRootNodes(User user, String role);
+    List<com.fasterxml.jackson.databind.JsonNode> getRootNodes(User user, String role);
 
     /**
      * DOCUMENT ME!
@@ -42,7 +40,7 @@ public interface NodeCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode getNode(User user, String nodeKey, String role);
+    com.fasterxml.jackson.databind.JsonNode getNode(User user, String nodeKey, String role);
 
     /**
      * DOCUMENT ME!
@@ -53,7 +51,7 @@ public interface NodeCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    List<ObjectNode> getChildren(User user, String nodeKey, String role);
+    List<com.fasterxml.jackson.databind.JsonNode> getChildren(User user, String nodeKey, String role);
 
     /**
      * DOCUMENT ME!
@@ -64,5 +62,5 @@ public interface NodeCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    List<ObjectNode> getChildrenByQuery(User user, String nodeQuery, String role);
+    List<com.fasterxml.jackson.databind.JsonNode> getChildrenByQuery(User user, String nodeQuery, String role);
 }

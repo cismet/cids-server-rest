@@ -12,11 +12,9 @@
  */
 package de.cismet.cids.server.cores.filesystem;
 
-import com.beust.jcommander.ParametersDelegate;
-
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.openide.util.lookup.ServiceProvider;
 
@@ -57,7 +55,7 @@ public class FileSystemNodeCore implements NodeCore {
     }
 
     @Override
-    public List<ObjectNode> getRootNodes(final User user, final String role) {
+    public List<JsonNode> getRootNodes(final User user, final String role) {
         final File folder = new File(getBaseDir() + File.separator
                         + RuntimeContainer.getServer().getDomainName()
                         + File.separator + "nodes");
@@ -77,7 +75,7 @@ public class FileSystemNodeCore implements NodeCore {
     }
 
     @Override
-    public ObjectNode getNode(final User user, final String nodeKey, final String role) {
+    public JsonNode getNode(final User user, final String nodeKey, final String role) {
         String filePath;
         if (nodeKey.lastIndexOf(".") == -1) {
             // RootNode
@@ -95,7 +93,7 @@ public class FileSystemNodeCore implements NodeCore {
                 // Lazy check
                 MAPPER.readValue(fileEntry, Node.class);
 
-                final ObjectNode ret = (ObjectNode)(MAPPER.readTree(fileEntry));
+                final JsonNode ret = (MAPPER.readTree(fileEntry));
                 return ret;
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
@@ -106,7 +104,7 @@ public class FileSystemNodeCore implements NodeCore {
     }
 
     @Override
-    public List<ObjectNode> getChildren(final User user, final String nodeKey, final String role) {
+    public List<JsonNode> getChildren(final User user, final String nodeKey, final String role) {
         final File folder = new File(getBaseDir() + File.separator
                         + RuntimeContainer.getServer().getDomainName()
                         + File.separator + "nodes" + File.separator + nodeKey.replaceAll("\\.", File.separator));
@@ -126,7 +124,7 @@ public class FileSystemNodeCore implements NodeCore {
     }
 
     @Override
-    public List<ObjectNode> getChildrenByQuery(final User user, final String nodeQuery, final String role) {
+    public List<JsonNode> getChildrenByQuery(final User user, final String nodeQuery, final String role) {
         throw new UnsupportedOperationException("Not supported in Filesystemcore."); // To change body of generated
         // methods, choose Tools |
         // Templates.

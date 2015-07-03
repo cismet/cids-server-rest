@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.cores;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import java.util.List;
 
 import de.cismet.cids.server.api.types.User;
@@ -31,7 +29,7 @@ public interface EntityInfoCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    List<ObjectNode> getAllClasses(User user, String role);
+    List<com.fasterxml.jackson.databind.JsonNode> getAllClasses(User user, String role);
 
     /**
      * DOCUMENT ME!
@@ -42,7 +40,7 @@ public interface EntityInfoCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode getClass(User user, String classKey, String role);
+    com.fasterxml.jackson.databind.JsonNode getClass(User user, String classKey, String role);
 
     /**
      * DOCUMENT ME!
@@ -54,7 +52,7 @@ public interface EntityInfoCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode getAttribute(User user, String classKey, String attributeKey, String role);
+    com.fasterxml.jackson.databind.JsonNode getAttribute(User user, String classKey, String attributeKey, String role);
 
     /**
      * DOCUMENT ME!
@@ -65,5 +63,5 @@ public interface EntityInfoCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode emptyInstance(User user, String classKey, String role);
+    com.fasterxml.jackson.databind.JsonNode emptyInstance(User user, String classKey, String role);
 }
