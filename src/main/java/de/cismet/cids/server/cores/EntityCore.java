@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.server.cores;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import java.util.List;
 
 import de.cismet.cids.server.api.types.SimpleObjectQuery;
@@ -42,7 +40,7 @@ public interface EntityCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    List<ObjectNode> getAllObjects(User user,
+    List<com.fasterxml.jackson.databind.JsonNode> getAllObjects(User user,
             String classkey,
             String role,
             int limit,
@@ -67,10 +65,10 @@ public interface EntityCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode updateObject(User user,
+    com.fasterxml.jackson.databind.JsonNode updateObject(User user,
             String classKey,
             String objectId,
-            ObjectNode jsonObject,
+            com.fasterxml.jackson.databind.JsonNode jsonObject,
             String role,
             boolean requestResultingInstance);
 
@@ -85,10 +83,10 @@ public interface EntityCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode patchObject(User user,
+    com.fasterxml.jackson.databind.JsonNode patchObject(User user,
             String classKey,
             String objectId,
-            ObjectNode jsonObject,
+            com.fasterxml.jackson.databind.JsonNode jsonObject,
             String role);
 
     /**
@@ -102,9 +100,9 @@ public interface EntityCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode createObject(User user,
+    com.fasterxml.jackson.databind.JsonNode createObject(User user,
             String classKey,
-            ObjectNode jsonObject,
+            com.fasterxml.jackson.databind.JsonNode jsonObject,
             String role,
             boolean requestResultingInstance);
 
@@ -119,7 +117,11 @@ public interface EntityCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode getObjectsByQuery(User user, SimpleObjectQuery query, String role, int limit, int offset);
+    com.fasterxml.jackson.databind.JsonNode getObjectsByQuery(User user,
+            SimpleObjectQuery query,
+            String role,
+            int limit,
+            int offset);
 
     /**
      * DOCUMENT ME!
@@ -138,7 +140,7 @@ public interface EntityCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode getObject(User user,
+    com.fasterxml.jackson.databind.JsonNode getObject(User user,
             String classKey,
             String objectId,
             String version,
@@ -169,7 +171,7 @@ public interface EntityCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    String getClassKey(ObjectNode jsonObject);
+    String getClassKey(com.fasterxml.jackson.databind.JsonNode jsonObject);
 
     /**
      * DOCUMENT ME!
@@ -178,5 +180,5 @@ public interface EntityCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    String getObjectId(ObjectNode jsonObject);
+    String getObjectId(com.fasterxml.jackson.databind.JsonNode jsonObject);
 }

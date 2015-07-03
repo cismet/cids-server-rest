@@ -12,7 +12,7 @@
  */
 package de.cismet.cids.server.cores.noop;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.InputStream;
 
@@ -36,22 +36,22 @@ public class NoOpActionCore implements ActionCore {
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public List<ObjectNode> getAllActions(final User user, final String role) {
+    public List<JsonNode> getAllActions(final User user, final String role) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 
     @Override
-    public ObjectNode getAction(final User user, final String actionKey, final String role) {
+    public JsonNode getAction(final User user, final String actionKey, final String role) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 
     @Override
-    public List<ObjectNode> getAllTasks(final User user, final String actionKey, final String role) {
+    public List<JsonNode> getAllTasks(final User user, final String actionKey, final String role) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 
     @Override
-    public ObjectNode createNewActionTask(final User user,
+    public JsonNode createNewActionTask(final User user,
             final String actionKey,
             final ActionTask body,
             final String role,
@@ -61,7 +61,7 @@ public class NoOpActionCore implements ActionCore {
     }
 
     @Override
-    public ObjectNode getTask(final User user, final String actionKey, final String taskKey, final String role) {
+    public JsonNode getTask(final User user, final String actionKey, final String taskKey, final String role) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 

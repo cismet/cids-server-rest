@@ -7,6 +7,7 @@ import de.cismet.cids.server.exceptions.InvalidClassKeyException;
 import de.cismet.cids.server.exceptions.InvalidEntityException;
 import de.cismet.cids.server.exceptions.InvalidUserException;
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -48,12 +49,12 @@ public abstract class EntityCoreNGTest
         final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
-        final List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        final List<JsonNode> expected = new ArrayList<JsonNode>();
         while(it.hasNext()){
-            expected.add((ObjectNode)it.next());
+            expected.add((JsonNode)it.next());
         }
          
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, null, false, false);
+        List<JsonNode> result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 5);
         assertEquals(result, expected);
@@ -90,19 +91,19 @@ public abstract class EntityCoreNGTest
         final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
-        final List<ObjectNode> all = new ArrayList<ObjectNode>();
+        final List<JsonNode> all = new ArrayList<JsonNode>();
         while(it.hasNext()){
-            all.add((ObjectNode)it.next());
+            all.add((JsonNode)it.next());
         }
         
-        List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        List<JsonNode> expected = new ArrayList<JsonNode>();
         expected.add(all.get(0));
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 1, -1, null, null, null, null, null, false, false);
+        List<JsonNode> result = core.getAllObjects(user, classKey, role, 1, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
         
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         expected.add(all.get(0));
         expected.add(all.get(1));
         expected.add(all.get(2));
@@ -111,7 +112,7 @@ public abstract class EntityCoreNGTest
         assertEquals(result.size(), 3);
         assertEquals(result, expected);
         
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         expected.add(all.get(0));
         expected.add(all.get(1));
         expected.add(all.get(2));
@@ -122,7 +123,7 @@ public abstract class EntityCoreNGTest
         assertEquals(result.size(), 5);
         assertEquals(result, expected);
         
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         expected.add(all.get(0));
         expected.add(all.get(1));
         expected.add(all.get(2));
@@ -150,35 +151,35 @@ public abstract class EntityCoreNGTest
         final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
-        final List<ObjectNode> all = new ArrayList<ObjectNode>();
+        final List<JsonNode> all = new ArrayList<JsonNode>();
         while(it.hasNext()){
-            all.add((ObjectNode)it.next());
+            all.add((JsonNode)it.next());
         }
         
-        List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        List<JsonNode> expected = new ArrayList<JsonNode>();
         expected.add(all.get(1));
         expected.add(all.get(2));
         expected.add(all.get(3));
         expected.add(all.get(4));
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 0, 1, null, null, null, null, null, false, false);
+        List<JsonNode> result = core.getAllObjects(user, classKey, role, 0, 1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 4);
         assertEquals(result, expected);
         
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         expected.add(all.get(4));
         result = core.getAllObjects(user, classKey, role, 0, 4, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
         
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         result = core.getAllObjects(user, classKey, role, 0, 5, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 0);
         assertEquals(result, expected);
         
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         result = core.getAllObjects(user, classKey, role, 0, 6, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 0);
@@ -201,19 +202,19 @@ public abstract class EntityCoreNGTest
         final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_default.json")).elements();
-        final List<ObjectNode> all = new ArrayList<ObjectNode>();
+        final List<JsonNode> all = new ArrayList<JsonNode>();
         while(it.hasNext()){
-            all.add((ObjectNode)it.next());
+            all.add((JsonNode)it.next());
         }
         
-        List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        List<JsonNode> expected = new ArrayList<JsonNode>();
         expected.add(all.get(1));
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 1, 1, null, null, null, null, null, false, false);
+        List<JsonNode> result = core.getAllObjects(user, classKey, role, 1, 1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
         
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         expected.add(all.get(2));
         expected.add(all.get(3));
         expected.add(all.get(4));
@@ -222,14 +223,14 @@ public abstract class EntityCoreNGTest
         assertEquals(result.size(), 3);
         assertEquals(result, expected);
         
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         expected.add(all.get(4));
         result = core.getAllObjects(user, classKey, role, 3, 4, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
         
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         result = core.getAllObjects(user, classKey, role, 6, 5, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 0);
@@ -252,12 +253,12 @@ public abstract class EntityCoreNGTest
         final String role = "testrole";
         
         final Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj1.json")).elements();
-        final List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        final List<JsonNode> expected = new ArrayList<JsonNode>();
         while(it.hasNext()){
-            expected.add((ObjectNode)it.next());
+            expected.add((JsonNode)it.next());
         }
         
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, 3, 1, null, "2", "id,sub,subsub,subarr", null, null, false, false);
+        List<JsonNode> result = core.getAllObjects(user, classKey, role, 3, 1, null, "2", "id,sub,subsub,subarr", null, null, false, false);
         
         assertEquals(result.size(), 3);
         assertEquals(result, expected);
@@ -526,21 +527,21 @@ public abstract class EntityCoreNGTest
         final String role = "testrole";
         
         Iterator it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter1_res.json")).elements();
-        List<ObjectNode> expected = new ArrayList<ObjectNode>();
+        List<JsonNode> expected = new ArrayList<JsonNode>();
         while(it.hasNext()){
-            expected.add((ObjectNode)it.next());
+            expected.add((JsonNode)it.next());
         }
         
         String filter = "id:a2";
-        List<ObjectNode> result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
+        List<JsonNode> result = core.getAllObjects(user, classKey, role, -1, -1, null, null, null, null, filter, false, false);
         
         assertEquals(result.size(), 1);
         assertEquals(result, expected);
         
         it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter2_res.json")).elements();
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         while(it.hasNext()){
-            expected.add((ObjectNode)it.next());
+            expected.add((JsonNode)it.next());
         }
         
         filter = "id:a1|a4|a5";
@@ -550,9 +551,9 @@ public abstract class EntityCoreNGTest
         assertEquals(result, expected);
         
         it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter3_res.json")).elements();
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         while(it.hasNext()){
-            expected.add((ObjectNode)it.next());
+            expected.add((JsonNode)it.next());
         }
         
         filter = "id:a1|a4|a5,sub.sub1:sub1val";
@@ -574,9 +575,9 @@ public abstract class EntityCoreNGTest
         assertEquals(result.size(), 0);
         
         it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter4_res.json")).elements();
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         while(it.hasNext()){
-            expected.add((ObjectNode)it.next());
+            expected.add((JsonNode)it.next());
         }
         
         filter = "id:a1|a4|a5,sub.subnil:";
@@ -586,9 +587,9 @@ public abstract class EntityCoreNGTest
         assertEquals(result, expected);
         
         it = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_allObj_filter5_res.json")).elements();
-        expected = new ArrayList<ObjectNode>();
+        expected = new ArrayList<JsonNode>();
         while(it.hasNext()){
-            expected.add((ObjectNode)it.next());
+            expected.add((JsonNode)it.next());
         }
         
         // although using such patterns is discouraged, it should work
@@ -615,7 +616,7 @@ public abstract class EntityCoreNGTest
         final String classKey = "idontexist";
         final String role = "testrole";
         
-        final List<ObjectNode> result = core.getAllObjects(user, classKey, role, 0, -1, null, null, null, null, null, false, false);
+        final List<JsonNode> result = core.getAllObjects(user, classKey, role, 0, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 0);
     }
@@ -724,12 +725,12 @@ public abstract class EntityCoreNGTest
         User user = null;
         String classKey = "";
         String objectId = "";
-        ObjectNode jsonObject = null;
+        JsonNode jsonObject = null;
         String role = "";
         boolean requestResultingInstance = false;
         EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
-        ObjectNode expResult = null;
-        ObjectNode result = instance.updateObject(user, classKey, objectId, jsonObject, role, requestResultingInstance);
+        JsonNode expResult = null;
+        JsonNode result = instance.updateObject(user, classKey, objectId, jsonObject, role, requestResultingInstance);
         assertEquals(result, expResult);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -869,7 +870,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        final ObjectNode node = JsonNodeFactory.instance.objectNode();
+        final JsonNode node = JsonNodeFactory.instance.objectNode();
         core.createObject(u, "testclass", node, "testrole", true);
     }
     
@@ -885,7 +886,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_noself.json"));
+        JsonNode node = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_noself.json"));
         core.createObject(u, "testclass", node, "testrole", true);
     }
     
@@ -901,7 +902,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subNoSelfNoRef.json"));
+        JsonNode node = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subNoSelfNoRef.json"));
         core.createObject(u, "testclass", node, "testrole", true);
     }
     
@@ -917,7 +918,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subRefNotPresent.json"));
+        JsonNode node = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subRefNotPresent.json"));
         core.createObject(u, "testclass", node, "testrole", true);
     }
     
@@ -933,7 +934,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subArrSubNoSelfNoRef.json"));
+        JsonNode node = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subArrSubNoSelfNoRef.json"));
         core.createObject(u, "testclass", node, "testrole", true);
     }
     
@@ -949,7 +950,7 @@ public abstract class EntityCoreNGTest
         final User u = new User();
         u.setValidated(true);
         
-        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subArrSubNoSelfRef_tooManyProps.json"));
+        JsonNode node = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj_subArrSubNoSelfRef_tooManyProps.json"));
         core.createObject(u, "testclass", node, "testrole", true);
     }
     
@@ -967,10 +968,9 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass";
         String role = "testrole";
         
-        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1_caseSensitivity.json"));
-        
-        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "A1", null, null, "10", null, null, role, false, false);
+        JsonNode node = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1_caseSensitivity.json"));
+        JsonNode storeRes = core.createObject(u, classKey, node, role, true);
+        JsonNode readRes = core.getObject(u, classKey, "A1", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, storeRes);
     }
@@ -990,7 +990,7 @@ public abstract class EntityCoreNGTest
         String classKey = "testClass";
         String role = "testrole";
         
-        ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, "10", null, null, role, false, false);
+        JsonNode readRes = core.getObject(u, classKey, "a1", null, null, "10", null, null, role, false, false);
         
         assertNull(readRes);
     }
@@ -1011,7 +1011,7 @@ public abstract class EntityCoreNGTest
         String role = "testrole";
         
         // test case-sensitivity 
-        final List<ObjectNode> result = core.getAllObjects(u, classKey, role, 0, -1, null, null, null, null, null, false, false);
+        final List<JsonNode> result = core.getAllObjects(u, classKey, role, 0, -1, null, null, null, null, null, false, false);
         
         assertEquals(result.size(), 0);
     }
@@ -1037,42 +1037,41 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass";
         String role = "testrole";
         
-        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1.json"));
-        
-        ObjectNode expected = core.createObject(u, classKey, node, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "a1", null, null, "10", null, null, role, false, false);
+        JsonNode node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj1.json"));
+        JsonNode expected = core.createObject(u, classKey, node, role, true);
+        JsonNode readRes = core.getObject(u, classKey, "a1", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, expected);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj2.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj2.json"));
         
         expected = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "a2", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, expected, null);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj3.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj3.json"));
         
         expected = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "a3", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, expected, null);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj4.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj4.json"));
         
         expected = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "a4", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, expected, null);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5.json"));
         
         expected = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "a5", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, expected, null);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6.json"));
         
         // we have to limit this request because of a cycle in it, but thats the point
         expected = core.createObject(u, "testclass2", node, role, false);
@@ -1080,7 +1079,7 @@ public abstract class EntityCoreNGTest
         
         assertEquals(readRes, expected, null);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7.json"));
         
         expected = core.createObject(u, "testclass2", node, role, false);
         readRes = core.getObject(u, "testclass2", "a7", null, null, "10", null, null, role, false, false);
@@ -1103,20 +1102,19 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass2";
         String role = "testrole";
         
-        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1.json"));
-        
+        JsonNode node = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1.json"));
         // setup
-        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
+        JsonNode storeRes = core.createObject(u, classKey, node, role, true);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_addPlain_res.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_addPlain_res.json"));
         
         storeRes = core.createObject(u, classKey, node, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "m1", null, null, "10", null, null, role, false, false);
+        JsonNode readRes = core.getObject(u, classKey, "m1", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, storeRes);
         assertEquals(readRes, node);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_changePlain_res.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_changePlain_res.json"));
         
         storeRes = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "m1", null, null, "10", null, null, role, false, false);
@@ -1124,7 +1122,7 @@ public abstract class EntityCoreNGTest
         assertEquals(readRes, storeRes);
         assertEquals(readRes, node);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_addObj_res.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj1_addObj_res.json"));
         
         storeRes = core.createObject(u, classKey, node, role, true);
         readRes = core.getObject(u, classKey, "m1", null, null, "10", null, null, role, false, false);
@@ -1148,16 +1146,15 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass2";
         String role = "testrole";
         
-        ObjectNode insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2.json"));
-        
+        JsonNode insert = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2.json"));
         // setup
-        ObjectNode storeRes = core.createObject(u, classKey, insert, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "m2", null, null, "10", null, null, role, false, false);
+        JsonNode storeRes = core.createObject(u, classKey, insert, role, true);
+        JsonNode readRes = core.getObject(u, classKey, "m2", null, null, "10", null, null, role, false, false);
         
         assertNotNull(readRes);
         
-        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addPlain_part.json"));
-        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addPlain_res.json"));
+        insert = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addPlain_part.json"));
+        JsonNode expected = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addPlain_res.json"));
         
         storeRes = core.createObject(u, classKey, insert, role, true);
         readRes = core.getObject(u, classKey, "m2", null, null, "10", null, null, role, false, false);
@@ -1165,16 +1162,16 @@ public abstract class EntityCoreNGTest
         // we cannot use assertEqual as both the json objects can be equal without taking the property ordering into account
         assertTrue(readRes.equals(expected));
         
-        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_changePlain_part.json"));
-        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_changePlain_res.json"));
+        insert = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_changePlain_part.json"));
+        expected = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_changePlain_res.json"));
         
         storeRes = core.createObject(u, classKey, insert, role, true);
         readRes = core.getObject(u, classKey, "m2", null, null, "10", null, null, role, false, false);
         
         assertTrue(readRes.equals(expected));
         
-        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addObj_part.json"));
-        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addObj_res.json"));
+        insert = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addObj_part.json"));
+        expected = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj2_addObj_res.json"));
         
         storeRes = core.createObject(u, classKey, insert, role, true);
         readRes = core.getObject(u, classKey, "m2", null, null, "10", null, null, role, false, false);
@@ -1197,20 +1194,19 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass2";
         String role = "testrole";
         
-        ObjectNode node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3.json"));
-        
+        JsonNode node = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3.json"));
         // setup
-        ObjectNode storeRes = core.createObject(u, classKey, node, role, true);
+        JsonNode storeRes = core.createObject(u, classKey, node, role, true);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_addPlain_res.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_addPlain_res.json"));
         
         storeRes = core.updateObject(u, classKey, "m3", node, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "m3", null, null, "10", null, null, role, false, false);
+        JsonNode readRes = core.getObject(u, classKey, "m3", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, storeRes);
         assertEquals(readRes, node);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_changePlain_res.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_changePlain_res.json"));
         
         storeRes = core.updateObject(u, classKey, "m3", node, role, true);
         readRes = core.getObject(u, classKey, "m3", null, null, "10", null, null, role, false, false);
@@ -1218,7 +1214,7 @@ public abstract class EntityCoreNGTest
         assertEquals(readRes, storeRes);
         assertEquals(readRes, node);
         
-        node = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_addObj_res.json"));
+        node = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj3_addObj_res.json"));
         
         storeRes = core.updateObject(u, classKey, "m3", node, role, true);
         readRes = core.getObject(u, classKey, "m3", null, null, "10", null, null, role, false, false);
@@ -1242,16 +1238,15 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass2";
         String role = "testrole";
         
-        ObjectNode insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4.json"));
-        
+        JsonNode insert = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4.json"));
         // setup
-        ObjectNode storeRes = core.createObject(u, classKey, insert, role, true);
-        ObjectNode readRes = core.getObject(u, classKey, "m4", null, null, "10", null, null, role, false, false);
+        JsonNode storeRes = core.createObject(u, classKey, insert, role, true);
+        JsonNode readRes = core.getObject(u, classKey, "m4", null, null, "10", null, null, role, false, false);
         
         assertNotNull(readRes);
         
-        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addPlain_part.json"));
-        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addPlain_res.json"));
+        insert = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addPlain_part.json"));
+        JsonNode expected = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addPlain_res.json"));
         
         storeRes = core.updateObject(u, classKey, "m4", insert, role, true);
         readRes = core.getObject(u, classKey, "m4", null, null, "10", null, null, role, false, false);
@@ -1259,16 +1254,16 @@ public abstract class EntityCoreNGTest
         // we cannot use assertEqual as both the json objects can be equal without taking the property ordering into account
         assertTrue(readRes.equals(expected));
         
-        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_changePlain_part.json"));
-        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_changePlain_res.json"));
+        insert = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_changePlain_part.json"));
+        expected = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_changePlain_res.json"));
         
         storeRes = core.updateObject(u, classKey, "m4", insert, role, true);
         readRes = core.getObject(u, classKey, "m4", null, null, "10", null, null, role, false, false);
         
         assertTrue(readRes.equals(expected));
         
-        insert = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addObj_part.json"));
-        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addObj_res.json"));
+        insert = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addObj_part.json"));
+        expected = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_mergeObj4_addObj_res.json"));
         
         storeRes = core.updateObject(u, classKey, "m4", insert, role, true);
         readRes = core.getObject(u, classKey, "m4", null, null, "10", null, null, role, false, false);
@@ -1291,8 +1286,8 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass";
         String role = "testrole";
         
-        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_omitNull.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "10", null, null, role, true, false);
+        JsonNode expected = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_omitNull.json"));
+        JsonNode readRes = core.getObject(u, classKey, "a5", null, null, "10", null, null, role, true, false);
         
         assertEquals(readRes, expected);
     }
@@ -1312,8 +1307,8 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass";
         String role = "testrole";
 
-        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fields.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "10", "id, sub, subarr, nil", null, role, false, false);
+        JsonNode expected = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fields.json"));
+        JsonNode readRes = core.getObject(u, classKey, "a5", null, null, "10", "id, sub, subarr, nil", null, role, false, false);
         
         assertEquals(readRes, expected);
     }
@@ -1333,8 +1328,8 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass";
         String role = "testrole";
         
-        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fieldsOmitNull.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "10", "id, sub, subarr, nil", null, role, true, false);
+        JsonNode expected = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_fieldsOmitNull.json"));
+        JsonNode readRes = core.getObject(u, classKey, "a5", null, null, "10", "id, sub, subarr, nil", null, role, true, false);
         
         assertEquals(readRes, expected);
     }
@@ -1354,12 +1349,12 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass";
         String role = "testrole";
         
-        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level1.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "1", null, null, role, false, false);
+        JsonNode expected = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level1.json"));
+        JsonNode readRes = core.getObject(u, classKey, "a5", null, null, "1", null, null, role, false, false);
         
         assertEquals(readRes, expected);
         
-        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level2.json"));
+        expected = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level2.json"));
         readRes = core.getObject(u, classKey, "a5", null, null, "2", null, null, role, false, false);
         
         assertEquals(readRes, expected);
@@ -1367,12 +1362,12 @@ public abstract class EntityCoreNGTest
         // read cyclic ref
         classKey = "testclass2";
         
-        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6_level4.json"));
+        expected = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6_level4.json"));
         readRes = core.getObject(u, classKey, "a6", null, null, "4", null, null, role, false, false);
         
         assertEquals(readRes, expected);
         
-        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6_level7.json"));
+        expected = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6_level7.json"));
         readRes = core.getObject(u, classKey, "a6", null, null, "7", null, null, role, false, false);
         
         assertEquals(readRes, expected);
@@ -1465,18 +1460,18 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass2";
         String role = "testrole";
         
-        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a7", null, null, "10", null, null, role, false, false);
+        JsonNode expected = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7.json"));
+        JsonNode readRes = core.getObject(u, classKey, "a7", null, null, "10", null, null, role, false, false);
         
         assertEquals(readRes, expected);
         
-        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7_deduplicate.json"));
+        expected = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj7_deduplicate.json"));
         readRes = core.getObject(u, classKey, "a7", null, null, null, null, null, role, false, true);
         
         assertEquals(readRes, expected);
         
         // read cyclic ref
-        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6.json"));
+        expected = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj6.json"));
         readRes = core.getObject(u, classKey, "a6", null, null, null, null, null, role, false, true);
         
         assertEquals(readRes, expected);
@@ -1497,12 +1492,12 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass";
         String role = "testrole";
         
-        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_expand1.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, "sub", "10", null, null, role, false, false);
+        JsonNode expected = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_expand1.json"));
+        JsonNode readRes = core.getObject(u, classKey, "a5", null, "sub", "10", null, null, role, false, false);
 
         assertEquals(readRes, expected);
         
-        expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_expand2.json"));
+        expected = MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_expand2.json"));
         readRes = core.getObject(u, classKey, "a5", null, "sub, subarr", "10", null, null, role, false, false);
         
         assertEquals(readRes, expected);
@@ -1524,8 +1519,8 @@ public abstract class EntityCoreNGTest
         String role = "testrole";
         
         fail("not implemented");
-        ObjectNode expected = (ObjectNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level1.json"));
-        ObjectNode readRes = core.getObject(u, classKey, "a5", null, null, "1", null, null, role, false, false);
+        JsonNode expected = (JsonNode)MAPPER.reader().readTree(EntityCoreNGTest.class.getResourceAsStream("EntityCoreNGTest_obj5_level1.json"));
+        JsonNode readRes = core.getObject(u, classKey, "a5", null, null, "1", null, null, role, false, false);
         
         assertEquals(readRes, expected);
     }
@@ -1544,7 +1539,7 @@ public abstract class EntityCoreNGTest
         String classKey = "testclass";
         String role = "testrole";
         
-        ObjectNode readRes = core.getObject(u, classKey, "idontexist", null, null, null, null, null, role, false, true);
+        JsonNode readRes = core.getObject(u, classKey, "idontexist", null, null, null, null, null, role, false, true);
         
         assertNull(readRes);
     }
@@ -1562,8 +1557,8 @@ public abstract class EntityCoreNGTest
         int limit = 0;
         int offset = 0;
         EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
-        ObjectNode expResult = null;
-        ObjectNode result = instance.getObjectsByQuery(user, query, role, limit, offset);
+        JsonNode expResult = null;
+        JsonNode result = instance.getObjectsByQuery(user, query, role, limit, offset);
         assertEquals(result, expResult);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -1732,9 +1727,9 @@ public abstract class EntityCoreNGTest
         result = core.deleteObject(user, classKey, "a4", role);
         
         // test actual deletion
-        ObjectNode get1 = core.getObject(user, classKey, "a4", null, null, "10", null, null, role, false, false);
+        JsonNode get1 = core.getObject(user, classKey, "a4", null, null, "10", null, null, role, false, false);
         // test subobj remained
-        ObjectNode get2 = core.getObject(user, "testsubclass", "b4", null, null, "10", null, null, role, false, false);
+        JsonNode get2 = core.getObject(user, "testsubclass", "b4", null, null, "10", null, null, role, false, false);
         
         assertTrue(result);
         assertNull(get1);
@@ -1766,9 +1761,9 @@ public abstract class EntityCoreNGTest
         
         result = core.deleteObject(user, classKey, "a3", role);
         // test actual deletion
-        ObjectNode get1 = core.getObject(user, classKey, "a3", null, null, "10", null, null, role, false, false);
+        JsonNode get1 = core.getObject(user, classKey, "a3", null, null, "10", null, null, role, false, false);
         // test subobj remained
-        ObjectNode get2 = core.getObject(user, "testsubclass", "b1", null, null, "10", null, null, role, false, false);
+        JsonNode get2 = core.getObject(user, "testsubclass", "b1", null, null, "10", null, null, role, false, false);
         
         assertTrue(result);
         assertNull(get1);
@@ -1887,7 +1882,7 @@ public abstract class EntityCoreNGTest
     public void testGetClassKey()
     {
         System.out.println("getClassKey");
-        ObjectNode jsonObject = null;
+        JsonNode jsonObject = null;
         EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
         String expResult = "";
         String result = instance.getClassKey(jsonObject);
@@ -1903,7 +1898,7 @@ public abstract class EntityCoreNGTest
     public void testGetObjectId()
     {
         System.out.println("getObjectId");
-        ObjectNode jsonObject = null;
+        JsonNode jsonObject = null;
         EntityCore instance = RuntimeContainer.getServer().getEntityCore("testng");
         String expResult = "";
         String result = instance.getObjectId(jsonObject);

@@ -36,7 +36,7 @@ public interface ActionCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    List<ObjectNode> getAllActions(User user, String role);
+    List<com.fasterxml.jackson.databind.JsonNode> getAllActions(User user, String role);
 
     /**
      * DOCUMENT ME!
@@ -47,7 +47,7 @@ public interface ActionCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode getAction(User user, String actionKey, String role);
+    com.fasterxml.jackson.databind.JsonNode getAction(User user, String actionKey, String role);
 
     /**
      * DOCUMENT ME!
@@ -58,7 +58,7 @@ public interface ActionCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    List<ObjectNode> getAllTasks(User user, String actionKey, String role);
+    List<com.fasterxml.jackson.databind.JsonNode> getAllTasks(User user, String actionKey, String role);
 
     /**
      * DOCUMENT ME!
@@ -89,7 +89,7 @@ public interface ActionCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode createNewActionTask(User user,
+    com.fasterxml.jackson.databind.JsonNode createNewActionTask(User user,
             String actionKey,
             ActionTask body,
             String role,
@@ -106,7 +106,7 @@ public interface ActionCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ObjectNode getTask(User user, String actionKey, String taskKey, String role);
+    com.fasterxml.jackson.databind.JsonNode getTask(User user, String actionKey, String taskKey, String role);
 
     /**
      * DOCUMENT ME!

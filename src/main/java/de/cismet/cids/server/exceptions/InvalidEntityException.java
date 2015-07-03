@@ -7,7 +7,7 @@
 ****************************************************/
 package de.cismet.cids.server.exceptions;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.Getter;
 
@@ -22,7 +22,7 @@ public final class InvalidEntityException extends RuntimeException {
 
     //~ Instance fields --------------------------------------------------------
 
-    private final ObjectNode entity;
+    private final JsonNode entity;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -59,7 +59,7 @@ public final class InvalidEntityException extends RuntimeException {
      * @param  message  DOCUMENT ME!
      * @param  entity   DOCUMENT ME!
      */
-    public InvalidEntityException(final String message, final ObjectNode entity) {
+    public InvalidEntityException(final String message, final JsonNode entity) {
         this(message, null, entity);
     }
 
@@ -70,7 +70,7 @@ public final class InvalidEntityException extends RuntimeException {
      * @param  cause    DOCUMENT ME!
      * @param  entity   DOCUMENT ME!
      */
-    public InvalidEntityException(final String message, final Throwable cause, final ObjectNode entity) {
+    public InvalidEntityException(final String message, final Throwable cause, final JsonNode entity) {
         super(message, cause);
 
         this.entity = entity;

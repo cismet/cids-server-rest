@@ -7,7 +7,7 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response;
 
 import de.cismet.cids.server.api.tools.Tools;
 import de.cismet.cids.server.api.types.CollectionResource;
+import de.cismet.cids.server.api.types.GenericCollectionResource;
 import de.cismet.cids.server.api.types.User;
 import de.cismet.cids.server.data.RuntimeContainer;
 
@@ -113,8 +114,8 @@ public class NodesAPI extends APIBase {
         }
 
         if (domain.equalsIgnoreCase("local") || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> allRootNodes = RuntimeContainer.getServer().getNodeCore().getRootNodes(user, role);
-            final CollectionResource result = new CollectionResource(
+            final List<JsonNode> allRootNodes = RuntimeContainer.getServer().getNodeCore().getRootNodes(user, role);
+            final GenericCollectionResource<JsonNode> result = new GenericCollectionResource<JsonNode>(
                     "/nodes",
                     offset,
                     limit,
@@ -277,7 +278,7 @@ public class NodesAPI extends APIBase {
         }
 
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> childrenNodes = RuntimeContainer.getServer()
+            final List<JsonNode> childrenNodes = RuntimeContainer.getServer()
                         .getNodeCore()
                         .getChildrenByQuery(user, nodeQuery, role);
             final CollectionResource result = new CollectionResource(
@@ -371,7 +372,7 @@ public class NodesAPI extends APIBase {
         }
 
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> childrenNodes = RuntimeContainer.getServer()
+            final List<JsonNode> childrenNodes = RuntimeContainer.getServer()
                         .getNodeCore()
                         .getChildren(user, nodeKey, role);
             final CollectionResource result = new CollectionResource(

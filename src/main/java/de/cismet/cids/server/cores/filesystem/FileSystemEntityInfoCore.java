@@ -12,6 +12,7 @@
 package de.cismet.cids.server.cores.filesystem;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -57,7 +58,7 @@ public class FileSystemEntityInfoCore implements EntityInfoCore {
     }
 
     @Override
-    public List<ObjectNode> getAllClasses(final User user, final String role) {
+    public List<JsonNode> getAllClasses(final User user, final String role) {
         final File folder = new File(getBaseDir() + File.separator
                         + RuntimeContainer.getServer().getDomainName()
                         + File.separator + "entityinfo");
@@ -67,7 +68,7 @@ public class FileSystemEntityInfoCore implements EntityInfoCore {
                 BufferedInputStream bis = null;
                 try {
                     bis = new BufferedInputStream(new FileInputStream(fileEntry));
-                    final ObjectNode on = (ObjectNode)MAPPER.reader().readTree(bis);
+                    final JsonNode on = (JsonNode)MAPPER.reader().readTree(bis);
                     all.add(on);
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -80,14 +81,14 @@ public class FileSystemEntityInfoCore implements EntityInfoCore {
     }
 
     @Override
-    public ObjectNode getClass(final User user, final String classKey, final String role) {
+    public JsonNode getClass(final User user, final String classKey, final String role) {
         BufferedInputStream bis = null;
         try {
             final File fileEntry = new File(getBaseDir() + File.separator
                             + RuntimeContainer.getServer().getDomainName()
                             + File.separator + "entityinfo" + File.separator + classKey + ".json");
             bis = new BufferedInputStream(new FileInputStream(fileEntry));
-            return (ObjectNode)MAPPER.reader().readTree(bis);
+            return MAPPER.reader().readTree(bis);
         } catch (IOException ex) {
             throw new IllegalStateException("cannot read entity info", ex);
         } finally {
@@ -96,20 +97,20 @@ public class FileSystemEntityInfoCore implements EntityInfoCore {
     }
 
     @Override
-    public ObjectNode getAttribute(final User user,
+    public JsonNode getAttribute(final User user,
             final String classKey,
             final String attributeKey,
             final String role) {
         try {
-            final ObjectNode whole = getClass(user, classKey, role);
-            return (ObjectNode)((ObjectNode)whole.get("attributes")).get(attributeKey);
+            final JsonNode whole = getClass(user, classKey, role);
+            return ((ObjectNode)whole.get("attributes")).get(attributeKey);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
 
     @Override
-    public ObjectNode emptyInstance(final User user, final String classKey, final String role) {
+    public JsonNode emptyInstance(final User user, final String classKey, final String role) {
         throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
                                                                        // Tools | Templates.
     }

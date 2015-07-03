@@ -7,7 +7,7 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -16,6 +16,8 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
 import com.wordnik.swagger.core.ApiParam;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.openide.util.Lookup;
 
@@ -62,6 +64,7 @@ import de.cismet.cids.server.trigger.EntityCoreAwareCidsTrigger;
 )
 @Produces("application/json")
 @Path("/")
+@Slf4j
 public class EntitiesAPI extends APIBase {
 
     //~ Instance fields --------------------------------------------------------
@@ -513,11 +516,11 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            ObjectNode body = null;
+            com.fasterxml.jackson.databind.JsonNode body = null;
             try {
-                body = (ObjectNode)MAPPER.readTree(jsonBody);
+                body = (com.fasterxml.jackson.databind.JsonNode)MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
-                // ProblemHandling
+                log.error(ex.getMessage(), ex);
             }
             final Collection<CidsTrigger> rightTriggers = getRightTriggers(domain, classKey);
             final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
@@ -616,11 +619,12 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            ObjectNode body = null;
+            JsonNode body = null;
             try {
-                body = (ObjectNode)MAPPER.readTree(jsonBody);
+                body = (JsonNode)MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
                 // ProblemHandling
+                log.error(ex.getMessage(), ex);
             }
             final Collection<CidsTrigger> rightTriggers = getRightTriggers(domain, classKey);
             final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
@@ -728,11 +732,11 @@ public class EntitiesAPI extends APIBase {
                 }
                 ct.beforeInsert(jsonBody, user);
             }
-            ObjectNode body = null;
+            JsonNode body = null;
             try {
-                body = (ObjectNode)MAPPER.readTree(jsonBody);
+                body = (JsonNode)MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
-                // ProblemHandling
+                log.error(ex.getMessage(), ex);
             }
             final Response r = Response.status(Response.Status.CREATED)
                         .header("Location", getLocation())
@@ -850,7 +854,7 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final ObjectNode result = RuntimeContainer.getServer()
+            final JsonNode result = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
                         .getObject(
                             user,

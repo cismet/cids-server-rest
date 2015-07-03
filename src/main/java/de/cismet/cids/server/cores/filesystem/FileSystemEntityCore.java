@@ -104,7 +104,7 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public List<ObjectNode> getAllObjects(@NonNull final User user,
+    public List<JsonNode> getAllObjects(@NonNull final User user,
             @NonNull final String classKey,
             @NonNull final String role,
             final int limit,
@@ -250,7 +250,7 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @throws  IllegalStateException  UnsupportedOperationException DOCUMENT ME!
      */
-    private List<ObjectNode> collectObjs(final String classKey,
+    private List<JsonNode> collectObjs(final String classKey,
             final int limit,
             final int offset,
             final Collection<String> expandFields,
@@ -264,14 +264,14 @@ public class FileSystemEntityCore implements EntityCore {
         assert includeFields != null;
         assert filter != null;
 
-        final List<ObjectNode> result = doCollectObjs(classKey, limit, offset, filter);
+        final List<JsonNode> result = doCollectObjs(classKey, limit, offset, filter);
 
         if (level > 0) {
             final Map<String, ObjectNode> cache = new HashMap<String, ObjectNode>();
 
             for (int i = 0; i < result.size(); ++i) {
                 final String ref = result.get(i).get("$ref").asText();                 // NOI18N
-                final ObjectNode expanded = readObj(
+                final JsonNode expanded = readObj(
                         ref,
                         expandFields,
                         includeFields,
@@ -308,7 +308,7 @@ public class FileSystemEntityCore implements EntityCore {
 
         if (!filter.isEmpty()) {
             @SuppressWarnings("unchecked")
-            final ObjectNode obj = readObj(
+            final JsonNode obj = readObj(
                     ref,
                     Collections.EMPTY_LIST,
                     Collections.EMPTY_LIST,
@@ -317,13 +317,13 @@ public class FileSystemEntityCore implements EntityCore {
                     false,
                     new HashMap<String, ObjectNode>(1, 1f));
 
-            final Map<String, ObjectNode> cache = new HashMap<String, ObjectNode>();
+            final Map<String, JsonNode> cache = new HashMap<String, JsonNode>();
             cache.put(ref, obj);
 
             final Iterator<String[]> it = filter.keySet().iterator();
             while (include && it.hasNext()) {
                 final String[] plist = it.next();
-                ObjectNode current = obj;
+                JsonNode current = obj;
                 for (int i = 0; (i < plist.length) && include; ++i) {
                     final JsonNode n = current.get(plist[i]);
 
@@ -393,7 +393,7 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @return  DOCUMENT ME!
      */
-    private List<ObjectNode> doCollectObjs(final String classKey,
+    private List<JsonNode> doCollectObjs(final String classKey,
             final int limit,
             final int offset,
             final Map<String[], Pattern> filter) {
@@ -434,7 +434,7 @@ public class FileSystemEntityCore implements EntityCore {
 
         final int end = _offset + elements;
 
-        final List<ObjectNode> result = new ArrayList<ObjectNode>(elements);
+        final List<JsonNode> result = new ArrayList<JsonNode>(elements);
         for (int i = _offset; i < end; ++i) {
             final String objId = objFiles[i].getName();
             final String ref = buildRef(classKey, objId);
@@ -450,10 +450,10 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public ObjectNode updateObject(final User user,
+    public JsonNode updateObject(final User user,
             final String classKey,
             final String objectId,
-            final ObjectNode jsonObject,
+            final JsonNode jsonObject,
             final String role,
             final boolean requestResultingInstance) {
         // FIXME: what is the difference between update and create (except that update usually only works for existing
@@ -465,16 +465,16 @@ public class FileSystemEntityCore implements EntityCore {
     public ObjectNode patchObject(final User user,
             final String classKey,
             final String objectId,
-            final ObjectNode jsonObject,
+            final JsonNode jsonObject,
             final String role) {
         throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
                                                                        // Tools | Templates.
     }
 
     @Override
-    public ObjectNode createObject(@NonNull final User user,
+    public JsonNode createObject(@NonNull final User user,
             @NonNull final String classKey,
-            @NonNull final ObjectNode jsonObject,
+            @NonNull final JsonNode jsonObject,
             @NonNull final String role,
             final boolean requestResultingInstance) {
         if (!user.isValidated()) {
@@ -516,7 +516,7 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @throws  InvalidEntityException  DOCUMENT ME!
      */
-    private void writeObj(final ObjectNode obj, final Set<String> selfs) throws InvalidEntityException {
+    private void writeObj(final JsonNode obj, final Set<String> selfs) throws InvalidEntityException {
         assert obj != null;
 
         final JsonNode selfNode = obj.get("$self");                                                     // NOI18N
@@ -532,8 +532,12 @@ public class FileSystemEntityCore implements EntityCore {
             final Entry<String, JsonNode> e = it.next();
             final JsonNode node = e.getValue();
             if (node.isObject()) {
-                final ObjectNode subObj = handleObj((ObjectNode)node, selfs);
-                obj.replace(e.getKey(), subObj);
+                final JsonNode subObj = handleObj((ObjectNode)node, selfs);
+                if (obj.isObject()) {
+                    ((ObjectNode)obj).replace(e.getKey(), subObj);
+                } else {
+                    log.error("writeObj: expected object node instead of json node: " + obj);
+                }
             } else if (node.isArray()) {
                 handleArray((ArrayNode)node, selfs);
             }
@@ -554,12 +558,12 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @throws  IllegalStateException  DOCUMENT ME!
      */
-    private void mergeObj(final ObjectNode obj) {
+    private void mergeObj(final JsonNode obj) {
         assert obj != null;
 
         final String ref = obj.get("$self").asText(); // NOI18N
         @SuppressWarnings("unchecked")
-        final ObjectNode mergeObj = readObj(
+        final JsonNode mergeObj = readObj(
                 ref,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
@@ -575,8 +579,8 @@ public class FileSystemEntityCore implements EntityCore {
         final Iterator<Entry<String, JsonNode>> it = mergeObj.fields();
         while (it.hasNext()) {
             final Entry<String, JsonNode> entry = it.next();
-            if (!obj.has(entry.getKey())) {
-                obj.put(entry.getKey(), entry.getValue());
+            if (obj.isObject() && !obj.has(entry.getKey())) {
+                ((ObjectNode)obj).put(entry.getKey(), entry.getValue());
             }
         }
     }
@@ -588,7 +592,7 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @throws  IllegalStateException  DOCUMENT ME!
      */
-    private void doWriteObj(final ObjectNode obj) {
+    private void doWriteObj(final JsonNode obj) {
         assert obj != null;
 
         final String objPath = buildObjPath(obj.get("$self").asText()); // NOI18N
@@ -689,7 +693,7 @@ public class FileSystemEntityCore implements EntityCore {
             if (sub.isArray()) {
                 handleArray((ArrayNode)sub, selfs);
             } else if (sub.isObject()) {
-                final ObjectNode subObj = handleObj((ObjectNode)sub, selfs);
+                final JsonNode subObj = handleObj((ObjectNode)sub, selfs);
                 arrNode.set(i, subObj);
             }
         }
@@ -882,7 +886,7 @@ public class FileSystemEntityCore implements EntityCore {
 
                         // in case of deduplicate we keep the simple ref object if it has already been read
                         if (!deduplicate || (cache.get(subRef) == null)) {
-                            final ObjectNode subObj = readObj(
+                            final JsonNode subObj = readObj(
                                     subRef,
                                     expandFields,
                                     includeFields,
@@ -936,7 +940,7 @@ public class FileSystemEntityCore implements EntityCore {
             } else if (sub.isObject()) {
                 // $ref has to be present, otherwise data is corrupted
                 final String subRef = sub.get("$ref").asText(); // NOI18N
-                final ObjectNode subObj = readObj(
+                final JsonNode subObj = readObj(
                         subRef,
                         expandFields,
                         includeFields,
@@ -1124,7 +1128,7 @@ public class FileSystemEntityCore implements EntityCore {
      * Returns the parsed class name from the $self or $ref properties of the
      * object or throws an error, if the properties are not found or invalid.
      */
-    public String getClassKey(final ObjectNode jsonObject) {
+    public String getClassKey(final JsonNode jsonObject) {
         if (jsonObject.hasNonNull("$self")) {
             final Matcher matcher = CLASSKEY_PATTERN.matcher(jsonObject.get("$self").asText());
             if (matcher.find()) {
@@ -1149,7 +1153,7 @@ public class FileSystemEntityCore implements EntityCore {
      * Returns the value of the object property 'id' or tries to extract the id
      * from the $self or $ref properties. Returns -1 if no id is found.
      */
-    public String getObjectId(final ObjectNode jsonObject) {
+    public String getObjectId(final JsonNode jsonObject) {
         if (jsonObject.hasNonNull("id")) {
             return jsonObject.get("id").asText();
         } else if (jsonObject.hasNonNull("$self")) {

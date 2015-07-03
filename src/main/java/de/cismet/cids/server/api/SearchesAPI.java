@@ -7,12 +7,11 @@
 ****************************************************/
 package de.cismet.cids.server.api;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import com.sun.jersey.multipart.FormDataParam;
 
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
@@ -29,7 +28,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -286,7 +284,7 @@ public class SearchesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List<ObjectNode> allActions = RuntimeContainer.getServer()
+            final List<JsonNode> allActions = RuntimeContainer.getServer()
                         .getSearchCore()
                         .executeSearch(user, searchKey, params.getList(), limit, offset, role);
             final CollectionResource result = new CollectionResource(
