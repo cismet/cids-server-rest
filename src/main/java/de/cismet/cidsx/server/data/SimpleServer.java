@@ -12,16 +12,22 @@
  */
 package de.cismet.cidsx.server.data;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import de.cismet.cidsx.server.cores.ActionCore;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.cores.EntityInfoCore;
+import de.cismet.cidsx.server.cores.InfrastructureCore;
 import de.cismet.cidsx.server.cores.NodeCore;
 import de.cismet.cidsx.server.cores.PermissionCore;
 import de.cismet.cidsx.server.cores.SearchCore;
 import de.cismet.cidsx.server.cores.UserCore;
+import de.cismet.cidsx.server.cores.builtin.DefaultInfrastructureCore;
 import de.cismet.cidsx.server.cores.noop.NoOpActionCore;
 import de.cismet.cidsx.server.cores.noop.NoOpEntityInfoCore;
 import de.cismet.cidsx.server.cores.noop.NoOpNodeCore;
@@ -36,6 +42,7 @@ import de.cismet.cidsx.server.data.unused.CustomAttributeCore;
  */
 @lombok.Getter
 @lombok.Setter
+@Slf4j
 public class SimpleServer implements Server {
 
     //~ Instance fields --------------------------------------------------------
@@ -48,6 +55,7 @@ public class SimpleServer implements Server {
     ActionCore actionCore = new NoOpActionCore();
     SearchCore searchCore = new NoOpSearchCore();
     UserCore userCore;
+    InfrastructureCore infrastructureCore = new DefaultInfrastructureCore();
     String domainName;
     String registry;
 
@@ -80,6 +88,53 @@ public class SimpleServer implements Server {
             setSearchCore((SearchCore)core);
         } else if (core instanceof UserCore) {
             setUserCore((UserCore)core);
+        } else if (core instanceof InfrastructureCore) {
+            setInfrastructureCore((InfrastructureCore)core);
+        } else {
+            log.warn("unsupported coids server core: '" + core.getCoreKey() + "'");
         }
+    }
+
+    @Override
+    public List<CidsServerCore> getActiveCores() {
+        final List<CidsServerCore> activeCores = new LinkedList<CidsServerCore>();
+
+        if (this.actionCore != null) {
+            activeCores.add(this.actionCore);
+        }
+
+        if (this.customAttributeCore != null) {
+            activeCores.add(this.customAttributeCore);
+        }
+
+        if ((this.entityCores != null) && !this.entityCores.isEmpty()) {
+            activeCores.addAll(this.entityCores.values());
+        }
+
+        if (this.entityInfoCore != null) {
+            activeCores.add(this.entityInfoCore);
+        }
+
+        if (this.infrastructureCore != null) {
+            activeCores.add(this.infrastructureCore);
+        }
+
+        if (this.nodeCore != null) {
+            activeCores.add(this.nodeCore);
+        }
+
+        if (this.permissionCore != null) {
+            activeCores.add(this.permissionCore);
+        }
+
+        if (this.searchCore != null) {
+            activeCores.add(this.searchCore);
+        }
+
+        if (this.userCore != null) {
+            activeCores.add(this.userCore);
+        }
+
+        return activeCores;
     }
 }

@@ -12,6 +12,8 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
@@ -31,6 +33,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import de.cismet.cidsx.server.data.CidsServerInfo;
@@ -42,14 +45,16 @@ import de.cismet.cidsx.server.data.CidsServerInfo;
  * @version  1.0
  */
 @Path("/")
+@Slf4j
 public class RestRegistry {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    static Map<String, CidsServerInfo> dns = new HashMap<String, CidsServerInfo>();
+    public static final String REGISTRY = "registry";
+    static final Map<String, CidsServerInfo> dns = new HashMap<String, CidsServerInfo>();
 
     static {
-        dns.put("registry", new CidsServerInfo("registry", "http://localhost:8888"));
+        dns.put(REGISTRY, new CidsServerInfo(REGISTRY, "http://localhost:8888"));
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -68,7 +73,9 @@ public class RestRegistry {
         if (dns.size() > 0) {
             return new ArrayList<CidsServerInfo>(dns.values());
         } else {
-            throw new WebApplicationException(Response.status(Response.Status.NO_CONTENT).build());
+            log.error("server list ist empty");
+            throw new WebApplicationException(Response.status(Response.Status.NO_CONTENT).entity(
+                    "server list ist empty").type(MediaType.TEXT_PLAIN).build());
         }
     }
 
@@ -86,6 +93,9 @@ public class RestRegistry {
     public Response addServer(final CidsServerInfo server) {
         dns.put(server.getName(), server);
         System.out.println(dns);
+        if (log.isDebugEnabled()) {
+            log.debug("new server added: " + dns);
+        }
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
@@ -112,13 +122,18 @@ public class RestRegistry {
                 try {
                     return validateServer(server);
                 } catch (WebApplicationException wae) {
+                    log.error("could not validate server '" + servername + "': "
+                                + wae.getMessage(), wae);
                     dns.remove(servername);
                     throw wae;
                 }
             }
             return server;
         } else {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build());
+            final String message = "server '" + servername + "' not registered";
+            log.error(message);
+            throw new WebApplicationException(
+                Response.status(Response.Status.NOT_FOUND).entity(message).type(MediaType.TEXT_PLAIN).build());
         }
     }
 
@@ -136,14 +151,20 @@ public class RestRegistry {
             final Client c = Client.create();
             final WebResource r = c.resource(server.getUri());
             final ClientResponse cr = r.head();
-            if (cr.getClientResponseStatus().equals(ClientResponse.Status.OK)) {
+            if (cr.getClientResponseStatus().equals(ClientResponse.Status.OK)
+                        || cr.getClientResponseStatus().equals(ClientResponse.Status.ACCEPTED)) {
                 return server;
+            } else {
+                log.error("could not connect to server '" + server.getUri()
+                            + "': " + cr.getClientResponseStatus());
             }
         } catch (RuntimeException e) {
+            log.error(e.getMessage(), e);
             throw e;
-//            e.printStackTrace();
         }
-        throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).build());
+        final String message = "could not connect to server '" + server.getUri() + "'";
+        throw new WebApplicationException(Response.status(
+                Response.Status.SERVICE_UNAVAILABLE).entity(message).type(MediaType.TEXT_PLAIN).build());
     }
 
     /**
@@ -160,7 +181,9 @@ public class RestRegistry {
         if (removed != null) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            final String message = "could not remove server. server '" + servername + "' not found.";
+            log.error(message);
+            return Response.status(Response.Status.NOT_FOUND).entity(message).type(MediaType.TEXT_PLAIN).build();
         }
     }
 
@@ -184,6 +207,7 @@ public class RestRegistry {
         final Context context = new Context(server, "/", Context.SESSIONS);
         context.addServlet(sh, "/*");
         server.start();
+        log.info("REST Registry available at: " + dns.get(REGISTRY).getUri());
         System.in.read();
         server.setStopAtShutdown(true);
         System.exit(0);

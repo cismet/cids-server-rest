@@ -28,6 +28,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -128,6 +129,7 @@ public class NodesAPI extends APIBase {
         } else if (domain.equalsIgnoreCase("all")) {
             // Iterate through all domains and delegate an dcombine the result
             return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .type(MediaType.TEXT_PLAIN)
                         .entity("Parameter domain=all not supported yet.")
                         .build();
         } else {

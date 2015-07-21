@@ -34,14 +34,15 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import de.cismet.cidsx.server.api.ServerConstants;
+import de.cismet.cidsx.server.api.types.ServerStatus;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.data.SimpleServer;
+import de.cismet.cidsx.server.data.StatusHolder;
 
 /**
  * DOCUMENT ME!
@@ -201,7 +202,14 @@ public class Starter {
             final SimpleServer cidsCoreHolder = new SimpleServer();
             if (standalone) {
                 cidsCoreHolder.setRegistry(ServerConstants.STANDALONE);
+                StatusHolder.getInstance().putStatus("standalone", "true");
+            } else {
+                StatusHolder.getInstance().putStatus("standalone", "false");
             }
+
+            StatusHolder.getInstance().putStatus("registry", cidsCoreHolder.getRegistry());
+            StatusHolder.getInstance().putStatus("sslEnabled", String.valueOf(!this.sslDebug));
+
             cidsCoreHolder.setDomainName(domainName);
 
             for (final CidsServerCore core : cores) {
@@ -211,6 +219,15 @@ public class Starter {
                     System.out.println(core.getCoreKey() + " activated");
                 }
             }
+
+            final List<CidsServerCore> activeCores = cidsCoreHolder.getActiveCores();
+            final List<String> activeCoreKeys = new LinkedList<String>();
+            for (final CidsServerCore activeCore : activeCores) {
+                activeCoreKeys.add(activeCore.getCoreKey());
+            }
+
+            final ServerStatus activeCoresStatus = new ServerStatus("activeCores", activeCoreKeys);
+            StatusHolder.getInstance().putStatus(activeCoresStatus);
 
             argProviders.addAll(activeModules);
 
@@ -263,13 +280,19 @@ public class Starter {
                 });
 
             server.setHandlers(contexts.getHandlers());
-            server.setConnectors(new Connector[] { getConnector() });
+
+            final Connector connector = getConnector();
+            server.setConnectors(new Connector[] { connector });
+            StatusHolder.getInstance().putStatus("connector", connector.getName());
 
             server.start();
+            StatusHolder.getInstance().putStatus("serverStart", String.valueOf(System.currentTimeMillis()));
 
             if (!interactive) {
                 System.out.println("Server running non-interactive, use 'kill' to shutdown.");
+                StatusHolder.getInstance().putStatus("startupMode", "non-interactive");
             } else {
+                StatusHolder.getInstance().putStatus("startupMode", "interactive");
                 try {
                     System.out.println("\n\nServer started. Hit enter to shutdown.");
                     System.in.read();
@@ -280,6 +303,7 @@ public class Starter {
                 }
             }
         } catch (final Throwable t) {
+            log.error(t.getMessage(), t);
             t.printStackTrace();
             if (server != null) {
                 server.setStopAtShutdown(true);

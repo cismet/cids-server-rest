@@ -10,6 +10,8 @@ package de.cismet.cidsx.server.api.tools;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -32,6 +35,7 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
+@Slf4j
 public class Tools {
 
     //~ Constructors -----------------------------------------------------------
@@ -75,21 +79,32 @@ public class Tools {
      * @param   domain  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  WebApplicationException  DOCUMENT ME!
      */
     public static WebResource getDomainWebResource(final String domain) {
-        if (RuntimeContainer.getServer().getRegistry().equals(ServerConstants.STANDALONE)) {
+        if (!RuntimeContainer.getServer().getRegistry().equals(ServerConstants.STANDALONE)) {
             final WebResource registryLookup = RuntimeContainer.getClient()
                         .resource(RuntimeContainer.getServer().getRegistry());
             final ClientResponse response = registryLookup.path(domain.toLowerCase())
                         .type(MediaType.APPLICATION_JSON)
                         .get(ClientResponse.class);
-            final int status = response.getStatus();
-            // TODO: status check
-            final CidsServerInfo csiRegistryLookup = response.getEntity(CidsServerInfo.class);
-
-            return RuntimeContainer.getClient().resource(csiRegistryLookup.getUri());
+            final ClientResponse.Status status = response.getClientResponseStatus();
+            if (status.equals(ClientResponse.Status.OK)
+                        || status.equals(ClientResponse.Status.ACCEPTED)) {
+                final CidsServerInfo csiRegistryLookup = response.getEntity(CidsServerInfo.class);
+                return RuntimeContainer.getClient().resource(csiRegistryLookup.getUri());
+            } else {
+                final String message = "domain '" + domain + "' not found in service registry";
+                log.error(message);
+                throw new WebApplicationException(Response.status(
+                        Response.Status.SERVICE_UNAVAILABLE).entity(message).type(MediaType.TEXT_PLAIN).build());
+            }
         } else {
-            return null;
+            final String message = "server is standalone, cannot ask registry for domain '" + domain + "'";
+            log.error(message);
+            throw new WebApplicationException(Response.status(
+                    Response.Status.SERVICE_UNAVAILABLE).entity(message).type(MediaType.TEXT_PLAIN).build());
         }
     }
 

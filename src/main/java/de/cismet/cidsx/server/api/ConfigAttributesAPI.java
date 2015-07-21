@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -59,7 +60,7 @@ public class ConfigAttributesAPI {
             )
             @QueryParam("role")
             final String role) {
-        return Response.status(Status.SERVICE_UNAVAILABLE).build();
+        return Response.status(Status.SERVICE_UNAVAILABLE).type(MediaType.TEXT_PLAIN).build();
     }
 
     /**
@@ -85,6 +86,6 @@ public class ConfigAttributesAPI {
             )
             @QueryParam("role")
             final String role) {
-        return Response.status(Status.SERVICE_UNAVAILABLE).build();
+        return Response.status(Status.SERVICE_UNAVAILABLE).type(MediaType.TEXT_PLAIN).build();
     }
 }

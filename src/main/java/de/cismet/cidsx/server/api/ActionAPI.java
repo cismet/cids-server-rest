@@ -138,6 +138,7 @@ public class ActionAPI extends APIBase {
             // Iterate through all domains and delegate an dcombine the result
             return Response.status(Response.Status.SERVICE_UNAVAILABLE)
                         .entity("Parameter domain=all not supported yet.")
+                        .type(MediaType.TEXT_PLAIN)
                         .build();
         } else {
             // domain contains a single domain name that is not the local domain

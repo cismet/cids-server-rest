@@ -7,9 +7,13 @@
 ****************************************************/
 package de.cismet.cidsx.server.data;
 
+import java.util.List;
+
 import de.cismet.cidsx.server.cores.ActionCore;
+import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.cores.EntityInfoCore;
+import de.cismet.cidsx.server.cores.InfrastructureCore;
 import de.cismet.cidsx.server.cores.NodeCore;
 import de.cismet.cidsx.server.cores.PermissionCore;
 import de.cismet.cidsx.server.cores.SearchCore;
@@ -77,6 +81,14 @@ public interface Server {
      * @return  DOCUMENT ME!
      */
     UserCore getUserCore();
+
+    /**
+     * Returns the active InfrastructureCore implementation.
+     *
+     * @return  Object implementing the InfrastructureCore interface
+     */
+    InfrastructureCore getInfrastructureCore();
+
     /**
      * DOCUMENT ME!
      *
@@ -89,4 +101,11 @@ public interface Server {
      * @return  DOCUMENT ME!
      */
     String getRegistry();
+
+    /**
+     * Enumerates all active cores of this server instance.
+     *
+     * @return  active server cores
+     */
+    List<CidsServerCore> getActiveCores();
 }
