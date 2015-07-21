@@ -24,6 +24,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -126,9 +127,10 @@ public class ClassesAPI extends APIBase {
                     allLocalClasses);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else if (domain.equalsIgnoreCase("all")) {
-            // Iterate through all domains and delegate an dcombine the result
+            // Iterate through all domains and delegate and combine the result
             return Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity("Parameter domain=all not supported yet.")
+                        .entity("Parameter domain=all not supported yet!")
+                        .type(MediaType.TEXT_PLAIN)
                         .build();
         } else {
             // domain contains a single domain name that is not the local domain

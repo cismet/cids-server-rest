@@ -7,11 +7,13 @@
 ****************************************************/
 package de.cismet.cidsx.server.data.unused;
 
+import de.cismet.cidsx.server.cores.CidsServerCore;
+
 /**
  * DOCUMENT ME!
  *
  * @author   thorsten
  * @version  1.0
  */
-public interface CustomAttributeCore {
+public interface CustomAttributeCore extends CidsServerCore {
 }
