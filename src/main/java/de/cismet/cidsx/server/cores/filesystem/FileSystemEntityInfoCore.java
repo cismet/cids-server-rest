@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.IOUtils;
 
 import org.openide.util.lookup.ServiceProvider;
@@ -27,6 +29,8 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.ws.rs.core.MediaType;
 
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
@@ -40,6 +44,7 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
  * @version  $Revision$, $Date$
  */
 @ServiceProvider(service = CidsServerCore.class)
+@Slf4j
 public class FileSystemEntityInfoCore implements EntityInfoCore {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -111,11 +116,23 @@ public class FileSystemEntityInfoCore implements EntityInfoCore {
 
     @Override
     public JsonNode emptyInstance(final User user, final String classKey, final String role) {
-        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
-                                                                       // Tools | Templates.
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new UnsupportedOperationException(message);
     }
     @Override
     public String getCoreKey() {
         return "core.fs.entityInfo"; // NOI18N
+    }
+
+    @Override
+    public byte[] getIcon(final MediaType mediaType, final User user, final String classKey, final String role) {
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new UnsupportedOperationException(message);
     }
 }

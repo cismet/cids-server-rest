@@ -10,11 +10,16 @@ package de.cismet.cidsx.server.api;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
 import com.wordnik.swagger.core.ApiParam;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -23,31 +28,20 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Variant;
+
+import de.cismet.cidsx.base.types.MediaTypes;
 
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import javax.imageio.ImageIO;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.Variant;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
+import de.cismet.cidsx.server.exceptions.CidsServerException;
 
 /**
  * DOCUMENT ME!
@@ -64,6 +58,17 @@ import org.apache.commons.io.IOUtils;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ClassesAPI extends APIBase {
+
+    //~ Instance fields --------------------------------------------------------
+
+    protected final List<Variant> cidsIconVariants = Variant.mediaTypes(
+                new MediaType[] {
+                    MediaTypes.IMAGE_PNG_TYPE,
+                    MediaTypes.APPLICATION_X_CIDS_CLASS_ICON_TYPE,
+                    MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON_TYPE
+                })
+                .add()
+                .build();
 
     //~ Methods ----------------------------------------------------------------
 
@@ -127,7 +132,8 @@ public class ClassesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
 
-        if (domain.equalsIgnoreCase("local") || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+        if (ServerConstants.LOCAL_DOMAIN.equalsIgnoreCase(domain)
+                    || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             final List<com.fasterxml.jackson.databind.JsonNode> allLocalClasses = RuntimeContainer.getServer()
                         .getEntityInfoCore()
                         .getAllClasses(user, role);
@@ -142,7 +148,7 @@ public class ClassesAPI extends APIBase {
                     "not available",
                     allLocalClasses);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
-        } else if (domain.equalsIgnoreCase("all")) {
+        } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
             // Iterate through all domains and delegate and combine the result
             return Response.status(Response.Status.SERVICE_UNAVAILABLE)
                         .entity("Parameter domain=all not supported yet!")
@@ -171,6 +177,8 @@ public class ClassesAPI extends APIBase {
      * @param   authString  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  CidsServerException  DOCUMENT ME!
      */
     @Path("/{domain}.{classkey}")
     @GET
@@ -209,11 +217,17 @@ public class ClassesAPI extends APIBase {
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
-        if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+        if (ServerConstants.LOCAL_DOMAIN.equalsIgnoreCase(domain)
+                    || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityInfoCore().getClass(user, classKey, role))
                         .build();
+        } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
+            final String message = "domain 'all' is not supported by this web service operation";
+            log.error(message);
+            throw new CidsServerException(message, message,
+                HttpServletResponse.SC_BAD_REQUEST);
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
@@ -227,18 +241,21 @@ public class ClassesAPI extends APIBase {
             return Response.status(Response.Status.OK).entity(crDelegateCall.getEntity(String.class)).build();
         }
     }
-    
+
     /**
-     * 
      * <strong>Example</strong>:<br>
-     * <code>curl -H "Accept: image/png" -H "Content-Type: image/png" http://localhost:8890/classes/cids.egal -o defaultClassIcon.png</code>
-     * 
-     * @param domain
-     * @param classKey
-     * @param role
-     * @param authString
-     * @param request
-     * @return 
+     * <code>curl -H "Accept: image/png" -H "Content-Type: image/png" http://localhost:8890/classes/cids.egal -o
+     * defaultClassIcon.png</code>
+     *
+     * @param   domain      DOCUMENT ME!
+     * @param   classKey    DOCUMENT ME!
+     * @param   role        DOCUMENT ME!
+     * @param   authString  DOCUMENT ME!
+     * @param   request     DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  CidsServerException  DOCUMENT ME!
      */
     @Path("/{domain}.{classkey}")
     @GET
@@ -246,7 +263,13 @@ public class ClassesAPI extends APIBase {
         value = "Get a certain class icon.",
         notes = "-"
     )
-    @Produces({"image/png", "application/x-cids-class-icon", "application/x-cids-object-icon"})
+    @Produces(
+        {
+            MediaTypes.IMAGE_PNG,
+            MediaTypes.APPLICATION_X_CIDS_CLASS_ICON,
+            MediaTypes.APPLICATION_X_JAVA_SERIALIZED_OBJECT
+        }
+    )
     public Response getClassIcon(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -273,75 +296,63 @@ public class ClassesAPI extends APIBase {
             )
             @HeaderParam("Authorization")
             final String authString,
-            @Context 
-                    Request request){
-        try {
-            final User user = Tools.validationHelper(authString);
-            if (Tools.canHazUserProblems(user)) {
-                return Tools.getUserProblemResponse();
+            @Context final Request request) {
+        final User user = Tools.validationHelper(authString);
+        if (Tools.canHazUserProblems(user)) {
+            return Tools.getUserProblemResponse();
+        }
+
+        if (ServerConstants.LOCAL_DOMAIN.equalsIgnoreCase(domain)
+                    || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+            final Variant acceptedVariant = request.selectVariant(cidsIconVariants);
+            final MediaType acceptedMediaType;
+            if (acceptedVariant == null) {
+                log.warn("client did not provide a supported mime type, returning '"
+                            + MediaTypes.IMAGE_PNG + "' by default");
+                acceptedMediaType = MediaTypes.IMAGE_PNG_TYPE;
+            } else {
+                acceptedMediaType = acceptedVariant.getMediaType();
             }
-            
-            StreamingOutput SO = new StreamingOutput(){
 
-                @Override
-                public void write(OutputStream output) throws IOException, WebApplicationException {
-                   
-                    BufferedImage BI = ImageIO.read(new File("D:\\work\\temp\\image.png"));
-                    ImageIO.write(BI, "png", output);
-                    output.flush();
-                    output.close();
-                }
-            };
-            
-            
-            
-                    
-            MediaType types[] = {
-                MediaType.valueOf("image/png"), 
-                MediaType.valueOf("application/x-cids-class-icon"), 
-                MediaType.valueOf("application/x-cids-object-icon")
-            };
-            List<Variant> vars = Variant
-              .mediaTypes(types)
-              .add()
-              .build();
-            
-            Variant v = request.selectVariant(vars);
-            
-            java.nio.file.Path path = Paths.get(URI.create("file:/D:/work/temp/image.png"));
-            
-            
-            v.getMediaType().equals(MediaType.valueOf("image/png"));
-            
-            String contenType = Files.probeContentType(path);
-            log.info(contenType);
-            InputStream inStream = Files.newInputStream(path);
-            
+            return Response.status(Response.Status.OK)
+                        .header("Location", getLocation())
+                        .entity(RuntimeContainer.getServer().getEntityInfoCore().getIcon(
+                                    acceptedMediaType,
+                                    user,
+                                    classKey,
+                                    role))
+                        .type(acceptedMediaType)
+                        .build();
+        } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
+            final String message = "domain 'all' is not supported by this web service operation";
+            log.error(message);
+            throw new CidsServerException(message, message,
+                HttpServletResponse.SC_BAD_REQUEST);
+        } else {
+            final Variant acceptedVariant = request.selectVariant(cidsIconVariants);
+            final MediaType acceptedMediaType;
+            if (acceptedVariant == null) {
+                log.warn("client did not provide a supported mime type, returning '"
+                            + MediaTypes.IMAGE_PNG + "' by default");
+                acceptedMediaType = MediaTypes.IMAGE_PNG_TYPE;
+            } else {
+                acceptedMediaType = acceptedVariant.getMediaType();
+            }
 
-            return Response.status(Response.Status.OK).entity(SO).type(contenType).build();
-            
-
-//                    if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-//                        return Response.status(Response.Status.OK)
-//                                .header("Location", getLocation())
-//                                .entity(RuntimeContainer.getServer().getEntityInfoCore().getClass(user, classKey, role))
-//                                .build();
-//                    } else {
-//                        final WebResource delegateCall = Tools.getDomainWebResource(domain);
-//                        final MultivaluedMap queryParams = new MultivaluedMapImpl();
-//                        queryParams.add("domain", domain);
-//                        queryParams.add("role", role);
-//                        final ClientResponse crDelegateCall = delegateCall.queryParams(queryParams)
-//                                .path("/entities/classes")
-//                                .path(domain + "." + classKey)
-//                                .header("Authorization", authString)
-//                                .get(ClientResponse.class);
-//                        return Response.status(Response.Status.OK).entity(crDelegateCall.getEntity(String.class)).build();
-//                    }
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(ex).type(MediaType.TEXT_HTML).build();
+            final WebResource delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            queryParams.add("domain", domain);
+            queryParams.add("role", role);
+            final ClientResponse crDelegateCall = delegateCall.queryParams(queryParams)
+                        .path("/entities/classes")
+                        .path(domain + "." + classKey)
+                        .header("Authorization", authString)
+                        .accept(acceptedMediaType)
+                        .get(ClientResponse.class);
+            return Response.status(Response.Status.OK)
+                        .entity(crDelegateCall.getEntity(byte[].class))
+                        .type(acceptedMediaType)
+                        .build();
         }
     }
 
@@ -355,6 +366,8 @@ public class ClassesAPI extends APIBase {
      * @param   authString    DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  CidsServerException  DOCUMENT ME!
      */
     @Path("/{domain}.{classkey}/{attributekey}")
     @GET
@@ -399,7 +412,8 @@ public class ClassesAPI extends APIBase {
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
-        if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+        if (ServerConstants.LOCAL_DOMAIN.equalsIgnoreCase(domain)
+                    || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityInfoCore().getAttribute(
@@ -408,6 +422,11 @@ public class ClassesAPI extends APIBase {
                                     attributeKey,
                                     role))
                         .build();
+        } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
+            final String message = "domain 'all' is not supported by this web service operation";
+            log.error(message);
+            throw new CidsServerException(message, message,
+                HttpServletResponse.SC_BAD_REQUEST);
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();

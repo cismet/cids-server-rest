@@ -13,33 +13,31 @@ package de.cismet.cidsx.server.exceptions;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-public final class InvalidClassKeyException extends RuntimeException {
+public final class InvalidClassKeyException extends CidsServerException {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final String userMessage = "The Format of the Class Key is not currect. Expected classname.domain";
 
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates a new instance of <code>InvalidClassKeyException</code> without detail message.
-     */
-    public InvalidClassKeyException() {
-    }
-
-    /**
      * Constructs an instance of <code>InvalidClassKeyException</code> with the specified detail message.
      *
-     * @param  msg  the detail message.
+     * @param  message  the detail message.
      */
-    public InvalidClassKeyException(final String msg) {
-        super(msg);
+    public InvalidClassKeyException(final String message) {
+        super(message, userMessage, 400);
     }
 
     /**
      * Constructs an instance of <code>InvalidClassKeyException</code> with the specified detail message and the
      * specified cause.
      *
-     * @param  msg    the detail message.
-     * @param  cause  the exception cause
+     * @param  message  the detail message.
+     * @param  cause    the exception cause
      */
-    public InvalidClassKeyException(final String msg, final Throwable cause) {
-        super(msg, cause);
+    public InvalidClassKeyException(final String message, final Throwable cause) {
+        super(message, userMessage, 400, cause);
     }
 }

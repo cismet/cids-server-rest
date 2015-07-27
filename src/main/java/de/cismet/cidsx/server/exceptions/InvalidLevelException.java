@@ -15,40 +15,41 @@ import lombok.Getter;
  * @author   martin.scholl@cismet.de
  * @version  1.0
  */
-@Getter
-public final class InvalidLevelException extends RuntimeException {
+
+public final class InvalidLevelException extends CidsServerException {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final String userMessage =
+        "The Format of the Level Parameter is not currect. Expected a numeric value.";
 
     //~ Instance fields --------------------------------------------------------
 
+    @Getter
     private final Integer level;
 
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates a new instance of <code>InvalidLevelException</code> without detail message.
-     */
-    public InvalidLevelException() {
-        this(null, null, null);
-    }
-
-    /**
      * Constructs an instance of <code>InvalidLevelException</code> with the specified detail message.
      *
-     * @param  msg  the detail message.
+     * @param  message  the detail message.
      */
-    public InvalidLevelException(final String msg) {
-        this(msg, null, null);
+    public InvalidLevelException(final String message) {
+        super(message, userMessage, 400);
+        this.level = -1;
     }
 
     /**
      * Constructs an instance of <code>InvalidLevelException</code> with the specified detail message and the specified
      * cause.
      *
-     * @param  msg    the detail message.
-     * @param  cause  the exception cause
+     * @param  message  the detail message.
+     * @param  cause    the exception cause
      */
-    public InvalidLevelException(final String msg, final Throwable cause) {
-        this(msg, cause, null);
+    public InvalidLevelException(final String message, final Throwable cause) {
+        super(message, userMessage, 400, cause);
+        this.level = -1;
     }
 
     /**
@@ -58,7 +59,8 @@ public final class InvalidLevelException extends RuntimeException {
      * @param  level    DOCUMENT ME!
      */
     public InvalidLevelException(final String message, final Integer level) {
-        this(message, null, level);
+        super(message, userMessage, 400);
+        this.level = level;
     }
 
     /**
@@ -69,8 +71,7 @@ public final class InvalidLevelException extends RuntimeException {
      * @param  level    DOCUMENT ME!
      */
     public InvalidLevelException(final String message, final Throwable cause, final Integer level) {
-        super(message, cause);
-
+        super(message, userMessage, 400, cause);
         this.level = level;
     }
 }

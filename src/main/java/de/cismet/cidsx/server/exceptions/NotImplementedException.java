@@ -22,6 +22,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class NotImplementedException extends CidsServerException {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final String userMessage =
+        "The functionality requested by this call is not provided by this server.";
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -30,8 +35,9 @@ public class NotImplementedException extends CidsServerException {
      * @param  developerMessage  DOCUMENT ME!
      */
     public NotImplementedException(final String developerMessage) {
-        this(developerMessage, "The functionality requested by this call is not provided by this server.");
+        super(developerMessage, userMessage, HttpServletResponse.SC_NOT_IMPLEMENTED);
     }
+
     /**
      * Creates a new NotImplementedException object.
      *

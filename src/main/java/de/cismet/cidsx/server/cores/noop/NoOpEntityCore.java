@@ -14,10 +14,15 @@ package de.cismet.cidsx.server.cores.noop;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.openide.util.lookup.ServiceProvider;
+
 import java.util.List;
 
 import de.cismet.cidsx.server.api.types.SimpleObjectQuery;
 import de.cismet.cidsx.server.api.types.User;
+import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
@@ -27,6 +32,8 @@ import de.cismet.cidsx.server.exceptions.NotImplementedException;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
+@ServiceProvider(service = CidsServerCore.class)
+@Slf4j
 public class NoOpEntityCore implements EntityCore {
 
     //~ Methods ----------------------------------------------------------------
@@ -63,8 +70,11 @@ public class NoOpEntityCore implements EntityCore {
             final String objectId,
             final JsonNode jsonObject,
             final String role) {
-        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
-                                                                       // Tools | Templates.
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new UnsupportedOperationException(message);
     }
 
     @Override

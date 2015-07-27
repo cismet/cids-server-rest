@@ -14,9 +14,14 @@ package de.cismet.cidsx.server.cores.noop;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import org.openide.util.lookup.ServiceProvider;
+
 import java.util.List;
 
+import javax.ws.rs.core.MediaType;
+
 import de.cismet.cidsx.server.api.types.User;
+import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.EntityInfoCore;
 import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
@@ -26,6 +31,7 @@ import de.cismet.cidsx.server.exceptions.NotImplementedException;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
+@ServiceProvider(service = CidsServerCore.class)
 public class NoOpEntityInfoCore implements EntityInfoCore {
 
     //~ Methods ----------------------------------------------------------------
@@ -56,5 +62,10 @@ public class NoOpEntityInfoCore implements EntityInfoCore {
     @Override
     public String getCoreKey() {
         return "core.noop.entityInfo";
+    }
+
+    @Override
+    public byte[] getIcon(final MediaType mediaType, final User user, final String classKey, final String role) {
+        throw new NotImplementedException("EntityInfoCore is not active.");
     }
 }

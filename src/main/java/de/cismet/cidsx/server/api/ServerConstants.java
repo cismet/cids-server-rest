@@ -19,6 +19,10 @@ public final class ServerConstants {
 
     public static final String STANDALONE = "NO-REGISTRY-BECAUSE-OF-STANDALONE-SERVER";
 
+    public static final String LOCAL_DOMAIN = "local";
+
+    public static final String ALL_DOMAINS = "all";
+
     //~ Constructors -----------------------------------------------------------
 
     /**

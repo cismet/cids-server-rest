@@ -7,7 +7,13 @@
 ****************************************************/
 package de.cismet.cidsx.server.cores;
 
+import java.io.OutputStream;
+
 import java.util.List;
+
+import javax.ws.rs.core.MediaType;
+
+import de.cismet.cidsx.base.types.MediaTypes;
 
 import de.cismet.cidsx.server.api.types.User;
 
@@ -41,6 +47,25 @@ public interface EntityInfoCore extends CidsServerCore {
      * @return  DOCUMENT ME!
      */
     com.fasterxml.jackson.databind.JsonNode getClass(User user, String classKey, String role);
+
+    /**
+     * Returns the class icon or the default object icon as byte array (png) depending on the provided media type.<br>
+     * Supported MediaTypes are:
+     *
+     * <ul>
+     *   <li>{@link MediaTypes#APPLICATION_X_CIDS_CLASS_ICON_TYPE}</li>
+     *   <li>{@link MediaTypes#APPLICATION_X_CIDS_OBJECT_ICON_TYPE}</li>
+     *   <li>{@link MediaTypes#IMAGE_PNG}</li>
+     * </ul>
+     *
+     * @param   mediaType  DOCUMENT ME!
+     * @param   user       DOCUMENT ME!
+     * @param   classKey   DOCUMENT ME!
+     * @param   role       DOCUMENT ME!
+     *
+     * @return  Image as byte array
+     */
+    byte[] getIcon(MediaType mediaType, User user, String classKey, String role);
 
     /**
      * DOCUMENT ME!
