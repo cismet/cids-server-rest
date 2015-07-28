@@ -9,6 +9,8 @@ package de.cismet.cidsx.server.exceptions;
 
 import lombok.Getter;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * DOCUMENT ME!
  *
@@ -36,7 +38,7 @@ public final class InvalidLevelException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidLevelException(final String message) {
-        super(message, userMessage, 400);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
         this.level = -1;
     }
 
@@ -48,7 +50,7 @@ public final class InvalidLevelException extends CidsServerException {
      * @param  cause    the exception cause
      */
     public InvalidLevelException(final String message, final Throwable cause) {
-        super(message, userMessage, 400, cause);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
         this.level = -1;
     }
 
@@ -59,7 +61,7 @@ public final class InvalidLevelException extends CidsServerException {
      * @param  level    DOCUMENT ME!
      */
     public InvalidLevelException(final String message, final Integer level) {
-        super(message, userMessage, 400);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
         this.level = level;
     }
 
@@ -71,7 +73,7 @@ public final class InvalidLevelException extends CidsServerException {
      * @param  level    DOCUMENT ME!
      */
     public InvalidLevelException(final String message, final Throwable cause, final Integer level) {
-        super(message, userMessage, 400, cause);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
         this.level = level;
     }
 }

@@ -9,6 +9,8 @@ package de.cismet.cidsx.server.exceptions;
 
 import lombok.Getter;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * DOCUMENT ME!
  *
@@ -35,7 +37,7 @@ public final class InvalidFilterFormatException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidFilterFormatException(final String message) {
-        super(message, userMessage, 400);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
         this.filter = null;
     }
 
@@ -47,7 +49,7 @@ public final class InvalidFilterFormatException extends CidsServerException {
      * @param  cause    the exception cause
      */
     public InvalidFilterFormatException(final String message, final Throwable cause) {
-        super(message, userMessage, 400, cause);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
         this.filter = null;
     }
 
@@ -58,7 +60,7 @@ public final class InvalidFilterFormatException extends CidsServerException {
      * @param  filter   level DOCUMENT ME!
      */
     public InvalidFilterFormatException(final String message, final String filter) {
-        super(message, userMessage, 400);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
         this.filter = filter;
     }
 
@@ -70,7 +72,7 @@ public final class InvalidFilterFormatException extends CidsServerException {
      * @param  filter   DOCUMENT ME!
      */
     public InvalidFilterFormatException(final String message, final Throwable cause, final String filter) {
-        super(message, userMessage, 400, cause);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
         this.filter = filter;
     }
 }

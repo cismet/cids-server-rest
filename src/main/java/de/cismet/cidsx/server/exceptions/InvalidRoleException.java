@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cidsx.server.exceptions;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * DOCUMENT ME!
  *
@@ -27,7 +29,7 @@ public final class InvalidRoleException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidRoleException(final String message) {
-        super(message, userMessage, 400);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
     }
 
     /**
@@ -38,6 +40,6 @@ public final class InvalidRoleException extends CidsServerException {
      * @param  cause    the exception cause
      */
     public InvalidRoleException(final String message, final Throwable cause) {
-        super(message, userMessage, 400, cause);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
     }
 }

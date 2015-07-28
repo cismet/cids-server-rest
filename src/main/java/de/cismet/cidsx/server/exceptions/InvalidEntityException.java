@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.Getter;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * DOCUMENT ME!
  *
@@ -37,7 +39,7 @@ public final class InvalidEntityException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidEntityException(final String message) {
-        super(message, userMessage, 400);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
         this.entity = null;
     }
 
@@ -59,7 +61,7 @@ public final class InvalidEntityException extends CidsServerException {
      * @param  entity   DOCUMENT ME!
      */
     public InvalidEntityException(final String message, final JsonNode entity) {
-        super(message, userMessage, 400);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
         this.entity = entity;
     }
 
@@ -71,7 +73,7 @@ public final class InvalidEntityException extends CidsServerException {
      * @param  entity   DOCUMENT ME!
      */
     public InvalidEntityException(final String message, final Throwable cause, final JsonNode entity) {
-        super(message, userMessage, 400, cause);
+        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
         this.entity = entity;
     }
 }

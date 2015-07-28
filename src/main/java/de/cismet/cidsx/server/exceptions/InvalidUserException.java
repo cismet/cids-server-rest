@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cidsx.server.exceptions;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * DOCUMENT ME!
  *
@@ -27,7 +29,7 @@ public final class InvalidUserException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidUserException(final String message) {
-        super(message, userMessage, 401);
+        super(message, userMessage, HttpServletResponse.SC_UNAUTHORIZED);
     }
 
     /**
@@ -38,6 +40,6 @@ public final class InvalidUserException extends CidsServerException {
      * @param  cause    the exception cause
      */
     public InvalidUserException(final String message, final Throwable cause) {
-        super(message, userMessage, 401, cause);
+        super(message, userMessage, HttpServletResponse.SC_UNAUTHORIZED, cause);
     }
 }

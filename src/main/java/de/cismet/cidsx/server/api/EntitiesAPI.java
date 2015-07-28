@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -37,8 +39,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Variant;
+
+import de.cismet.cidsx.base.types.MediaTypes;
 
 import de.cismet.cidsx.server.annotations.PATCH;
 import de.cismet.cidsx.server.api.tools.Tools;
@@ -46,6 +54,8 @@ import de.cismet.cidsx.server.api.types.CollectionResource;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import de.cismet.cidsx.server.exceptions.CidsServerException;
+import de.cismet.cidsx.server.exceptions.EntityNotFoundException;
 import de.cismet.cidsx.server.trigger.CidsTrigger;
 import de.cismet.cidsx.server.trigger.CidsTriggerKey;
 import de.cismet.cidsx.server.trigger.EntityCoreAwareCidsTrigger;
@@ -782,6 +792,8 @@ public class EntitiesAPI extends APIBase {
      * @param   authString      DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  EntityNotFoundException  DOCUMENT ME!
      */
     @Path("{domain}.{class}/{objectid}")
     @GET
@@ -869,7 +881,15 @@ public class EntitiesAPI extends APIBase {
                             (role == null) ? "default" : role,
                             omitNullValues,
                             deduplicate);
-            return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
+            if (result != null) {
+                return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
+            } else {
+                final String message = "entity with id '" + objectId
+                            + "' and class key '" + classKey + "' not found at domain '"
+                            + domain + "'!";
+                log.warn(message);
+                throw new EntityNotFoundException(message, objectId);
+            }
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
@@ -1003,5 +1023,128 @@ public class EntitiesAPI extends APIBase {
         }
 
         return list;
+    }
+
+    /**
+     * <strong>Example</strong>:<br>
+     * <code>curl -H "Accept: image/png" -H "Content-Type: image/png" http://localhost:8890/112/cids.egal -o
+     * defaultObjectIcon.png</code>
+     *
+     * @param   domain      DOCUMENT ME!
+     * @param   classKey    DOCUMENT ME!
+     * @param   objectId    DOCUMENT ME!
+     * @param   role        DOCUMENT ME!
+     * @param   authString  DOCUMENT ME!
+     * @param   request     DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  CidsServerException  DOCUMENT ME!
+     */
+    @Path("/{domain}.{classkey}/{objectid}")
+    @GET
+    @ApiOperation(
+        value = "Get an object icon.",
+        notes = "-"
+    )
+    @Produces(
+        {
+            MediaTypes.IMAGE_PNG,
+            MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON
+        }
+    )
+    public Response getIcon(
+            @ApiParam(
+                value = "identifier (domainname) of the domain.",
+                required = true
+            )
+            @PathParam("domain")
+            final String domain,
+            @ApiParam(
+                value = "identifier (classkey) of the class.",
+                required = true
+            )
+            @PathParam("classkey")
+            final String classKey,
+            @ApiParam(value = "identifier (objectkey) of the object.")
+            @PathParam("objectid")
+            final String objectId,
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false,
+                defaultValue = "all"
+            )
+            @QueryParam("role")
+            final String role,
+            @ApiParam(
+                value = "Basic Auth Authorization String",
+                required = false
+            )
+            @HeaderParam("Authorization")
+            final String authString,
+            @Context final Request request) {
+        final User user = Tools.validationHelper(authString);
+        if (Tools.canHazUserProblems(user)) {
+            return Tools.getUserProblemResponse();
+        }
+
+        // check if the object exists
+        this.getObject(domain, classKey, objectId, null, null, null, "0",
+            null, null, true, true, authString);
+
+        if (ServerConstants.LOCAL_DOMAIN.equalsIgnoreCase(domain)
+                    || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+            final Variant acceptedVariant = request.selectVariant(ServerConstants.ICON_VARIANTS);
+            final MediaType acceptedMediaType;
+            if (acceptedVariant == null) {
+                log.warn("client did not provide a supported mime type, returning '"
+                            + MediaTypes.IMAGE_PNG + "' by default");
+                acceptedMediaType = MediaTypes.IMAGE_PNG_TYPE;
+            } else {
+                acceptedMediaType = acceptedVariant.getMediaType();
+            }
+
+            // FIXME: currently returns only the default object icon of the class,
+            // wghat about custom Icon Factory???
+            return Response.status(Response.Status.OK)
+                        .header("Location", getLocation())
+                        .entity(RuntimeContainer.getServer().getEntityInfoCore().getIcon(
+                                    MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON_TYPE,
+                                    user,
+                                    classKey,
+                                    role))
+                        .type(acceptedMediaType)
+                        .build();
+        } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
+            final String message = "domain 'all' is not supported by this web service operation";
+            log.error(message);
+            throw new CidsServerException(message, message,
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        } else {
+            final Variant acceptedVariant = request.selectVariant(ServerConstants.ICON_VARIANTS);
+            final MediaType acceptedMediaType;
+            if (acceptedVariant == null) {
+                log.warn("client did not provide a supported mime type, returning '"
+                            + MediaTypes.IMAGE_PNG + "' by default");
+                acceptedMediaType = MediaTypes.IMAGE_PNG_TYPE;
+            } else {
+                acceptedMediaType = acceptedVariant.getMediaType();
+            }
+
+            final WebResource delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            queryParams.add("domain", domain);
+            queryParams.add("role", role);
+            final ClientResponse crDelegateCall = delegateCall.queryParams(queryParams)
+                        .path(domain + "." + classKey)
+                        .path(objectId)
+                        .header("Authorization", authString)
+                        .accept(acceptedMediaType)
+                        .get(ClientResponse.class);
+            return Response.status(Response.Status.OK)
+                        .entity(crDelegateCall.getEntity(byte[].class))
+                        .type(acceptedMediaType)
+                        .build();
+        }
     }
 }

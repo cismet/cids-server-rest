@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cidsx.server.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -42,6 +44,7 @@ import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.CidsServerException;
+import de.cismet.cidsx.server.exceptions.EntityInfoNotFoundException;
 
 /**
  * DOCUMENT ME!
@@ -59,17 +62,6 @@ import de.cismet.cidsx.server.exceptions.CidsServerException;
 @Slf4j
 public class ClassesAPI extends APIBase {
 
-    //~ Instance fields --------------------------------------------------------
-
-    protected final List<Variant> cidsIconVariants = Variant.mediaTypes(
-                new MediaType[] {
-                    MediaTypes.IMAGE_PNG_TYPE,
-                    MediaTypes.APPLICATION_X_CIDS_CLASS_ICON_TYPE,
-                    MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON_TYPE
-                })
-                .add()
-                .build();
-
     //~ Methods ----------------------------------------------------------------
 
     /**
@@ -82,6 +74,8 @@ public class ClassesAPI extends APIBase {
      * @param   authString  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  CidsServerException  DOCUMENT ME!
      */
     @GET
     @ApiOperation(
@@ -150,10 +144,10 @@ public class ClassesAPI extends APIBase {
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
             // Iterate through all domains and delegate and combine the result
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity("Parameter domain=all not supported yet!")
-                        .type(MediaType.TEXT_PLAIN)
-                        .build();
+            final String message = "domain 'all' is not supported by this web service operation";
+            log.error(message);
+            throw new CidsServerException(message, message,
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
             // domain contains a single domain name that is not the local domain
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -161,7 +155,7 @@ public class ClassesAPI extends APIBase {
             queryParams.add("domain", domain);
             queryParams.add("role", role);
             final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
-                        .path("/entities/classes")
+                        .path("/classes")
                         .header("Authorization", authString)
                         .get(ClientResponse.class);
             return Response.status(Response.Status.OK).entity(csiDelegateCall.getEntity(String.class)).build();
@@ -178,7 +172,8 @@ public class ClassesAPI extends APIBase {
      *
      * @return  DOCUMENT ME!
      *
-     * @throws  CidsServerException  DOCUMENT ME!
+     * @throws  EntityInfoNotFoundException  DOCUMENT ME!
+     * @throws  CidsServerException          DOCUMENT ME!
      */
     @Path("/{domain}.{classkey}")
     @GET
@@ -219,22 +214,27 @@ public class ClassesAPI extends APIBase {
         }
         if (ServerConstants.LOCAL_DOMAIN.equalsIgnoreCase(domain)
                     || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            return Response.status(Response.Status.OK)
-                        .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getEntityInfoCore().getClass(user, classKey, role))
-                        .build();
+            final JsonNode theClass = RuntimeContainer.getServer().getEntityInfoCore().getClass(user, classKey, role);
+            if (theClass == null) {
+                final String message = "class with key '" + classKey
+                            + "' not found at domain '" + domain + "'!";
+                log.warn(message);
+                throw new EntityInfoNotFoundException(message, classKey);
+            }
+
+            return Response.status(Response.Status.OK).header("Location", getLocation()).entity(theClass).build();
         } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
             final String message = "domain 'all' is not supported by this web service operation";
             log.error(message);
             throw new CidsServerException(message, message,
-                HttpServletResponse.SC_BAD_REQUEST);
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
             queryParams.add("domain", domain);
             queryParams.add("role", role);
             final ClientResponse crDelegateCall = delegateCall.queryParams(queryParams)
-                        .path("/entities/classes")
+                        .path("/classes")
                         .path(domain + "." + classKey)
                         .header("Authorization", authString)
                         .get(ClientResponse.class);
@@ -260,17 +260,17 @@ public class ClassesAPI extends APIBase {
     @Path("/{domain}.{classkey}")
     @GET
     @ApiOperation(
-        value = "Get a certain class icon.",
+        value = "Get a certain class or object icon.",
         notes = "-"
     )
     @Produces(
         {
             MediaTypes.IMAGE_PNG,
             MediaTypes.APPLICATION_X_CIDS_CLASS_ICON,
-            MediaTypes.APPLICATION_X_JAVA_SERIALIZED_OBJECT
+            MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON
         }
     )
-    public Response getClassIcon(
+    public Response getIcon(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -304,7 +304,7 @@ public class ClassesAPI extends APIBase {
 
         if (ServerConstants.LOCAL_DOMAIN.equalsIgnoreCase(domain)
                     || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final Variant acceptedVariant = request.selectVariant(cidsIconVariants);
+            final Variant acceptedVariant = request.selectVariant(ServerConstants.ICON_VARIANTS);
             final MediaType acceptedMediaType;
             if (acceptedVariant == null) {
                 log.warn("client did not provide a supported mime type, returning '"
@@ -327,9 +327,9 @@ public class ClassesAPI extends APIBase {
             final String message = "domain 'all' is not supported by this web service operation";
             log.error(message);
             throw new CidsServerException(message, message,
-                HttpServletResponse.SC_BAD_REQUEST);
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
-            final Variant acceptedVariant = request.selectVariant(cidsIconVariants);
+            final Variant acceptedVariant = request.selectVariant(ServerConstants.ICON_VARIANTS);
             final MediaType acceptedMediaType;
             if (acceptedVariant == null) {
                 log.warn("client did not provide a supported mime type, returning '"
@@ -344,7 +344,7 @@ public class ClassesAPI extends APIBase {
             queryParams.add("domain", domain);
             queryParams.add("role", role);
             final ClientResponse crDelegateCall = delegateCall.queryParams(queryParams)
-                        .path("/entities/classes")
+                        .path("/classes")
                         .path(domain + "." + classKey)
                         .header("Authorization", authString)
                         .accept(acceptedMediaType)
@@ -426,7 +426,7 @@ public class ClassesAPI extends APIBase {
             final String message = "domain 'all' is not supported by this web service operation";
             log.error(message);
             throw new CidsServerException(message, message,
-                HttpServletResponse.SC_BAD_REQUEST);
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();

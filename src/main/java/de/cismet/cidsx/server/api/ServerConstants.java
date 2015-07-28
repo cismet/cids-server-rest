@@ -7,6 +7,13 @@
 ****************************************************/
 package de.cismet.cidsx.server.api;
 
+import java.util.List;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Variant;
+
+import de.cismet.cidsx.base.types.MediaTypes;
+
 /**
  * DOCUMENT ME!
  *
@@ -22,6 +29,15 @@ public final class ServerConstants {
     public static final String LOCAL_DOMAIN = "local";
 
     public static final String ALL_DOMAINS = "all";
+
+    public static final List<Variant> ICON_VARIANTS = Variant.mediaTypes(
+                new MediaType[] {
+                    MediaTypes.IMAGE_PNG_TYPE,
+                    MediaTypes.APPLICATION_X_CIDS_CLASS_ICON_TYPE,
+                    MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON_TYPE
+                })
+                .add()
+                .build();
 
     //~ Constructors -----------------------------------------------------------
 
