@@ -47,7 +47,6 @@ import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.CidsServerException;
-import de.cismet.cidsx.server.exceptions.EntityInfoNotFoundException;
 import de.cismet.cidsx.server.exceptions.NodeNotFoundException;
 
 /**
@@ -62,7 +61,7 @@ import de.cismet.cidsx.server.exceptions.NodeNotFoundException;
     listingPath = "/resources/nodes"
 )
 @Path("/nodes")
-@Produces("application/json")
+@Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class NodesAPI extends APIBase {
 
