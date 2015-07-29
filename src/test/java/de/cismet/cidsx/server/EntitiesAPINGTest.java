@@ -121,7 +121,7 @@ public class EntitiesAPINGTest {
         // FIXME: the domain should be configurable
         final URI uri = new URI("http", null, "localhost", port, "/testDomain.testclass", null, null);
         final ClientResponse cr = starter.client.resource(uri).queryParam("level", "11").get(ClientResponse.class);
-        assertEquals(cr.getStatus(), 403);
+        assertTrue(cr.getStatus() >= 400);
     }
 
     /**
@@ -175,7 +175,7 @@ public class EntitiesAPINGTest {
         // FIXME: the domain should be configurable
         final URI uri = new URI("http", null, "localhost", port, "/testDomain.testclass/9", null, null);
         final ClientResponse cr = starter.client.resource(uri).get(ClientResponse.class);
-        assertEquals(cr.getStatus(), 403);
+        assertTrue(cr.getStatus() >= 400);
     }
 
     /**
