@@ -60,6 +60,7 @@ import de.cismet.cidsx.server.exceptions.InvalidFilterFormatException;
 import de.cismet.cidsx.server.exceptions.InvalidLevelException;
 import de.cismet.cidsx.server.exceptions.InvalidRoleException;
 import de.cismet.cidsx.server.exceptions.InvalidUserException;
+import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
 /**
  * DOCUMENT ME!
@@ -248,7 +249,7 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @return  DOCUMENT ME!
      *
-     * @throws  IllegalStateException  UnsupportedOperationException DOCUMENT ME!
+     * @throws  IllegalStateException  DOCUMENT ME!
      */
     private List<JsonNode> collectObjs(final String classKey,
             final int limit,
@@ -270,7 +271,7 @@ public class FileSystemEntityCore implements EntityCore {
             final Map<String, ObjectNode> cache = new HashMap<String, ObjectNode>();
 
             for (int i = 0; i < result.size(); ++i) {
-                final String ref = result.get(i).get("$ref").asText();                 // NOI18N
+                final String ref = result.get(i).get("$ref").asText(); // NOI18N
                 final JsonNode expanded = readObj(
                         ref,
                         expandFields,
@@ -280,7 +281,9 @@ public class FileSystemEntityCore implements EntityCore {
                         deduplicate,
                         cache);
                 if (expanded == null) {
-                    throw new IllegalStateException("external modification occurred"); // NOI18N
+                    final String message = "external modification occurred";
+                    log.error(message);
+                    throw new IllegalStateException(message);
                 }
 
                 result.set(i, expanded);
@@ -467,8 +470,11 @@ public class FileSystemEntityCore implements EntityCore {
             final String objectId,
             final JsonNode jsonObject,
             final String role) {
-        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
-                                                                       // Tools | Templates.
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
     }
 
     @Override
@@ -1034,7 +1040,11 @@ public class FileSystemEntityCore implements EntityCore {
             final String role,
             final int limit,
             final int offset) {
-        throw new UnsupportedOperationException("not supported yet");
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
     }
 
     @Override
@@ -1179,5 +1189,14 @@ public class FileSystemEntityCore implements EntityCore {
     @Override
     public String getCoreKey() {
         return "core.fs.entity"; // NOI18N
+    }
+
+    @Override
+    public byte[] getObjectIcon(final User user, final String classKey, final String objectId, final String role) {
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
     }
 }

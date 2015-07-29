@@ -91,7 +91,7 @@ public class SimpleServer implements Server {
         } else if (core instanceof InfrastructureCore) {
             setInfrastructureCore((InfrastructureCore)core);
         } else {
-            log.warn("unsupported coids server core: '" + core.getCoreKey() + "'");
+            log.warn("unsupported cids server core: '" + core.getCoreKey() + "'");
         }
     }
 

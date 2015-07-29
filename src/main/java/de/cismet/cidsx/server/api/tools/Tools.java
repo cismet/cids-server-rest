@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.ws.rs.WebApplicationException;
+import javax.servlet.http.HttpServletResponse;
+
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -28,6 +29,7 @@ import de.cismet.cidsx.server.api.ServerConstants;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.CidsServerInfo;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import de.cismet.cidsx.server.exceptions.CidsServerException;
 
 /**
  * DOCUMENT ME!
@@ -80,7 +82,7 @@ public class Tools {
      *
      * @return  DOCUMENT ME!
      *
-     * @throws  WebApplicationException  DOCUMENT ME!
+     * @throws  CidsServerException  DOCUMENT ME!
      */
     public static WebResource getDomainWebResource(final String domain) {
         if (!RuntimeContainer.getServer().getRegistry().equals(ServerConstants.STANDALONE)) {
@@ -97,14 +99,14 @@ public class Tools {
             } else {
                 final String message = "domain '" + domain + "' not found in service registry";
                 log.error(message);
-                throw new WebApplicationException(Response.status(
-                        Response.Status.SERVICE_UNAVAILABLE).entity(message).type(MediaType.TEXT_PLAIN).build());
+
+                throw new CidsServerException(message, message,
+                    HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             }
         } else {
             final String message = "server is standalone, cannot ask registry for domain '" + domain + "'";
             log.error(message);
-            throw new WebApplicationException(Response.status(
-                    Response.Status.SERVICE_UNAVAILABLE).entity(message).type(MediaType.TEXT_PLAIN).build());
+            throw new CidsServerException(message, message, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
     }
 
@@ -142,7 +144,9 @@ public class Tools {
      */
     public static boolean canHazUserProblems(final User user) {
         return (user == null) || !user.isValidated()
-                    || ((user == User.NONE) && !RuntimeContainer.getServer().getUserCore().isNoneUserAllowed());
+                    || ((user == User.NONE)
+                        && ((RuntimeContainer.getServer().getUserCore() != null)
+                            && !RuntimeContainer.getServer().getUserCore().isNoneUserAllowed()));
     }
 
     /**

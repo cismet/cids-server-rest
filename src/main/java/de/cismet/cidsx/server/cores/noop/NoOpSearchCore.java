@@ -14,11 +14,14 @@ package de.cismet.cidsx.server.cores.noop;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import org.openide.util.lookup.ServiceProvider;
+
 import java.util.List;
 
 import de.cismet.cidsx.server.api.types.SearchInfo;
 import de.cismet.cidsx.server.api.types.SearchParameter;
 import de.cismet.cidsx.server.api.types.User;
+import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.SearchCore;
 import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
@@ -28,6 +31,7 @@ import de.cismet.cidsx.server.exceptions.NotImplementedException;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
+@ServiceProvider(service = CidsServerCore.class)
 public class NoOpSearchCore implements SearchCore {
 
     //~ Methods ----------------------------------------------------------------

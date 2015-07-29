@@ -17,6 +17,8 @@ import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
@@ -29,13 +31,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+
+import javax.servlet.http.HttpServletResponse;
 
 import de.cismet.cidsx.server.api.types.Action;
 import de.cismet.cidsx.server.api.types.ActionResultInfo;
@@ -44,6 +46,8 @@ import de.cismet.cidsx.server.api.types.GenericResourceWithContentType;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.ActionCore;
 import de.cismet.cidsx.server.cores.CidsServerCore;
+import de.cismet.cidsx.server.exceptions.CidsServerException;
+import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
 import de.cismet.commons.concurrency.CismetExecutors;
 
@@ -55,6 +59,7 @@ import de.cismet.commons.concurrency.CismetExecutors;
  */
 @Parameters(separators = "=")
 @ServiceProvider(service = CidsServerCore.class)
+@Slf4j
 public class FileSystemActionCore implements ActionCore {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -115,7 +120,7 @@ public class FileSystemActionCore implements ActionCore {
                     final JsonNode on = (JsonNode)mapper.readTree(fileEntry);
                     all.add(on);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    log.error(ex.getMessage(), ex);
                 }
             }
         }
@@ -129,6 +134,7 @@ public class FileSystemActionCore implements ActionCore {
                     new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json"));
             return ret;
         } catch (IOException ex) {
+            log.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
     }
@@ -143,7 +149,7 @@ public class FileSystemActionCore implements ActionCore {
                     final JsonNode on = (JsonNode)mapper.readTree(fileEntry);
                     all.add(on);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    log.error(ex.getMessage(), ex);
                 }
             }
         }
@@ -160,7 +166,10 @@ public class FileSystemActionCore implements ActionCore {
         Action action = null;
         final ObjectMapper m = new ObjectMapper();
         if (role != null) {
-            throw new UnsupportedOperationException("role not supported yet.");
+            final String message = "role not supported yet.";
+            log.warn(message);
+            throw new CidsServerException(message, message,
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
         if (actionTask == null) {
             actionTask = new ActionTask();
@@ -312,7 +321,7 @@ public class FileSystemActionCore implements ActionCore {
                                 FileUtils.forceDelete(resultDirFile);
                             }
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            log.error(e.getMessage(), e);
                             fixedTask.setStatus(ActionTask.Status.ERROR);
                             try {
                                 m.writeValue(taskFile, fixedTask);
@@ -327,6 +336,7 @@ public class FileSystemActionCore implements ActionCore {
                 };
             es.execute(actionRunner);
         } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
         if (requestResultingInstance) {
@@ -334,7 +344,7 @@ public class FileSystemActionCore implements ActionCore {
                 final String json = mapper.writeValueAsString(actionTask);
                 return mapper.readTree(json);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                log.error(ex.getMessage(), ex);
                 return null;
             }
         } else {
@@ -349,6 +359,7 @@ public class FileSystemActionCore implements ActionCore {
                     new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json"));
             return ret;
         } catch (IOException ex) {
+            log.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
     }
@@ -380,6 +391,7 @@ public class FileSystemActionCore implements ActionCore {
             FileUtils.forceDelete(taskFile);
             FileUtils.forceDelete(resultDirFile);
         } catch (IOException ex) {
+            log.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
     }
@@ -471,7 +483,10 @@ public class FileSystemActionCore implements ActionCore {
             final ActionTask body,
             final String role,
             final InputStream fileAttachement) {
-        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
-                                                                       // Tools | Templates.
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
     }
 }

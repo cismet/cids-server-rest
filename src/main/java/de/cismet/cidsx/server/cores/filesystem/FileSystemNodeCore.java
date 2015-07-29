@@ -16,6 +16,8 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.openide.util.lookup.ServiceProvider;
 
 import java.io.File;
@@ -29,6 +31,7 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.NodeCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
 /**
  * DOCUMENT ME!
@@ -37,6 +40,7 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
  * @version  $Revision$, $Date$
  */
 @ServiceProvider(service = CidsServerCore.class)
+@Slf4j
 public class FileSystemNodeCore implements NodeCore {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -67,7 +71,7 @@ public class FileSystemNodeCore implements NodeCore {
                     System.out.println("key=" + on.getKey());
                     all.add(on);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    log.error(ex.getMessage(), ex);
                 }
             }
         }
@@ -116,7 +120,7 @@ public class FileSystemNodeCore implements NodeCore {
                     System.out.println("key=" + on.getKey());
                     all.add(on);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    log.error(ex.getMessage(), ex);
                 }
             }
         }
@@ -125,13 +129,42 @@ public class FileSystemNodeCore implements NodeCore {
 
     @Override
     public List<JsonNode> getChildrenByQuery(final User user, final String nodeQuery, final String role) {
-        throw new UnsupportedOperationException("Not supported in Filesystemcore."); // To change body of generated
-        // methods, choose Tools |
-        // Templates.
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
     }
 
     @Override
     public String getCoreKey() {
         return "core.fs.node"; // NOI18N
+    }
+
+    @Override
+    public byte[] getLeafIcon(final User user, final String nodeKey, final String role) {
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
+    }
+
+    @Override
+    public byte[] getOpenIcon(final User user, final String nodeKey, final String role) {
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
+    }
+
+    @Override
+    public byte[] getClosedIcon(final User user, final String nodeKey, final String role) {
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
     }
 }

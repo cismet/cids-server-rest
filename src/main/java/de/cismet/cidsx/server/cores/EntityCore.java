@@ -165,6 +165,18 @@ public interface EntityCore extends CidsServerCore {
     boolean deleteObject(User user, String classKey, String objectId, String role);
 
     /**
+     * Returns the class icon as byte array (PNG).<br>
+     *
+     * @param   user      DOCUMENT ME!
+     * @param   classKey  DOCUMENT ME!
+     * @param   objectId  DOCUMENT ME!
+     * @param   role      DOCUMENT ME!
+     *
+     * @return  Image as PNG byte array
+     */
+    byte[] getObjectIcon(User user, String classKey, String objectId, String role);
+
+    /**
      * DOCUMENT ME!
      *
      * @param   jsonObject  DOCUMENT ME!

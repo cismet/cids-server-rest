@@ -14,9 +14,12 @@ package de.cismet.cidsx.server.cores.noop;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import org.openide.util.lookup.ServiceProvider;
+
 import java.util.List;
 
 import de.cismet.cidsx.server.api.types.User;
+import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.NodeCore;
 import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
@@ -26,6 +29,7 @@ import de.cismet.cidsx.server.exceptions.NotImplementedException;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
+@ServiceProvider(service = CidsServerCore.class)
 public class NoOpNodeCore implements NodeCore {
 
     //~ Methods ----------------------------------------------------------------
@@ -53,5 +57,20 @@ public class NoOpNodeCore implements NodeCore {
     @Override
     public String getCoreKey() {
         return "core.noop.node";
+    }
+
+    @Override
+    public byte[] getLeafIcon(final User user, final String nodeKey, final String role) {
+        throw new NotImplementedException("NodeCore is not active.");
+    }
+
+    @Override
+    public byte[] getOpenIcon(final User user, final String nodeKey, final String role) {
+        throw new NotImplementedException("NodeCore is not active.");
+    }
+
+    @Override
+    public byte[] getClosedIcon(final User user, final String nodeKey, final String role) {
+        throw new NotImplementedException("NodeCore is not active.");
     }
 }

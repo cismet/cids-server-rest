@@ -43,6 +43,28 @@ public interface EntityInfoCore extends CidsServerCore {
     com.fasterxml.jackson.databind.JsonNode getClass(User user, String classKey, String role);
 
     /**
+     * Returns the class icon as byte array (PNG).<br>
+     *
+     * @param   user      DOCUMENT ME!
+     * @param   classKey  DOCUMENT ME!
+     * @param   role      DOCUMENT ME!
+     *
+     * @return  Image as PNG byte array
+     */
+    byte[] getClassIcon(User user, String classKey, String role);
+
+    /**
+     * Returns the class icon as byte array (PNG).<br>
+     *
+     * @param   user      DOCUMENT ME!
+     * @param   classKey  DOCUMENT ME!
+     * @param   role      DOCUMENT ME!
+     *
+     * @return  Image as PNG byte array
+     */
+    byte[] getObjectIcon(User user, String classKey, String role);
+
+    /**
      * DOCUMENT ME!
      *
      * @param   user          DOCUMENT ME!
