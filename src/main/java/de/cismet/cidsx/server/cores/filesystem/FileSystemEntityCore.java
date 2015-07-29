@@ -60,6 +60,7 @@ import de.cismet.cidsx.server.exceptions.InvalidFilterFormatException;
 import de.cismet.cidsx.server.exceptions.InvalidLevelException;
 import de.cismet.cidsx.server.exceptions.InvalidRoleException;
 import de.cismet.cidsx.server.exceptions.InvalidUserException;
+import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
 /**
  * DOCUMENT ME!
@@ -473,7 +474,7 @@ public class FileSystemEntityCore implements EntityCore {
                     + Thread.currentThread().getStackTrace()[1].getMethodName()
                     + "' is not yet supported by " + this.getClass().getSimpleName();
         log.error(message);
-        throw new UnsupportedOperationException(message);
+        throw new NotImplementedException(message);
     }
 
     @Override
@@ -1043,7 +1044,7 @@ public class FileSystemEntityCore implements EntityCore {
                     + Thread.currentThread().getStackTrace()[1].getMethodName()
                     + "' is not yet supported by " + this.getClass().getSimpleName();
         log.error(message);
-        throw new UnsupportedOperationException(message);
+        throw new NotImplementedException(message);
     }
 
     @Override
@@ -1188,5 +1189,14 @@ public class FileSystemEntityCore implements EntityCore {
     @Override
     public String getCoreKey() {
         return "core.fs.entity"; // NOI18N
+    }
+
+    @Override
+    public byte[] getObjectIcon(final User user, final String classKey, final String objectId, final String role) {
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
     }
 }

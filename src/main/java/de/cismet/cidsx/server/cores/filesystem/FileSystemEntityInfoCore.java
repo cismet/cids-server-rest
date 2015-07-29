@@ -36,6 +36,7 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.EntityInfoCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
 /**
  * DOCUMENT ME!
@@ -120,7 +121,7 @@ public class FileSystemEntityInfoCore implements EntityInfoCore {
                     + Thread.currentThread().getStackTrace()[1].getMethodName()
                     + "' is not yet supported by " + this.getClass().getSimpleName();
         log.error(message);
-        throw new UnsupportedOperationException(message);
+        throw new NotImplementedException(message);
     }
     @Override
     public String getCoreKey() {
@@ -128,11 +129,20 @@ public class FileSystemEntityInfoCore implements EntityInfoCore {
     }
 
     @Override
-    public byte[] getIcon(final MediaType mediaType, final User user, final String classKey, final String role) {
+    public byte[] getClassIcon(final User user, final String classKey, final String role) {
         final String message = "The operation '"
                     + Thread.currentThread().getStackTrace()[1].getMethodName()
                     + "' is not yet supported by " + this.getClass().getSimpleName();
         log.error(message);
-        throw new UnsupportedOperationException(message);
+        throw new NotImplementedException(message);
+    }
+
+    @Override
+    public byte[] getObjectIcon(final User user, final String classKey, final String role) {
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
     }
 }

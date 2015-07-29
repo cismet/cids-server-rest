@@ -22,8 +22,6 @@ import org.openide.util.lookup.ServiceProvider;
 
 import java.io.File;
 
-import java.util.ArrayList;
-
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.UserCore;

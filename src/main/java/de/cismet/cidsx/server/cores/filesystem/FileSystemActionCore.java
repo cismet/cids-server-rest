@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
+import javax.servlet.http.HttpServletResponse;
+
 import de.cismet.cidsx.server.api.types.Action;
 import de.cismet.cidsx.server.api.types.ActionResultInfo;
 import de.cismet.cidsx.server.api.types.ActionTask;
@@ -44,6 +46,8 @@ import de.cismet.cidsx.server.api.types.GenericResourceWithContentType;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.ActionCore;
 import de.cismet.cidsx.server.cores.CidsServerCore;
+import de.cismet.cidsx.server.exceptions.CidsServerException;
+import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
 import de.cismet.commons.concurrency.CismetExecutors;
 
@@ -164,7 +168,8 @@ public class FileSystemActionCore implements ActionCore {
         if (role != null) {
             final String message = "role not supported yet.";
             log.warn(message);
-            throw new UnsupportedOperationException(message);
+            throw new CidsServerException(message, message,
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
         if (actionTask == null) {
             actionTask = new ActionTask();
@@ -482,6 +487,6 @@ public class FileSystemActionCore implements ActionCore {
                     + Thread.currentThread().getStackTrace()[1].getMethodName()
                     + "' is not yet supported by " + this.getClass().getSimpleName();
         log.error(message);
-        throw new UnsupportedOperationException(message);
+        throw new NotImplementedException(message);
     }
 }

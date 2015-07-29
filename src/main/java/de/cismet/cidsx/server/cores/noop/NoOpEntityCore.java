@@ -129,4 +129,9 @@ public class NoOpEntityCore implements EntityCore {
     public String getCoreKey() {
         return "core.noop.entity";
     }
+
+    @Override
+    public byte[] getObjectIcon(final User user, final String classKey, final String objectId, final String role) {
+        throw new NotImplementedException("EntityInfoCore is not active.");
+    }
 }

@@ -31,6 +31,7 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.NodeCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
 /**
  * DOCUMENT ME!
@@ -132,11 +133,38 @@ public class FileSystemNodeCore implements NodeCore {
                     + Thread.currentThread().getStackTrace()[1].getMethodName()
                     + "' is not yet supported by " + this.getClass().getSimpleName();
         log.error(message);
-        throw new UnsupportedOperationException(message);
+        throw new NotImplementedException(message);
     }
 
     @Override
     public String getCoreKey() {
         return "core.fs.node"; // NOI18N
+    }
+
+    @Override
+    public byte[] getLeafIcon(final User user, final String nodeKey, final String role) {
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
+    }
+
+    @Override
+    public byte[] getOpenIcon(final User user, final String nodeKey, final String role) {
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
+    }
+
+    @Override
+    public byte[] getClosedIcon(final User user, final String nodeKey, final String role) {
+        final String message = "The operation '"
+                    + Thread.currentThread().getStackTrace()[1].getMethodName()
+                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        log.error(message);
+        throw new NotImplementedException(message);
     }
 }

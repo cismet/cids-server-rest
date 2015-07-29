@@ -243,6 +243,14 @@ public class ClassesAPI extends APIBase {
     }
 
     /**
+     * Returns the class icon or the default object icon as byte array (png) depending on the provided media type.<br>
+     * Supported MediaTypes are:
+     *
+     * <ul>
+     *   <li>{@link MediaTypes#APPLICATION_X_CIDS_CLASS_ICON_TYPE}</li>
+     *   <li>{@link MediaTypes#APPLICATION_X_CIDS_OBJECT_ICON_TYPE}</li>
+     *   <li>{@link MediaTypes#IMAGE_PNG}</li>
+     * </ul>
      * <strong>Example</strong>:<br>
      * <code>curl -H "Accept: image/png" -H "Content-Type: image/png" http://localhost:8890/classes/cids.egal -o
      * defaultClassIcon.png</code>
@@ -255,7 +263,8 @@ public class ClassesAPI extends APIBase {
      *
      * @return  DOCUMENT ME!
      *
-     * @throws  CidsServerException  DOCUMENT ME!
+     * @throws  EntityInfoNotFoundException  DOCUMENT ME!
+     * @throws  CidsServerException          DOCUMENT ME!
      */
     @Path("/{domain}.{classkey}")
     @GET
@@ -306,6 +315,7 @@ public class ClassesAPI extends APIBase {
                     || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             final Variant acceptedVariant = request.selectVariant(ServerConstants.ICON_VARIANTS);
             final MediaType acceptedMediaType;
+            final byte[] icon;
             if (acceptedVariant == null) {
                 log.warn("client did not provide a supported mime type, returning '"
                             + MediaTypes.IMAGE_PNG + "' by default");
@@ -314,13 +324,22 @@ public class ClassesAPI extends APIBase {
                 acceptedMediaType = acceptedVariant.getMediaType();
             }
 
+            if (acceptedMediaType.equals(MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON_TYPE)) {
+                icon = RuntimeContainer.getServer().getEntityInfoCore().getObjectIcon(user, classKey, role);
+            } else {
+                icon = RuntimeContainer.getServer().getEntityInfoCore().getClassIcon(user, classKey, role);
+            }
+
+            if (icon == null) {
+                final String message = "icon for class with key '" + classKey
+                            + "' not found at domain '" + domain + "'!";
+                log.warn(message);
+                throw new EntityInfoNotFoundException(message, classKey);
+            }
+
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getEntityInfoCore().getIcon(
-                                    acceptedMediaType,
-                                    user,
-                                    classKey,
-                                    role))
+                        .entity(icon)
                         .type(acceptedMediaType)
                         .build();
         } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {

@@ -55,6 +55,7 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.CidsServerException;
+import de.cismet.cidsx.server.exceptions.EntityInfoNotFoundException;
 import de.cismet.cidsx.server.exceptions.EntityNotFoundException;
 import de.cismet.cidsx.server.trigger.CidsTrigger;
 import de.cismet.cidsx.server.trigger.CidsTriggerKey;
@@ -1026,6 +1027,13 @@ public class EntitiesAPI extends APIBase {
     }
 
     /**
+     * Returns the default object icon as byte array (png).<br>
+     * Supported MediaTypes are:
+     *
+     * <ul>
+     *   <li>{@link MediaTypes#APPLICATION_X_CIDS_OBJECT_ICON_TYPE}</li>
+     *   <li>{@link MediaTypes#IMAGE_PNG}</li>
+     * </ul>
      * <strong>Example</strong>:<br>
      * <code>curl -H "Accept: image/png" -H "Content-Type: image/png" http://localhost:8890/112/cids.egal -o
      * defaultObjectIcon.png</code>
@@ -1039,7 +1047,8 @@ public class EntitiesAPI extends APIBase {
      *
      * @return  DOCUMENT ME!
      *
-     * @throws  CidsServerException  DOCUMENT ME!
+     * @throws  EntityNotFoundException  DOCUMENT ME!
+     * @throws  CidsServerException      DOCUMENT ME!
      */
     @Path("/{domain}.{classkey}/{objectid}")
     @GET
@@ -1104,15 +1113,24 @@ public class EntitiesAPI extends APIBase {
                 acceptedMediaType = acceptedVariant.getMediaType();
             }
 
-            // FIXME: currently returns only the default object icon of the class,
-            // wghat about custom Icon Factory???
+            final byte[] icon = RuntimeContainer.getServer()
+                        .getEntityCore(classKey)
+                        .getObjectIcon(
+                            user,
+                            classKey,
+                            objectId,
+                            role);
+
+            if (icon == null) {
+                final String message = "icon for object with id '" + objectId
+                            + "' not found at domain '" + domain + "'!";
+                log.warn(message);
+                throw new EntityNotFoundException(message, classKey);
+            }
+
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getEntityInfoCore().getIcon(
-                                    MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON_TYPE,
-                                    user,
-                                    classKey,
-                                    role))
+                        .entity(icon)
                         .type(acceptedMediaType)
                         .build();
         } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {

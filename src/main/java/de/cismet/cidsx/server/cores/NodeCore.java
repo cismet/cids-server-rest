@@ -63,4 +63,37 @@ public interface NodeCore extends CidsServerCore {
      * @return  DOCUMENT ME!
      */
     List<com.fasterxml.jackson.databind.JsonNode> getChildrenByQuery(User user, String nodeQuery, String role);
+
+    /**
+     * Returns the leaf icon of the node as byte array (PNG).<br>
+     *
+     * @param   user     DOCUMENT ME!
+     * @param   nodeKey  DOCUMENT ME!
+     * @param   role     DOCUMENT ME!
+     *
+     * @return  Image as PNG byte array
+     */
+    byte[] getLeafIcon(User user, String nodeKey, String role);
+
+    /**
+     * Returns the leaf icon of the node as byte array (PNG).<br>
+     *
+     * @param   user     DOCUMENT ME!
+     * @param   nodeKey  DOCUMENT ME!
+     * @param   role     DOCUMENT ME!
+     *
+     * @return  Image as PNG byte array
+     */
+    byte[] getOpenIcon(User user, String nodeKey, String role);
+
+    /**
+     * Returns the leaf icon of the node as byte array (PNG).<br>
+     *
+     * @param   user     DOCUMENT ME!
+     * @param   nodeKey  DOCUMENT ME!
+     * @param   role     DOCUMENT ME!
+     *
+     * @return  Image as PNG byte array
+     */
+    byte[] getClosedIcon(User user, String nodeKey, String role);
 }

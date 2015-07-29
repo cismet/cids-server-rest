@@ -65,7 +65,12 @@ public class NoOpEntityInfoCore implements EntityInfoCore {
     }
 
     @Override
-    public byte[] getIcon(final MediaType mediaType, final User user, final String classKey, final String role) {
+    public byte[] getClassIcon(final User user, final String classKey, final String role) {
+        throw new NotImplementedException("EntityInfoCore is not active.");
+    }
+
+    @Override
+    public byte[] getObjectIcon(final User user, final String classKey, final String role) {
         throw new NotImplementedException("EntityInfoCore is not active.");
     }
 }

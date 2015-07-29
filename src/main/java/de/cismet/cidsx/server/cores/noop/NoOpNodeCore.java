@@ -58,4 +58,19 @@ public class NoOpNodeCore implements NodeCore {
     public String getCoreKey() {
         return "core.noop.node";
     }
+
+    @Override
+    public byte[] getLeafIcon(final User user, final String nodeKey, final String role) {
+        throw new NotImplementedException("NodeCore is not active.");
+    }
+
+    @Override
+    public byte[] getOpenIcon(final User user, final String nodeKey, final String role) {
+        throw new NotImplementedException("NodeCore is not active.");
+    }
+
+    @Override
+    public byte[] getClosedIcon(final User user, final String nodeKey, final String role) {
+        throw new NotImplementedException("NodeCore is not active.");
+    }
 }
