@@ -7,7 +7,6 @@
 ****************************************************/
 package de.cismet.cidsx.server.cores;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.InputStream;
 

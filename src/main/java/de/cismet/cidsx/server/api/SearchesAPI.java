@@ -69,7 +69,7 @@ public class SearchesAPI extends APIBase {
      */
     @GET
     @ApiOperation(
-        value = "Get all custom searches.",
+        value = "Get information about all custom searches supported by the server.",
         notes = "-"
     )
     public Response getCustomSearches(

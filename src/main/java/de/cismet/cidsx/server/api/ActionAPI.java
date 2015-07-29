@@ -45,7 +45,7 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 
 /**
- * DOCUMENT ME!
+ * Show, run and maintain custom actions within the cids system
  *
  * @author   thorsten
  * @version  $Revision$, $Date$
@@ -62,7 +62,8 @@ public class ActionAPI extends APIBase {
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * DOCUMENT ME!
+     * Returns meta-information about all actions supported by the server.
+     * Returns a list of {@link ActionTask} JSON objects.
      *
      * @param   domain      DOCUMENT ME!
      * @param   limit       DOCUMENT ME!
@@ -74,7 +75,7 @@ public class ActionAPI extends APIBase {
      */
     @GET
     @ApiOperation(
-        value = "Get all actions.",
+        value = "Get information about all actions supported by the server.",
         notes = "-"
     )
     public Response getActions(
@@ -115,6 +116,7 @@ public class ActionAPI extends APIBase {
             )
             @HeaderParam("Authorization")
             final String authString) {
+        
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
@@ -124,6 +126,7 @@ public class ActionAPI extends APIBase {
             final List<com.fasterxml.jackson.databind.JsonNode> allActions = RuntimeContainer.getServer()
                         .getActionCore()
                         .getAllActions(user, role);
+            
             final CollectionResource result = new CollectionResource(
                     getLocation(),
                     offset,
@@ -133,7 +136,9 @@ public class ActionAPI extends APIBase {
                     "not available",
                     "not available",
                     allActions);
+            
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
+        
         } else if (domain.equalsIgnoreCase("all")) {
             // Iterate through all domains and delegate an dcombine the result
             return Response.status(Response.Status.SERVICE_UNAVAILABLE)
@@ -155,22 +160,24 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * DOCUMENT ME!
+     * Get information about a specific action identified by the provided action key.
+     * Returns a {@link ActionTask} JSON object.
+     * 
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
      * @param   role        DOCUMENT ME!
      * @param   authString  DOCUMENT ME!
      *
-     * @return  DOCUMENT ME!
+     * @return  {@link ActionTask}
      */
     @Path("/{domain}.{actionkey}")
     @GET
     @ApiOperation(
-        value = "Show and describe an action.",
+        value = "Get information about a specific action",
         notes = "-"
     )
-    public Response describeAction(
+    public Response getAction(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -220,7 +227,10 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * DOCUMENT ME!
+     * Get information about all running tasks (executed actions).<br>
+     * Returns a {@link ActionTask} JSON object that contains in contrast to 
+     * the ActionTask entity returned by the {@link #getAction(java.lang.String, java.lang.String, java.lang.String, java.lang.String) }
+     * method additional task specific information.
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
@@ -234,7 +244,7 @@ public class ActionAPI extends APIBase {
     @GET
     @Path("/{domain}.{actionkey}/tasks")
     @ApiOperation(
-        value = "Get all running tasks.",
+        value = "Get information about all running tasks (executed actions).",
         notes = "-"
     )
     public Response getRunningTasks(
@@ -509,7 +519,8 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns meta-information about the results of a specific action task
+     * identified by the key of the action and the id of the Task. 
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
@@ -526,6 +537,9 @@ public class ActionAPI extends APIBase {
     @ApiOperation(
         value = "Get task result.",
         notes = "-"
+    )
+    @Produces({
+        MediaType.APPLICATION_JSON}
     )
     public Response getTaskResults(
             @ApiParam(
@@ -611,7 +625,9 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the actual result of an action. The type of the result depends on 
+     * the current action is denoted by the return content type of the operation, 
+     * e.g. application/json, text/plain, etc.
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
@@ -628,20 +644,8 @@ public class ActionAPI extends APIBase {
         value = "Get task result.",
         notes = "-"
     )
-    @Produces(
-        {
-            "application/json",
-            "application/xml",
-            "text/plain",
-            "application/octet-stream",
-            "text/html",
-            "application/pdf",
-            "image/png",
-            "image/gif",
-            "image/jpeg",
-            "unknown/unknown",
-            "unknown/*"
-        }
+    @Produces({
+        MediaType.WILDCARD}
     )
     public Response getTaskResult(
             @ApiParam(
