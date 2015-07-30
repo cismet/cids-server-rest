@@ -7,7 +7,6 @@
 ****************************************************/
 package de.cismet.cidsx.server.cores;
 
-
 import java.io.InputStream;
 
 import java.util.List;
