@@ -7,15 +7,20 @@
 ****************************************************/
 package de.cismet.cidsx.server.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataParam;
 
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
 import com.wordnik.swagger.core.ApiParam;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 
@@ -43,9 +48,11 @@ import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.GenericResourceWithContentType;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Request;
 
 /**
- * Show, run and maintain custom actions within the cids system
+ * Show, run and maintain custom actions within the cids system.
  *
  * @author   thorsten
  * @version  $Revision$, $Date$
@@ -57,13 +64,14 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
 )
 @Path("/actions")
 @Produces("application/json")
+@Slf4j
 public class ActionAPI extends APIBase {
 
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * Returns meta-information about all actions supported by the server.
-     * Returns a list of {@link ActionTask} JSON objects.
+     * Returns meta-information about all actions supported by the server. Returns a list of {@link ActionTask} JSON
+     * objects.
      *
      * @param   domain      DOCUMENT ME!
      * @param   limit       DOCUMENT ME!
@@ -116,7 +124,6 @@ public class ActionAPI extends APIBase {
             )
             @HeaderParam("Authorization")
             final String authString) {
-        
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
@@ -126,7 +133,7 @@ public class ActionAPI extends APIBase {
             final List<com.fasterxml.jackson.databind.JsonNode> allActions = RuntimeContainer.getServer()
                         .getActionCore()
                         .getAllActions(user, role);
-            
+
             final CollectionResource result = new CollectionResource(
                     getLocation(),
                     offset,
@@ -136,9 +143,8 @@ public class ActionAPI extends APIBase {
                     "not available",
                     "not available",
                     allActions);
-            
+
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
-        
         } else if (domain.equalsIgnoreCase("all")) {
             // Iterate through all domains and delegate an dcombine the result
             return Response.status(Response.Status.SERVICE_UNAVAILABLE)
@@ -160,9 +166,8 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * Get information about a specific action identified by the provided action key.
-     * Returns a {@link ActionTask} JSON object.
-     * 
+     * Get information about a specific action identified by the provided action key. Returns a {@link ActionTask} JSON
+     * object.
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
@@ -228,9 +233,9 @@ public class ActionAPI extends APIBase {
 
     /**
      * Get information about all running tasks (executed actions).<br>
-     * Returns a {@link ActionTask} JSON object that contains in contrast to 
-     * the ActionTask entity returned by the {@link #getAction(java.lang.String, java.lang.String, java.lang.String, java.lang.String) }
-     * method additional task specific information.
+     * Returns a {@link ActionTask} JSON object that contains in contrast to the ActionTask entity returned by the
+     * {@link #getAction(java.lang.String, java.lang.String, java.lang.String, java.lang.String) } method additional
+     * task specific information.
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
@@ -331,12 +336,14 @@ public class ActionAPI extends APIBase {
      * @param   taskParams                DOCUMENT ME!
      * @param   attachmentInputStream     DOCUMENT ME!
      * @param   contentdisp               DOCUMENT ME!
+     * @param contentbp
      * @param   domain                    DOCUMENT ME!
      * @param   actionKey                 DOCUMENT ME!
      * @param   role                      DOCUMENT ME!
      * @param   resultingInstanceType     DOCUMENT ME!
      * @param   requestResultingInstance  DOCUMENT ME!
      * @param   authString                DOCUMENT ME!
+     * @param request
      *
      * @return  DOCUMENT ME!
      */
@@ -361,6 +368,7 @@ public class ActionAPI extends APIBase {
     public Response createNewActionTask(@FormDataParam("taskparams") final ActionTask taskParams,
             @FormDataParam("file") final InputStream attachmentInputStream,
             @FormDataParam("file") final FormDataContentDisposition contentdisp,
+            @FormDataParam("file") final FormDataBodyPart contentbp,
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -400,33 +408,54 @@ public class ActionAPI extends APIBase {
                 required = false
             )
             @HeaderParam("Authorization")
-            final String authString) {
+            final String authString,
+            @Context final Request request){
         final User user = Tools.validationHelper(authString);
+
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
+        
+        contentbp.g
+        // FIXME: custom JSON to java object deserialization for ActionsParameters based on additionalTypeInfo
+        // in ParameterInfo! Currently, Java Beans will be deserialized to key/value maps, not the actual
+        // JavaBean Objects!
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             if ("task".equals(resultingInstanceType)) {
+                final JsonNode taskDescription = RuntimeContainer.getServer()
+                            .getActionCore()
+                            .createNewActionTask(
+                                user,
+                                actionKey,
+                                taskParams,
+                                role,
+                                requestResultingInstance,
+                                attachmentInputStream);
                 return Response.status(Response.Status.OK)
                             .header("Location", getLocation())
-                            .entity(RuntimeContainer.getServer().getActionCore().createNewActionTask(
-                                        user,
-                                        actionKey,
-                                        taskParams,
-                                        role,
-                                        requestResultingInstance,
-                                        attachmentInputStream))
+                            .type(MediaType.APPLICATION_JSON_TYPE)
+                            .entity(taskDescription)
                             .build();
             } else if ("result".equals(resultingInstanceType)) {
-                return Response.status(Response.Status.OK)
-                            .header("Location", getLocation())
-                            .entity(RuntimeContainer.getServer().getActionCore().executeNewAction(
-                                        user,
-                                        actionKey,
-                                        taskParams,
-                                        role,
-                                        attachmentInputStream))
-                            .build();
+                final GenericResourceWithContentType actionResult = RuntimeContainer.getServer()
+                            .getActionCore()
+                            .executeNewAction(
+                                user,
+                                actionKey,
+                                taskParams,
+                                role,
+                                attachmentInputStream);
+
+                if ((actionResult == null) || (actionResult.getRes() == null)) {
+                    log.warn("action " + actionKey + "' did not generate any result!");
+                    return Response.status(Response.Status.NO_CONTENT).header("Location", getLocation()).build();
+                } else {
+                    return Response.status(Response.Status.OK)
+                                .header("Location", getLocation())
+                                .type(actionResult.getContentType())
+                                .entity(actionResult)
+                                .build();
+                }
             } else {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
@@ -519,8 +548,8 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * Returns meta-information about the results of a specific action task
-     * identified by the key of the action and the id of the Task. 
+     * Returns meta-information about the results of a specific action task identified by the key of the action and the
+     * id of the Task.
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
@@ -538,9 +567,7 @@ public class ActionAPI extends APIBase {
         value = "Get task result.",
         notes = "-"
     )
-    @Produces({
-        MediaType.APPLICATION_JSON}
-    )
+    @Produces({ MediaType.APPLICATION_JSON })
     public Response getTaskResults(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -625,9 +652,8 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * Returns the actual result of an action. The type of the result depends on 
-     * the current action is denoted by the return content type of the operation, 
-     * e.g. application/json, text/plain, etc.
+     * Returns the actual result of an action. The type of the result depends on the current action is denoted by the
+     * return content type of the operation, e.g. application/json, text/plain, etc.
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
@@ -644,9 +670,7 @@ public class ActionAPI extends APIBase {
         value = "Get task result.",
         notes = "-"
     )
-    @Produces({
-        MediaType.WILDCARD}
-    )
+    @Produces({ MediaType.WILDCARD })
     public Response getTaskResult(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
