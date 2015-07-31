@@ -162,7 +162,7 @@ public class FileSystemActionCore implements ActionCore {
             ActionTask actionTask,
             final String role,
             final boolean requestResultingInstance,
-            final InputStream attachmentIS) {
+            final GenericResourceWithContentType<InputStream> bodyResource) {
         Action action = null;
         final ObjectMapper m = new ObjectMapper();
         if (role != null) {
@@ -208,13 +208,14 @@ public class FileSystemActionCore implements ActionCore {
             final File resultDirFile = new File(resultDir);
             final File stderrFile = new File(stderr);
             final File stdoutFile = new File(stdout);
-            if (attachmentIS != null) {
+
+            if (bodyResource != null) {
                 final File attachmentFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP
                                 + actionTask.getKey()
                                 + SEP
                                 + "attachment.file");
 
-                FileUtils.copyInputStreamToFile(attachmentIS, attachmentFile);
+                FileUtils.copyInputStreamToFile(bodyResource.getRes(), attachmentFile);
             }
             m.writeValue(taskFile, actionTask);
             action = m.readValue(actionFile, Action.class);
@@ -482,7 +483,7 @@ public class FileSystemActionCore implements ActionCore {
             final String actionKey,
             final ActionTask body,
             final String role,
-            final InputStream fileAttachement) {
+            final GenericResourceWithContentType<InputStream> bodyResource) {
         final String message = "The operation '"
                     + Thread.currentThread().getStackTrace()[1].getMethodName()
                     + "' is not yet supported by " + this.getClass().getSimpleName();

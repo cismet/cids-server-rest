@@ -44,6 +44,16 @@ public class CidsServerException extends RuntimeException {
      * Creates a new CidsServerException object.
      *
      * @param  developerMessage  DOCUMENT ME!
+     * @param  httpErrorCode     DOCUMENT ME!
+     */
+    public CidsServerException(final String developerMessage, final int httpErrorCode) {
+        this(developerMessage, developerMessage, httpErrorCode);
+    }
+
+    /**
+     * Creates a new CidsServerException object.
+     *
+     * @param  developerMessage  DOCUMENT ME!
      * @param  userMessage       DOCUMENT ME!
      * @param  httpErrorCode     DOCUMENT ME!
      */

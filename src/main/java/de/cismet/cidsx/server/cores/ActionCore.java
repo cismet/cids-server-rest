@@ -61,11 +61,11 @@ public interface ActionCore extends CidsServerCore {
     /**
      * DOCUMENT ME!
      *
-     * @param   user             DOCUMENT ME!
-     * @param   actionKey        DOCUMENT ME!
-     * @param   body             DOCUMENT ME!
-     * @param   role             DOCUMENT ME!
-     * @param   fileAttachement  DOCUMENT ME!
+     * @param   user          DOCUMENT ME!
+     * @param   actionKey     DOCUMENT ME!
+     * @param   body          DOCUMENT ME!
+     * @param   role          DOCUMENT ME!
+     * @param   bodyResource  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -73,7 +73,7 @@ public interface ActionCore extends CidsServerCore {
             String actionKey,
             ActionTask body,
             String role,
-            InputStream fileAttachement);
+            GenericResourceWithContentType<InputStream> bodyResource);
 
     /**
      * DOCUMENT ME!
@@ -83,7 +83,7 @@ public interface ActionCore extends CidsServerCore {
      * @param   body                      DOCUMENT ME!
      * @param   role                      DOCUMENT ME!
      * @param   requestResultingInstance  DOCUMENT ME!
-     * @param   fileAttachement           DOCUMENT ME!
+     * @param   bodyResource              DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -92,7 +92,7 @@ public interface ActionCore extends CidsServerCore {
             ActionTask body,
             String role,
             @Deprecated boolean requestResultingInstance,
-            InputStream fileAttachement);
+            GenericResourceWithContentType<InputStream> bodyResource);
 
     /**
      * DOCUMENT ME!
