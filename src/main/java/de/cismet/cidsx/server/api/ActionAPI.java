@@ -13,8 +13,10 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.sun.jersey.multipart.BodyPartEntity;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataParam;
+import com.sun.jersey.spi.container.ContainerRequest;
 
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
@@ -36,9 +38,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Variant;
+
+import de.cismet.cidsx.base.types.MediaTypes;
 
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.ActionResultInfo;
@@ -48,8 +55,6 @@ import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.GenericResourceWithContentType;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Request;
 
 /**
  * Show, run and maintain custom actions within the cids system.
@@ -63,7 +68,7 @@ import javax.ws.rs.core.Request;
     listingPath = "/resources/actions"
 )
 @Path("/actions")
-@Produces("application/json")
+@Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ActionAPI extends APIBase {
 
@@ -86,6 +91,7 @@ public class ActionAPI extends APIBase {
         value = "Get information about all actions supported by the server.",
         notes = "-"
     )
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getActions(
             @ApiParam(
                 value = "possible values are 'all','local' or a existing [domainname]. 'all' when not submitted",
@@ -182,6 +188,7 @@ public class ActionAPI extends APIBase {
         value = "Get information about a specific action",
         notes = "-"
     )
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getAction(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -252,6 +259,7 @@ public class ActionAPI extends APIBase {
         value = "Get information about all running tasks (executed actions).",
         notes = "-"
     )
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getRunningTasks(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -334,22 +342,21 @@ public class ActionAPI extends APIBase {
      * DOCUMENT ME!
      *
      * @param   taskParams                DOCUMENT ME!
-     * @param   attachmentInputStream     DOCUMENT ME!
-     * @param   contentdisp               DOCUMENT ME!
-     * @param contentbp
+     * @param   bodyPart                  DOCUMENT ME!
      * @param   domain                    DOCUMENT ME!
      * @param   actionKey                 DOCUMENT ME!
      * @param   role                      DOCUMENT ME!
      * @param   resultingInstanceType     DOCUMENT ME!
      * @param   requestResultingInstance  DOCUMENT ME!
      * @param   authString                DOCUMENT ME!
-     * @param request
+     * @param   request                   DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
     @Path("/{domain}.{actionkey}/tasks")
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.WILDCARD })
     @ApiOperation(
         value = "Create a new task of this action.",
         notes = "Swagger has some problems with MULTIPART_FORM_DATA.<br><br> "
@@ -366,9 +373,7 @@ public class ActionAPI extends APIBase {
                     + "837211/3741823/613248dc-1763-11e4-99be-2b3cf5b376b9.png\"/>"
     )
     public Response createNewActionTask(@FormDataParam("taskparams") final ActionTask taskParams,
-            @FormDataParam("file") final InputStream attachmentInputStream,
-            @FormDataParam("file") final FormDataContentDisposition contentdisp,
-            @FormDataParam("file") final FormDataBodyPart contentbp,
+            @FormDataParam("file") final FormDataBodyPart bodyPart,
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -409,14 +414,30 @@ public class ActionAPI extends APIBase {
             )
             @HeaderParam("Authorization")
             final String authString,
-            @Context final Request request){
+            @Context final Request request) {
         final User user = Tools.validationHelper(authString);
+
+        final GenericResourceWithContentType<InputStream> bodyResource;
+        if ((bodyPart != null) && (bodyPart.getEntity() != null)
+                    && BodyPartEntity.class.isAssignableFrom(bodyPart.getEntity().getClass())) {
+            final String contentType = bodyPart.getMediaType().toString();
+            final InputStream inputStream = ((BodyPartEntity)bodyPart.getEntity()).getInputStream();
+            bodyResource = new GenericResourceWithContentType(contentType, inputStream);
+            if (log.isDebugEnabled()) {
+                log.debug("create new action task '" + actionKey + "' with body part of type '"
+                            + contentType + "'");
+            }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("create new action task '" + actionKey + "' without body part");
+            }
+            bodyResource = null;
+        }
 
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
-        
-        contentbp.g
+
         // FIXME: custom JSON to java object deserialization for ActionsParameters based on additionalTypeInfo
         // in ParameterInfo! Currently, Java Beans will be deserialized to key/value maps, not the actual
         // JavaBean Objects!
@@ -430,7 +451,7 @@ public class ActionAPI extends APIBase {
                                 taskParams,
                                 role,
                                 requestResultingInstance,
-                                attachmentInputStream);
+                                bodyResource);
                 return Response.status(Response.Status.OK)
                             .header("Location", getLocation())
                             .type(MediaType.APPLICATION_JSON_TYPE)
@@ -444,12 +465,21 @@ public class ActionAPI extends APIBase {
                                 actionKey,
                                 taskParams,
                                 role,
-                                attachmentInputStream);
+                                bodyResource);
 
                 if ((actionResult == null) || (actionResult.getRes() == null)) {
                     log.warn("action " + actionKey + "' did not generate any result!");
                     return Response.status(Response.Status.NO_CONTENT).header("Location", getLocation()).build();
                 } else {
+                    if ((actionResult.getContentType() == null) || actionResult.getContentType().isEmpty()) {
+                        log.warn("Server Action did not provide any content type information "
+                                    + "about the result, assuming '" + MediaType.APPLICATION_OCTET_STREAM + "'");
+                        actionResult.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                    }
+
+                    // check the response against the client's expectations
+                    Tools.checkAcceptedContentTypes(request, actionResult);
+
                     return Response.status(Response.Status.OK)
                                 .header("Location", getLocation())
                                 .type(actionResult.getContentType())
@@ -490,6 +520,7 @@ public class ActionAPI extends APIBase {
         value = "Get task status.",
         notes = "-"
     )
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getTaskStatus(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -567,7 +598,7 @@ public class ActionAPI extends APIBase {
         value = "Get task result.",
         notes = "-"
     )
-    @Produces({ MediaType.APPLICATION_JSON })
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getTaskResults(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -661,6 +692,7 @@ public class ActionAPI extends APIBase {
      * @param   resultKey   DOCUMENT ME!
      * @param   role        DOCUMENT ME!
      * @param   authString  DOCUMENT ME!
+     * @param   request     DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -670,7 +702,7 @@ public class ActionAPI extends APIBase {
         value = "Get task result.",
         notes = "-"
     )
-    @Produces({ MediaType.WILDCARD })
+    @Produces(MediaType.WILDCARD)
     public Response getTaskResult(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -708,20 +740,30 @@ public class ActionAPI extends APIBase {
                 required = false
             )
             @HeaderParam("Authorization")
-            final String authString) {
+            final String authString,
+            @Context final Request request) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final GenericResourceWithContentType r = RuntimeContainer.getServer()
+            final GenericResourceWithContentType actionResult = RuntimeContainer.getServer()
                         .getActionCore()
                         .getResult(user, actionKey, taskKey, resultKey, role);
-            if (r != null) {
+            if ((actionResult != null) && (actionResult.getRes() != null)) {
+                if ((actionResult.getContentType() == null) || actionResult.getContentType().isEmpty()) {
+                    log.warn("Server Action did not provide any content type information "
+                                + "about the result, assuming '" + MediaType.APPLICATION_OCTET_STREAM + "'");
+                    actionResult.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                }
+
+                // check the response against the client's expectations
+                Tools.checkAcceptedContentTypes(request, actionResult);
+
                 return Response.status(Response.Status.OK)
-                            .header("Content-Type", r.getContentType())
                             .header("Location", getLocation())
-                            .entity(r.getRes())
+                            .entity(actionResult.getRes())
+                            .type(actionResult.getContentType())
                             .build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).header("Location", getLocation()).build();

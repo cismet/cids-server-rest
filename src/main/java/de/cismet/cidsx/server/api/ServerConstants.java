@@ -39,6 +39,11 @@ public final class ServerConstants {
                 .add()
                 .build();
 
+    public static final List<Variant> ACTION_RESPONSE_VARIANTS = Variant.mediaTypes(
+            new MediaType[] { MediaType.WILDCARD_TYPE })
+                .add()
+                .build();
+
     //~ Constructors -----------------------------------------------------------
 
     /**
