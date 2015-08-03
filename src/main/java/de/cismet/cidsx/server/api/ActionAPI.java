@@ -483,7 +483,7 @@ public class ActionAPI extends APIBase {
                     return Response.status(Response.Status.OK)
                                 .header("Location", getLocation())
                                 .type(actionResult.getContentType())
-                                .entity(actionResult)
+                                .entity(actionResult.getRes())
                                 .build();
                 }
             } else {

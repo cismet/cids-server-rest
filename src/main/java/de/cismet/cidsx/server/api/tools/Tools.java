@@ -199,7 +199,7 @@ public class Tools {
             final GenericResourceWithContentType resource) throws CidsServerException {
         if (request instanceof ContainerRequest) {
             final List<MediaType> acceptableMediaTypes = ((ContainerRequest)request).getAcceptableMediaTypes();
-            if ((acceptableMediaTypes != null) && acceptableMediaTypes.isEmpty()) {
+            if ((acceptableMediaTypes != null) && !acceptableMediaTypes.isEmpty()) {
                 String contentTypes = new String();
                 boolean accepted = false;
                 for (final MediaType acceptedMediaType : acceptableMediaTypes) {
@@ -220,7 +220,12 @@ public class Tools {
                     log.error(message);
                     throw new CidsServerException(message, HttpServletResponse.SC_NOT_ACCEPTABLE);
                 }
+            } else {
+                log.warn("cannot check accepted content types, client did not send accept header!");
             }
+        } else {
+            log.warn("cannot check accepted content types, unsupported request type '"
+                        + request.getClass().getSimpleName() + "'");
         }
     }
 }
