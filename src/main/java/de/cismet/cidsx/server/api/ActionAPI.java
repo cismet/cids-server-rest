@@ -55,6 +55,8 @@ import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.GenericResourceWithContentType;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import de.cismet.cidsx.server.exceptions.ActionNotFoundException;
+import de.cismet.cidsx.server.exceptions.ActionTaskNotFoundException;
 
 /**
  * Show, run and maintain custom actions within the cids system.
@@ -181,6 +183,8 @@ public class ActionAPI extends APIBase {
      * @param   authString  DOCUMENT ME!
      *
      * @return  {@link ActionTask}
+     *
+     * @throws  ActionNotFoundException  DOCUMENT ME!
      */
     @Path("/{domain}.{actionkey}")
     @GET
@@ -220,10 +224,16 @@ public class ActionAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            return Response.status(Response.Status.OK)
-                        .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getActionCore().getAction(user, actionKey, role))
-                        .build();
+            final JsonNode action = RuntimeContainer.getServer().getActionCore().getAction(user, actionKey, role);
+
+            if (action != null) {
+                return Response.status(Response.Status.OK).header("Location", getLocation()).entity(action).build();
+            } else {
+                final String message = "Action '" + actionKey + " could not be found at domain '"
+                            + domain + "'!";
+                log.warn(message);
+                throw new ActionNotFoundException(message, actionKey);
+            }
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
@@ -513,6 +523,8 @@ public class ActionAPI extends APIBase {
      * @param   authString  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  ActionTaskNotFoundException  DOCUMENT ME!
      */
     @Path("/{domain}.{actionkey}/tasks/{taskkey}")
     @GET
@@ -558,10 +570,18 @@ public class ActionAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            return Response.status(Response.Status.OK)
-                        .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getActionCore().getTask(user, actionKey, taskKey, role))
-                        .build();
+            final JsonNode actionTask = RuntimeContainer.getServer()
+                        .getActionCore()
+                        .getTask(user, actionKey, taskKey, role);
+
+            if (actionTask != null) {
+                return Response.status(Response.Status.OK).header("Location", getLocation()).entity(actionTask).build();
+            } else {
+                final String message = "The Task '" + taskKey + "' of Action '"
+                            + actionKey + " could not be found at domain '" + domain + "'!";
+                log.warn(message);
+                throw new ActionTaskNotFoundException(message, taskKey);
+            }
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
@@ -655,7 +675,7 @@ public class ActionAPI extends APIBase {
             final List<ActionResultInfo> allActions = RuntimeContainer.getServer()
                         .getActionCore()
                         .getResults(user, actionKey, taskKey, role);
-            final CollectionResource result = new CollectionResource(
+            final GenericCollectionResource<ActionResultInfo> result = new GenericCollectionResource<ActionResultInfo>(
                     getLocation(),
                     offset,
                     limit,
@@ -695,6 +715,8 @@ public class ActionAPI extends APIBase {
      * @param   request     DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  ActionTaskNotFoundException  DOCUMENT ME!
      */
     @Path("/{domain}.{actionkey}/tasks/{taskkey}/results/{resultkey}")
     @GET
@@ -766,7 +788,10 @@ public class ActionAPI extends APIBase {
                             .type(actionResult.getContentType())
                             .build();
             } else {
-                return Response.status(Response.Status.NOT_FOUND).header("Location", getLocation()).build();
+                final String message = "The Task '" + taskKey + "' of Action '"
+                            + actionKey + " could not be found at domain '" + domain + "'!";
+                log.warn(message);
+                throw new ActionTaskNotFoundException(message, taskKey);
             }
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
