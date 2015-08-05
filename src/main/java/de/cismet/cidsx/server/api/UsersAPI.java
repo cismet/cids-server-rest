@@ -7,11 +7,9 @@
 ****************************************************/
 package de.cismet.cidsx.server.api;
 
-import com.wordnik.swagger.core.Api;
-import com.wordnik.swagger.core.ApiError;
-import com.wordnik.swagger.core.ApiErrors;
-import com.wordnik.swagger.core.ApiOperation;
-import com.wordnik.swagger.core.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -31,8 +29,9 @@ import de.cismet.cidsx.server.api.types.User;
  */
 @Api(
     value = "/users",
-    description = "Show, run and maintain custom actions within the cids system.",
-    listingPath = "/resources/users"
+    description = "Show, run and maintain custom actions within the cids system."
+//        ,
+//    listingPath = "/resources/users"
 )
 @Path("/users")
 @Produces("application/json")
@@ -53,18 +52,18 @@ public class UsersAPI {
         value = "Validate the user whose credentials are submitted via the header.",
         notes = "-"
     )
-    @ApiErrors(
-        value = {
-                @ApiError(
-                    code = 400,
-                    reason = "Invalid user supplied"
-                ),
-                @ApiError(
-                    code = 404,
-                    reason = "User not found"
-                )
-            }
-    )
+//    @ApiErrors(
+//        value = {
+//                @ApiError(
+//                    code = 400,
+//                    reason = "Invalid user supplied"
+//                ),
+//                @ApiError(
+//                    code = 404,
+//                    reason = "User not found"
+//                )
+//            }
+//    )
     public Response validate(
             @ApiParam(
                 value = "Basic Auth Realm",

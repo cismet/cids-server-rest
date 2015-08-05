@@ -13,9 +13,9 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
-import com.wordnik.swagger.core.Api;
-import com.wordnik.swagger.core.ApiOperation;
-import com.wordnik.swagger.core.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,8 +54,9 @@ import de.cismet.cidsx.server.exceptions.EntityInfoNotFoundException;
  */
 @Api(
     value = "/classes",
-    description = "Get information about entities. Retrieve, create update and delete objects.",
-    listingPath = "/resources/classes"
+    description = "Get information about entities. Retrieve, create update and delete objects."
+//        ,
+//    listingPath = "/resources/classes"
 )
 @Path("/classes")
 @Produces(MediaType.APPLICATION_JSON)

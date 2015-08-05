@@ -30,6 +30,8 @@ import org.openide.util.Lookup;
 
 import java.io.IOException;
 
+import java.net.URL;
+
 import java.net.InetAddress;
 
 import java.util.ArrayList;
@@ -43,7 +45,6 @@ import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.data.SimpleServer;
 import de.cismet.cidsx.server.data.StatusHolder;
-import org.mortbay.jetty.servlet.DefaultServlet;
 
 /**
  * DOCUMENT ME!
@@ -73,19 +74,31 @@ public class Starter {
 
     @Parameter(
         names = "-port",
-        description = "If set to interactive server waits for a <enter> to shutdown"
+        description = "Port of the server"
     )
     int port = 8890;
 
     @Parameter(
-        names = "-basePath",
-        description = "Basepath of the server (mainly used by swagger-doc )"
+        names = "-apiPath",
+        description = "Path where the cids API is exposed, default /resources"
     )
-    String basePath = "http://localhost";
+    String apiPath = "/resources";
+
+    @Parameter(
+        names = "-swaggerPath",
+        description = "Path where the cids Swagger UI is exposed, default /swagger"
+    )
+    String swaggerPath = "/swagger";
+
+    @Parameter(
+        names = { "-baseURI", "-basePath" },
+        description = "Base URI of the server (mainly used by swagger-doc), default http://localhost"
+    )
+    String host = "http://localhost";
 
     @Parameter(
         names = { "-domainname", "-domain" },
-        description = "If set to interactive server waits for a <enter> to shutdown"
+        description = "Domain Name of the CIDS Server"
     )
     String domainName = "cids";
 
@@ -161,7 +174,7 @@ public class Starter {
         variableArity = true,
         required = true
     )
-    private List<String> activeModulesParameter = new ArrayList<String>();
+    private final List<String> activeModulesParameter = new ArrayList<String>();
 
     //~ Constructors -----------------------------------------------------------
 
@@ -237,74 +250,75 @@ public class Starter {
             jcom.setAllowParameterOverwriting(true);
             jcom.parse(args);
 
-            final String swaggerBasePath;
-            if (basePath.matches(".*:\\d+.*$")) {
-                swaggerBasePath = basePath;
+            final URL apiBaseURL;
+            if (host.matches(".*:\\d+$")) {
+                apiBaseURL = new URL(this.host + this.apiPath);
             } else {
-                swaggerBasePath = basePath + ":" + port;
+                apiBaseURL = new URL(this.host + ":" + this.port + this.apiPath);
             }
+
+            log.info("CIDS API Base URL set to " + apiBaseURL);
+
             RuntimeContainer.setServer(cidsCoreHolder);
-            //JaxrsApiReader.setFormatString("");
-            //io.swaggerUiContext.jaxrs.
+            // JaxrsApiReader.setFormatString("");
+            // io.swaggerUiContext.jaxrs.
 
             server = new Server(port);
-            
-// CIDS REST API ---------------------------------------------------
+
+            // CIDS REST API Servlet -------------------------------------------
             final ServletHolder cidsApiServlet = new ServletHolder(ServletContainer.class);
             cidsApiServlet.setInitParameter(
                 "com.sun.jersey.config.property.packages",
-                        "com.fasterxml.jackson.jaxrs;"
+                "com.fasterxml.jackson.jaxrs;"
                         + "io.swagger.jaxrs.json;"
                         + "io.swagger.jaxrs.listing;"
-                        + "de.cismet.cidsx.server.xapi");
-            
-            //jersey.config.server.provider.classnames
-                    
+                        + "de.cismet.cidsx.server.api");
+
             cidsApiServlet.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
                 "true");
-            
+
             cidsApiServlet.setInitParameter(
                 "com.sun.jersey.spi.container.ContainerResponseFilters",
                 "de.cismet.cidsx.server.api.tools.CORSResponseFilter");
-
-            // Swagger API
-            log.info("configuring swagger resource listing at " + swaggerBasePath + "swagger.json");
+            if (log.isDebugEnabled()) {
+                // Swagger Core Servlet --------------------------------------------
+                log.debug("configuring swagger resource listing at " + apiBaseURL + "swagger.json");
+            }
             final ServletHolder swaggerApiServlet = new ServletHolder(io.swagger.jaxrs.config.DefaultJaxrsConfig.class);
-            swaggerApiServlet.setInitParameter("api.version", "1.0");
-            swaggerApiServlet.setInitParameter("swagger.api.basepath", swaggerBasePath); // no trailing slash please
-            //swaggerApiServlet.setInitParameter("swagger.api.basepath", "http://localhost:8890/resources");
-            
 
-            final Context context = new Context(server, "/", Context.SESSIONS);
-            context.addServlet(cidsApiServlet,"/resources/*");
-            context.addServlet(swaggerApiServlet, "/");
-           
-            
+            swaggerApiServlet.setDisplayName("Swagger Core API Servlet");
+            // important! init servlet on startup!
+            swaggerApiServlet.setInitOrder(2);
+            swaggerApiServlet.setInitParameter("api.version", "1.0");
+            swaggerApiServlet.setInitParameter("swagger.api.basepath", apiBaseURL.toString());
+            swaggerApiServlet.setInitParameter("swagger.api.title", "CIDS REST API");
+            swaggerApiServlet.setInitParameter("swagger.pretty.print", "true");
+
+            // init the API context with CIDS API and Swagger Core Servlet
+            final Context context = new Context(server, this.apiPath, Context.SESSIONS);
+            context.addServlet(cidsApiServlet, "/*");
+            context.addServlet(swaggerApiServlet, null);
+
             // swaggerUiContext-ui ----------------------------------------------------
             final String swaggerUIBaseDir = this.getClass()
                         .getClassLoader()
                         .getResource("de/cismet/cids/server/swagger")
                         .toExternalForm();
-            log.info("configuring swagger UI at " + swaggerBasePath + "/swagger.json");
-            final Context swaggerUiContext = new Context(server, "/swagger", Context.SESSIONS); // NOI18N
+            if (log.isDebugEnabled()) {
+                log.debug("loading swagger UI resources from '" + swaggerUIBaseDir + "'");
+            }
+            final Context swaggerUiContext = new Context(server, this.swaggerPath, Context.SESSIONS); // NOI18N
             swaggerUiContext.setHandler(new ResourceHandler());
             swaggerUiContext.setResourceBase(swaggerUIBaseDir);
-                       
+
             final ContextHandlerCollection contexts = new ContextHandlerCollection();
-            contexts.setHandlers(new Handler[] {
-                   
-                //swaggerUiContext,
-                context
-                    
+            contexts.setHandlers(
+                new Handler[] {
+                    swaggerUiContext,
+                    context
                 });
-//            
-//            contexts.setHandlers(new Handler[] {
-//                    cidsApiContext
-//                });
 
             server.setHandlers(contexts.getHandlers());
-            
-            //server.setHandler(context);
 
             final Connector connector = getConnector();
             server.setConnectors(new Connector[] { connector });

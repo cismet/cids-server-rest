@@ -14,9 +14,9 @@ package de.cismet.cidsx.server.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import com.wordnik.swagger.core.Api;
-import com.wordnik.swagger.core.ApiOperation;
-import com.wordnik.swagger.core.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 import java.util.Date;
 import java.util.Enumeration;
@@ -45,8 +45,9 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
  */
 @Api(
     value = "/service",
-    description = "General Service API that provides common infrastructure service methods.",
-    listingPath = "/services"
+    description = "General Service API that provides common infrastructure service methods."
+//        ,
+//    listingPath = "/services"
 )
 @Path("/service")
 @Produces("application/json")

@@ -11,16 +11,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.multipart.BodyPartEntity;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataParam;
-import com.sun.jersey.spi.container.ContainerRequest;
 
-import com.wordnik.swagger.core.Api;
-import com.wordnik.swagger.core.ApiOperation;
-import com.wordnik.swagger.core.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,9 +41,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Variant;
-
-import de.cismet.cidsx.base.types.MediaTypes;
 
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.ActionResultInfo;
@@ -66,8 +61,9 @@ import de.cismet.cidsx.server.exceptions.ActionTaskNotFoundException;
  */
 @Api(
     value = "/actions",
-    description = "Show, run and maintain custom actions within the cids system.",
-    listingPath = "/resources/actions"
+    description = "Show, run and maintain custom actions within the cids system."
+//        ,
+//    listingPath = "/resources/actions"
 )
 @Path("/actions")
 @Produces(MediaType.APPLICATION_JSON)

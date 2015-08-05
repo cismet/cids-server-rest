@@ -13,9 +13,9 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
-import com.wordnik.swagger.core.Api;
-import com.wordnik.swagger.core.ApiOperation;
-import com.wordnik.swagger.core.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,7 +55,6 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.CidsServerException;
-import de.cismet.cidsx.server.exceptions.EntityInfoNotFoundException;
 import de.cismet.cidsx.server.exceptions.EntityNotFoundException;
 import de.cismet.cidsx.server.trigger.CidsTrigger;
 import de.cismet.cidsx.server.trigger.CidsTriggerKey;
@@ -70,8 +69,9 @@ import de.cismet.cidsx.server.trigger.EntityCoreAwareCidsTrigger;
 @Api(
     value = "/"
                 + "",
-    description = "Get information about entities. Retrieve, create update and delete objects.",
-    listingPath = "/resources/entities"
+    description = "Get information about entities. Retrieve, create update and delete objects."
+//        ,
+//    listingPath = "/resources/entities"
 )
 @Produces("application/json")
 @Path("/")
