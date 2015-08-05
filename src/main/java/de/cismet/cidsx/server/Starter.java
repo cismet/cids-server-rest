@@ -14,8 +14,6 @@ import com.beust.jcommander.Parameters;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
-import com.wordnik.swagger.jaxrs.JaxrsApiReader;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.mortbay.jetty.Connector;
@@ -45,6 +43,7 @@ import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.data.SimpleServer;
 import de.cismet.cidsx.server.data.StatusHolder;
+import org.mortbay.jetty.servlet.DefaultServlet;
 
 /**
  * DOCUMENT ME!
@@ -245,43 +244,67 @@ public class Starter {
                 swaggerBasePath = basePath + ":" + port;
             }
             RuntimeContainer.setServer(cidsCoreHolder);
-            JaxrsApiReader.setFormatString("");
-            final ServletHolder sh = new ServletHolder(ServletContainer.class);
-            sh.setInitParameter(
-                "com.sun.jersey.config.property.packages",
-                "de.cismet.cidsx.server.api;"
-                        // + "de.cismet.cidsx.server.rest.resourcelistings;"
-                        + "com.fasterxml.jackson.jaxrs");
+            //JaxrsApiReader.setFormatString("");
+            //io.swaggerUiContext.jaxrs.
 
-            sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
+            server = new Server(port);
+            
+// CIDS REST API ---------------------------------------------------
+            final ServletHolder cidsApiServlet = new ServletHolder(ServletContainer.class);
+            cidsApiServlet.setInitParameter(
+                "com.sun.jersey.config.property.packages",
+                        "com.fasterxml.jackson.jaxrs;"
+                        + "io.swagger.jaxrs.json;"
+                        + "io.swagger.jaxrs.listing;"
+                        + "de.cismet.cidsx.server.xapi");
+            
+            //jersey.config.server.provider.classnames
+                    
+            cidsApiServlet.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
                 "true");
-            sh.setInitParameter(
+            
+            cidsApiServlet.setInitParameter(
                 "com.sun.jersey.spi.container.ContainerResponseFilters",
                 "de.cismet.cidsx.server.api.tools.CORSResponseFilter");
-            sh.setInitParameter("swagger.version", "1.0");
-            sh.setInitParameter("swagger.api.basepath", swaggerBasePath); // no trailing slash please
-            server = new Server(port);
+
+            // Swagger API
+            log.info("configuring swagger resource listing at " + swaggerBasePath + "swagger.json");
+            final ServletHolder swaggerApiServlet = new ServletHolder(io.swagger.jaxrs.config.DefaultJaxrsConfig.class);
+            swaggerApiServlet.setInitParameter("api.version", "1.0");
+            swaggerApiServlet.setInitParameter("swagger.api.basepath", swaggerBasePath); // no trailing slash please
+            //swaggerApiServlet.setInitParameter("swagger.api.basepath", "http://localhost:8890/resources");
+            
 
             final Context context = new Context(server, "/", Context.SESSIONS);
-            context.addServlet(sh, "/*");
-            final String resoursceBaseDir = this.getClass()
+            context.addServlet(cidsApiServlet,"/resources/*");
+            context.addServlet(swaggerApiServlet, "/");
+           
+            
+            // swaggerUiContext-ui ----------------------------------------------------
+            final String swaggerUIBaseDir = this.getClass()
                         .getClassLoader()
                         .getResource("de/cismet/cids/server/swagger")
                         .toExternalForm();
-
-            final Context swagger = new Context(server, "/swagger", Context.SESSIONS); // NOI18N
-
-            swagger.setHandler(new ResourceHandler());
-            swagger.setResourceBase(resoursceBaseDir);
-
+            log.info("configuring swagger UI at " + swaggerBasePath + "/swagger.json");
+            final Context swaggerUiContext = new Context(server, "/swagger", Context.SESSIONS); // NOI18N
+            swaggerUiContext.setHandler(new ResourceHandler());
+            swaggerUiContext.setResourceBase(swaggerUIBaseDir);
+                       
             final ContextHandlerCollection contexts = new ContextHandlerCollection();
-            contexts.setHandlers(
-                new Handler[] {
-                    swagger,
-                    context
+            contexts.setHandlers(new Handler[] {
+                   
+                //swaggerUiContext,
+                context
+                    
                 });
+//            
+//            contexts.setHandlers(new Handler[] {
+//                    cidsApiContext
+//                });
 
             server.setHandlers(contexts.getHandlers());
+            
+            //server.setHandler(context);
 
             final Connector connector = getConnector();
             server.setConnectors(new Connector[] { connector });
