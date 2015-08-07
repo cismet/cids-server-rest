@@ -12,6 +12,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,8 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 import org.openide.util.Lookup;
+
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.IOException;
 
@@ -77,12 +80,6 @@ public class Starter {
         description = "Port of the server"
     )
     int port = 8890;
-
-    @Parameter(
-        names = "-apiPath",
-        description = "Path where the cids API is exposed, default /resources"
-    )
-    String apiPath = "/resources";
 
     @Parameter(
         names = "-swaggerPath",
@@ -252,9 +249,9 @@ public class Starter {
 
             final URL apiBaseURL;
             if (host.matches(".*:\\d+$")) {
-                apiBaseURL = new URL(this.host + this.apiPath);
+                apiBaseURL = new URL(this.host + "/");
             } else {
-                apiBaseURL = new URL(this.host + ":" + this.port + this.apiPath);
+                apiBaseURL = new URL(this.host + ":" + this.port + "/");
             }
 
             log.info("CIDS API Base URL set to " + apiBaseURL);
@@ -274,8 +271,17 @@ public class Starter {
                         + "io.swagger.jaxrs.listing;"
                         + "de.cismet.cidsx.server.api");
 
-            cidsApiServlet.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
+            cidsApiServlet.setInitParameter(JSONConfiguration.FEATURE_POJO_MAPPING,
                 "true");
+
+//            cidsApiServlet.setInitParameter("jersey.config.server.tracing.type",
+//                "all");
+//            cidsApiServlet.setInitParameter("jersey.config.server.tracing.threshold",
+//                "TRACE");
+//            cidsApiServlet.setInitParameter("jersey.config.server.exception.processResponseErrors",
+//                "false");
+//            cidsApiServlet.setInitParameter("jersey.config.beanValidation .enableOutputValidationErrorEntity.server",
+//                "true");
 
             cidsApiServlet.setInitParameter(
                 "com.sun.jersey.spi.container.ContainerResponseFilters",
@@ -293,11 +299,20 @@ public class Starter {
             swaggerApiServlet.setInitParameter("swagger.api.basepath", apiBaseURL.toString());
             swaggerApiServlet.setInitParameter("swagger.api.title", "CIDS REST API");
             swaggerApiServlet.setInitParameter("swagger.pretty.print", "true");
+            swaggerApiServlet.setInitParameter(
+                "swagger.filter",
+                "de.cismet.cidsx.server.api.swagger.SwaggerApiAuthorizationFilter");
+
+            final ServletHolder swaggerBootstrapServlet = new ServletHolder(
+                    de.cismet.cidsx.server.api.swagger.SwaggerBootstrap.class);
+            swaggerBootstrapServlet.setDisplayName("Swagger Bootstrap Servlet");
+            swaggerBootstrapServlet.setInitOrder(2);
 
             // init the API context with CIDS API and Swagger Core Servlet
-            final Context context = new Context(server, this.apiPath, Context.SESSIONS);
+            final Context context = new Context(server, "/", Context.SESSIONS);
             context.addServlet(cidsApiServlet, "/*");
             context.addServlet(swaggerApiServlet, null);
+            context.addServlet(swaggerBootstrapServlet, null);
 
             // swaggerUiContext-ui ----------------------------------------------------
             final String swaggerUIBaseDir = this.getClass()
@@ -433,6 +448,9 @@ public class Starter {
      */
     // TODO: proper CLI api
     public static void main(final String[] args) {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+
         final Starter s = new Starter();
         s.init(args);
     }

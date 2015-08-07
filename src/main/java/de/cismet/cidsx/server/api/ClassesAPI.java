@@ -16,6 +16,10 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.ResponseHeader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +43,10 @@ import javax.ws.rs.core.Variant;
 
 import de.cismet.cidsx.base.types.MediaTypes;
 
+import de.cismet.cidsx.server.api.swagger.CidsClassCollectionResource;
 import de.cismet.cidsx.server.api.tools.Tools;
+import de.cismet.cidsx.server.api.types.CidsAttribute;
+import de.cismet.cidsx.server.api.types.CidsClass;
 import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
@@ -53,10 +60,8 @@ import de.cismet.cidsx.server.exceptions.EntityInfoNotFoundException;
  * @version  $Revision$, $Date$
  */
 @Api(
-    value = "/classes",
-    description = "Get information about entities. Retrieve, create update and delete objects."
-//        ,
-//    listingPath = "/resources/classes"
+    tags = { "classes" },
+    authorizations = @Authorization(value = "basic")
 )
 @Path("/classes")
 @Produces(MediaType.APPLICATION_JSON)
@@ -66,7 +71,7 @@ public class ClassesAPI extends APIBase {
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * DOCUMENT ME!
+     * Get all classes.
      *
      * @param   domain      DOCUMENT ME!
      * @param   limit       DOCUMENT ME!
@@ -83,20 +88,38 @@ public class ClassesAPI extends APIBase {
         value = "Get all classes.",
         notes = "-"
     )
-    @Produces(MediaType.APPLICATION_JSON)
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Classes found",
+                    response = CidsClassCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                )
+            }
+    )
     public Response getClasses(
             @ApiParam(
-                value = "possible values are 'all','local' or a existing [domainname]. 'all' when not submitted",
-                required = false,
-                defaultValue = "local"
+                value = "possible values are 'all', 'local' or a existing [domainname]. 'local' when not submitted",
+                required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("local")
             @QueryParam("domain")
             final String domain,
             @ApiParam(
                 value = "maximum number of results, 100 when not submitted",
                 required = false,
-                defaultValue = "100"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("100")
             @QueryParam("limit")
@@ -104,21 +127,22 @@ public class ClassesAPI extends APIBase {
             @ApiParam(
                 value = "pagination offset, 0 when not submitted",
                 required = false,
-                defaultValue = "0"
+                allowableValues = "range[0, infinity]"
             )
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -164,7 +188,7 @@ public class ClassesAPI extends APIBase {
     }
 
     /**
-     * DOCUMENT ME!
+     * Get a certain class.
      *
      * @param   domain      DOCUMENT ME!
      * @param   classKey    DOCUMENT ME!
@@ -182,7 +206,30 @@ public class ClassesAPI extends APIBase {
         value = "Get a certain class.",
         notes = "-"
     )
-    @Produces(MediaType.APPLICATION_JSON)
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Class found",
+                    response = CidsClass.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Class not found"
+                )
+            }
+    )
     public Response getClass(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -198,14 +245,15 @@ public class ClassesAPI extends APIBase {
             final String classKey,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -271,7 +319,32 @@ public class ClassesAPI extends APIBase {
     @GET
     @ApiOperation(
         value = "Get a certain class or object icon.",
-        notes = "-"
+        notes = "-",
+        hidden = true
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Icon found",
+                    response = Byte.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Icon not found"
+                )
+            }
     )
     @Produces(
         {
@@ -295,14 +368,24 @@ public class ClassesAPI extends APIBase {
             final String classKey,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
+
+//            @ApiParam(
+//                value = "Accept",
+//                required = false,
+//                defaultValue = "image/png",
+//                allowableValues = "image/png, application/x-cids-class-icon, application/x-cids-object-icon"
+//            )
+//            @HeaderParam("Accept")
+//            final String accept,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString,
@@ -392,10 +475,33 @@ public class ClassesAPI extends APIBase {
     @Path("/{domain}.{classkey}/{attributekey}")
     @GET
     @ApiOperation(
-        value = "Get a certain class.",
+        value = "Get a certain class attribute.",
         notes = "-"
     )
-    @Produces(MediaType.APPLICATION_JSON)
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Attribute found",
+                    response = CidsAttribute.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Attribute not found"
+                )
+            }
+    )
     public Response getAttribute(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -417,14 +523,15 @@ public class ClassesAPI extends APIBase {
             final String attributeKey,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {

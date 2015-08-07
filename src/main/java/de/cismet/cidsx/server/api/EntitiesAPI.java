@@ -66,15 +66,9 @@ import de.cismet.cidsx.server.trigger.EntityCoreAwareCidsTrigger;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
-@Api(
-    value = "/"
-                + "",
-    description = "Get information about entities. Retrieve, create update and delete objects."
-//        ,
-//    listingPath = "/resources/entities"
-)
+@Api(value = "/resources")
 @Produces("application/json")
-@Path("/")
+@Path("/resources")
 @Slf4j
 public class EntitiesAPI extends APIBase {
 
@@ -727,7 +721,8 @@ public class EntitiesAPI extends APIBase {
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {

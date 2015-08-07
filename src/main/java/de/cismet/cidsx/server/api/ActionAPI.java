@@ -19,6 +19,10 @@ import com.sun.jersey.multipart.FormDataParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.ResponseHeader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,16 +46,20 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
+import de.cismet.cidsx.server.api.swagger.ActionInfoCollectionResource;
+import de.cismet.cidsx.server.api.swagger.ActionResultInfoCollectionResource;
+import de.cismet.cidsx.server.api.swagger.ActionTaskCollectionResource;
 import de.cismet.cidsx.server.api.tools.Tools;
+import de.cismet.cidsx.server.api.types.ActionInfo;
 import de.cismet.cidsx.server.api.types.ActionResultInfo;
 import de.cismet.cidsx.server.api.types.ActionTask;
-import de.cismet.cidsx.server.api.types.CollectionResource;
 import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.GenericResourceWithContentType;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.ActionNotFoundException;
 import de.cismet.cidsx.server.exceptions.ActionTaskNotFoundException;
+import de.cismet.cidsx.server.exceptions.InvalidParameterException;
 
 /**
  * Show, run and maintain custom actions within the cids system.
@@ -60,10 +68,8 @@ import de.cismet.cidsx.server.exceptions.ActionTaskNotFoundException;
  * @version  $Revision$, $Date$
  */
 @Api(
-    value = "/actions",
-    description = "Show, run and maintain custom actions within the cids system."
-//        ,
-//    listingPath = "/resources/actions"
+    tags = { "actions" },
+    authorizations = @Authorization(value = "basic")
 )
 @Path("/actions")
 @Produces(MediaType.APPLICATION_JSON)
@@ -89,20 +95,38 @@ public class ActionAPI extends APIBase {
         value = "Get information about all actions supported by the server.",
         notes = "-"
     )
-    @Produces(MediaType.APPLICATION_JSON)
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Actions found",
+                    response = ActionInfoCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                )
+            }
+    )
     public Response getActions(
             @ApiParam(
-                value = "possible values are 'all','local' or a existing [domainname]. 'all' when not submitted",
-                required = false,
-                defaultValue = "local"
+                value = "possible values are 'all','local' or a existing [domainname]. 'local' when not submitted",
+                required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("local")
             @QueryParam("domain")
             final String domain,
             @ApiParam(
                 value = "maximum number of results, 100 when not submitted",
                 required = false,
-                defaultValue = "100"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("100")
             @QueryParam("limit")
@@ -110,21 +134,22 @@ public class ActionAPI extends APIBase {
             @ApiParam(
                 value = "pagination offset, 0 when not submitted",
                 required = false,
-                defaultValue = "0"
+                allowableValues = "range[0, infinity]"
             )
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -138,7 +163,8 @@ public class ActionAPI extends APIBase {
                         .getActionCore()
                         .getAllActions(user, role);
 
-            final CollectionResource result = new CollectionResource(
+            final GenericCollectionResource<com.fasterxml.jackson.databind.JsonNode> result =
+                new GenericCollectionResource<com.fasterxml.jackson.databind.JsonNode>(
                     getLocation(),
                     offset,
                     limit,
@@ -188,7 +214,30 @@ public class ActionAPI extends APIBase {
         value = "Get information about a specific action",
         notes = "-"
     )
-    @Produces(MediaType.APPLICATION_JSON)
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Action found",
+                    response = ActionInfo.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Action not found"
+                )
+            }
+    )
     public Response getAction(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -197,21 +246,22 @@ public class ActionAPI extends APIBase {
             @PathParam("domain")
             final String domain,
             @ApiParam(
-                value = "identifier (actionkey) of the class.",
+                value = "identifier (actionkey) of the action.",
                 required = true
             )
             @PathParam("actionkey")
             final String actionKey,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -265,7 +315,30 @@ public class ActionAPI extends APIBase {
         value = "Get information about all running tasks (executed actions).",
         notes = "-"
     )
-    @Produces(MediaType.APPLICATION_JSON)
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Action Tasks found",
+                    response = ActionTaskCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Action not found"
+                )
+            }
+    )
     public Response getRunningTasks(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -274,22 +347,22 @@ public class ActionAPI extends APIBase {
             @PathParam("domain")
             final String domain,
             @ApiParam(
-                value = "identifier (actionkey) of the class.",
+                value = "identifier (actionkey) of the action.",
                 required = true
             )
             @PathParam("actionkey")
             final String actionKey,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "maximum number of results, 100 when not submitted",
                 required = false,
-                defaultValue = "100"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("100")
             @QueryParam("limit")
@@ -297,14 +370,15 @@ public class ActionAPI extends APIBase {
             @ApiParam(
                 value = "pagination offset, 0 when not submitted",
                 required = false,
-                defaultValue = "0"
+                allowableValues = "range[0, infinity]"
             )
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -347,10 +421,11 @@ public class ActionAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   taskParams                DOCUMENT ME!
-     * @param   bodyPart                  DOCUMENT ME!
      * @param   domain                    DOCUMENT ME!
      * @param   actionKey                 DOCUMENT ME!
+     * @param   taskParams                DOCUMENT ME!
+     * @param   is                        DOCUMENT ME!
+     * @param   bodyPart                  DOCUMENT ME!
      * @param   role                      DOCUMENT ME!
      * @param   resultingInstanceType     DOCUMENT ME!
      * @param   requestResultingInstance  DOCUMENT ME!
@@ -358,28 +433,44 @@ public class ActionAPI extends APIBase {
      * @param   request                   DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  InvalidParameterException  DOCUMENT ME!
      */
     @Path("/{domain}.{actionkey}/tasks")
     @POST
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.MULTIPART_FORM_DATA })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.WILDCARD })
     @ApiOperation(
         value = "Create a new task of this action.",
-        notes = "Swagger has some problems with MULTIPART_FORM_DATA.<br><br> "
-                    + "A File Attachment can only be made with curl.<br>"
-                    + "e.g.:<br>"
-                    + "<img src=\"https://cloud.githubusercontent.com/"
-                    + "assets/837211/3741612/3cc9c206-1761-11e4-8815-025980963441.png\"/> "
-                    + "<br>empty parametersets are also not possible atm: <br>"
-                    + "<br>for actions "
-                    + "with no parameters just post a {} (seems to be that Swagger "
-                    + "has sometimes also problems with that)<br>"
-                    + "therefore ... guess what:<br>"
-                    + "<img src=\"https://cloud.githubusercontent.com/assets/"
-                    + "837211/3741823/613248dc-1763-11e4-99be-2b3cf5b376b9.png\"/>"
+        notes = "Swagger has some problems with MULTIPART_FORM_DATA.<br> "
+                    + "See <a href=\"https://github.com/cismet/cids-server-rest/issues/76#issuecomment-128687056/\">"
+                    + "cids-server-rest/issues/76</a>."
     )
-    public Response createNewActionTask(@FormDataParam("taskparams") final ActionTask taskParams,
-            @FormDataParam("file") final FormDataBodyPart bodyPart,
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Action Tasks created",
+                    response = ActionTask.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Action not found"
+                )
+            }
+    )
+    public Response createNewActionTask(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -387,28 +478,48 @@ public class ActionAPI extends APIBase {
             @PathParam("domain")
             final String domain,
             @ApiParam(
-                value = "identifier (actionkey) of the class.",
+                value = "identifier (actionkey) of the action.",
                 required = true
             )
             @PathParam("actionkey")
             final String actionKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                value = "Action Task with Parameters",
+                required = false
             )
+            @FormDataParam("taskparams")
+            final ActionTask taskParams,
+            @ApiParam(
+                value = "Action Task Body parameter",
+                required = false
+            )
+            @FormDataParam("file")
+            final InputStream is,
+            @ApiParam(
+                value = "BodyPart Action Task Body parameter",
+                access = "internal"
+            )
+            @FormDataParam("file")
+            final FormDataBodyPart bodyPart,
+            @ApiParam(
+                value = "role of the user, 'all' role when not submitted",
+                required = false
+            )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value =
-                    "if this parameter is set to \"task\", the task object of the task is returned. if it is set to \"result\", the result is returned, without creating a task object"
+                    "if this parameter is set to \"task\", the task object of the task is returned. if it is set to \"result\", the result is returned, without creating a task object",
+                allowableValues = "task, result"
             )
             @DefaultValue("task")
             @QueryParam("resultingInstanceType")
             final String resultingInstanceType,
             @ApiParam(
                 value =
-                    "if this parameter is set to true the resulting instance is returned in the response, 'false' when not submitted"
+                    "if this parameter is set to true the resulting instance is returned in the response, 'false' when not submitted",
+                access = "internal"
             )
             @DefaultValue("false")
             @Deprecated
@@ -416,7 +527,8 @@ public class ActionAPI extends APIBase {
             final boolean requestResultingInstance,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString,
@@ -431,11 +543,12 @@ public class ActionAPI extends APIBase {
             bodyResource = new GenericResourceWithContentType(contentType, inputStream);
             if (log.isDebugEnabled()) {
                 log.debug("create new action task '" + actionKey + "' with body part of type '"
-                            + contentType + "'");
+                            + contentType + "' and resulting Instance Type: " + resultingInstanceType);
             }
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("create new action task '" + actionKey + "' without body part");
+                log.debug("create new action task '" + actionKey
+                            + "' without body part and resulting Instance Type: " + resultingInstanceType);
             }
             bodyResource = null;
         }
@@ -485,7 +598,10 @@ public class ActionAPI extends APIBase {
 
                     // check the response against the client's expectations
                     Tools.checkAcceptedContentTypes(request, actionResult);
-
+                    if (log.isDebugEnabled()) {
+                        log.debug("immediately returning action result of type '"
+                                    + actionResult.getContentType() + "'");
+                    }
                     return Response.status(Response.Status.OK)
                                 .header("Location", getLocation())
                                 .type(actionResult.getContentType())
@@ -493,7 +609,10 @@ public class ActionAPI extends APIBase {
                                 .build();
                 }
             } else {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                final String message = "The clietn provided a wroing parameter for resultingInstanceType: "
+                            + resultingInstanceType;
+                log.warn(message);
+                throw new InvalidParameterException(message);
             }
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -528,7 +647,30 @@ public class ActionAPI extends APIBase {
         value = "Get task status.",
         notes = "-"
     )
-    @Produces(MediaType.APPLICATION_JSON)
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Action found",
+                    response = ActionTask.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Action not found"
+                )
+            }
+    )
     public Response getTaskStatus(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -550,14 +692,15 @@ public class ActionAPI extends APIBase {
             final String taskKey,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -614,7 +757,30 @@ public class ActionAPI extends APIBase {
         value = "Get task result.",
         notes = "-"
     )
-    @Produces(MediaType.APPLICATION_JSON)
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Action Task Results found",
+                    response = ActionResultInfoCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Action or Task not found"
+                )
+            }
+    )
     public Response getTaskResults(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -637,7 +803,7 @@ public class ActionAPI extends APIBase {
             @ApiParam(
                 value = "maximum number of results, 100 when not submitted",
                 required = false,
-                defaultValue = "100"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("100")
             @QueryParam("limit")
@@ -645,21 +811,22 @@ public class ActionAPI extends APIBase {
             @ApiParam(
                 value = "pagination offset, 0 when not submitted",
                 required = false,
-                defaultValue = "0"
+                allowableValues = "range[0, infinity]"
             )
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -720,6 +887,30 @@ public class ActionAPI extends APIBase {
         value = "Get task result.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Action Tasks created",
+                    response = Byte.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Action not found"
+                )
+            }
+    )
     @Produces(MediaType.WILDCARD)
     public Response getTaskResult(
             @ApiParam(
@@ -748,14 +939,15 @@ public class ActionAPI extends APIBase {
             final String resultKey,
             @ApiParam(
                 value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString,
@@ -820,8 +1012,31 @@ public class ActionAPI extends APIBase {
     @Path("/{domain}.{actionkey}/tasks/{taskkey}")
     @DELETE
     @ApiOperation(
-        value = "Cancel task.",
+        value = "Cancel a task.",
         notes = "-"
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Action Tasks created"
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Action not found"
+                )
+            }
     )
     public Response cancelTask(
             @ApiParam(
@@ -843,14 +1058,16 @@ public class ActionAPI extends APIBase {
             @PathParam("taskkey")
             final String taskKey,
             @ApiParam(
-                value = "role of the user, 'default' role when not submitted",
+                value = "role of the user, 'all' role when not submitted",
                 required = false
             )
+            @DefaultValue("all")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {

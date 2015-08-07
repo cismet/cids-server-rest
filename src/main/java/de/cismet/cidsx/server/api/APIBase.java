@@ -9,6 +9,12 @@ package de.cismet.cidsx.server.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Contact;
+import io.swagger.annotations.ExternalDocs;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.License;
+import io.swagger.annotations.SwaggerDefinition;
+
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
