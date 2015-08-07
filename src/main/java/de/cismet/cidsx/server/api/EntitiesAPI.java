@@ -133,9 +133,9 @@ public class EntitiesAPI extends APIBase {
             @PathParam("class")
             final String classKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false,
-                defaultValue = "all"
+                defaultValue = "default"
             )
             @QueryParam("role")
             final String role,
@@ -189,7 +189,7 @@ public class EntitiesAPI extends APIBase {
     @Path("{domain}.{class}")
     @GET
     @ApiOperation(
-        value = "Get all objects of a certain class.",
+        value = "Get default objects of a certain class.",
         notes = "-"
     )
     public Response getAllObjects(
@@ -206,9 +206,9 @@ public class EntitiesAPI extends APIBase {
             @PathParam("class")
             final String classKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false,
-                defaultValue = "all"
+                defaultValue = "default"
             )
             @QueryParam("role")
             final String role,
@@ -234,7 +234,7 @@ public class EntitiesAPI extends APIBase {
             @ApiParam(value = "the level of expansion")
             @QueryParam("level")
             final String level,
-            @ApiParam(value = "the fields of the resulting object, all fields when not submitted")
+            @ApiParam(value = "the fields of the resulting object, default fields when not submitted")
             @QueryParam("fields")
             final String fields,
             @ApiParam(value = "profile of the object, 'full' profile when not submitted and no fields are present")
@@ -504,9 +504,9 @@ public class EntitiesAPI extends APIBase {
             @QueryParam("requestResultingInstance")
             final boolean requestResultingInstance,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false,
-                defaultValue = "all"
+                defaultValue = "default"
             )
             @QueryParam("role")
             final String role,
@@ -608,9 +608,9 @@ public class EntitiesAPI extends APIBase {
             @PathParam("objectid")
             final String objectId,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false,
-                defaultValue = "all"
+                defaultValue = "default"
             )
             @DefaultValue("false")
             @QueryParam("requestResultingInstance")
@@ -713,9 +713,9 @@ public class EntitiesAPI extends APIBase {
             @QueryParam("requestResultingInstance")
             final boolean requestResultingInstance,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false,
-                defaultValue = "all"
+                defaultValue = "default"
             )
             @QueryParam("role")
             final String role,
@@ -821,9 +821,9 @@ public class EntitiesAPI extends APIBase {
             @QueryParam("version")
             final String version,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false,
-                defaultValue = "all"
+                defaultValue = "default"
             )
             @QueryParam("role")
             final String role,
@@ -833,7 +833,7 @@ public class EntitiesAPI extends APIBase {
             @ApiParam(value = "the level of expansion")
             @QueryParam("level")
             final String level,
-            @ApiParam(value = "the fields of the resulting object, all fields when not submitted")
+            @ApiParam(value = "the fields of the resulting object, default fields when not submitted")
             @QueryParam("fields")
             final String fields,
             @ApiParam(value = "profile of the object, 'full' profile when not submitted and no fields are present")
@@ -1076,9 +1076,9 @@ public class EntitiesAPI extends APIBase {
             @PathParam("objectid")
             final String objectId,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false,
-                defaultValue = "all"
+                defaultValue = "default"
             )
             @QueryParam("role")
             final String role,
@@ -1131,7 +1131,7 @@ public class EntitiesAPI extends APIBase {
                         .type(acceptedMediaType)
                         .build();
         } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
-            final String message = "domain 'all' is not supported by this web service operation";
+            final String message = "domain 'default' is not supported by this web service operation";
             log.error(message);
             throw new CidsServerException(message, message,
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);

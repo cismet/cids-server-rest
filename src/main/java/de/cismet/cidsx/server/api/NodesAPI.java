@@ -16,6 +16,10 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.ResponseHeader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +45,9 @@ import javax.ws.rs.core.Variant;
 
 import de.cismet.cidsx.base.types.MediaTypes;
 
+import de.cismet.cidsx.server.api.swagger.CidsNodeCollectionResource;
 import de.cismet.cidsx.server.api.tools.Tools;
+import de.cismet.cidsx.server.api.types.CidsNode;
 import de.cismet.cidsx.server.api.types.CollectionResource;
 import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.User;
@@ -56,10 +62,8 @@ import de.cismet.cidsx.server.exceptions.NodeNotFoundException;
  * @version  $Revision$, $Date$
  */
 @Api(
-    value = "/nodes",
-    description = "Show, run and maintain custom actions within the cids system."
-//        ,
-//    listingPath = "/resources/nodes"
+    tags = { "nodes" },
+    authorizations = @Authorization(value = "basic")
 )
 @Path("/nodes")
 @Produces(MediaType.APPLICATION_JSON)
@@ -86,19 +90,38 @@ public class NodesAPI extends APIBase {
         value = "Get all Rootnodes.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Root Nodes found",
+                    response = CidsNodeCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                )
+            }
+    )
     public Response getRootNodes(
             @ApiParam(
                 value = "possible values are 'all','local' or a existing [domainname]. 'all' when not submitted",
-                required = false,
-                defaultValue = "local"
+                required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("local")
             @QueryParam("domain")
             final String domain,
             @ApiParam(
                 value = "maximum number of results, 100 when not submitted",
                 required = false,
-                defaultValue = "100"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("100")
             @QueryParam("limit")
@@ -106,21 +129,22 @@ public class NodesAPI extends APIBase {
             @ApiParam(
                 value = "pagination offset, 0 when not submitted",
                 required = false,
-                defaultValue = "0"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                value = "role of the user, 'default' role when not submitted",
+                required = false
             )
             @QueryParam("role")
+            @DefaultValue("default")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -181,6 +205,30 @@ public class NodesAPI extends APIBase {
         value = "Get a certain node.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Node found",
+                    response = CidsNode.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Node not found"
+                )
+            }
+    )
     public Response getNode(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -195,15 +243,16 @@ public class NodesAPI extends APIBase {
             @PathParam("nodekey")
             final String nodeKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                value = "role of the user, 'default' role when not submitted",
+                required = false
             )
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -262,6 +311,30 @@ public class NodesAPI extends APIBase {
         value = "Get the children of a certain node from the dynamicchildren section of the node.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Nodes found",
+                    response = CidsNodeCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Nodes not found by query"
+                )
+            }
+    )
     public Response getChildrenNodesByQuery(
             @ApiParam(
                 name = "nodeQuery (Body)",
@@ -277,7 +350,7 @@ public class NodesAPI extends APIBase {
             @ApiParam(
                 value = "maximum number of results, 100 when not submitted",
                 required = false,
-                defaultValue = "100"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("100")
             @QueryParam("limit")
@@ -285,21 +358,22 @@ public class NodesAPI extends APIBase {
             @ApiParam(
                 value = "pagination offset, 0 when not submitted",
                 required = false,
-                defaultValue = "0"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                value = "role of the user, 'default' role when not submitted",
+                required = false
             )
             @QueryParam("role")
+            @DefaultValue("default")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -362,6 +436,30 @@ public class NodesAPI extends APIBase {
         value = "Get the children of a certain node.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Nodes found",
+                    response = CidsNodeCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Node not found"
+                )
+            }
+    )
     public Response getChildrenNodes(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -378,7 +476,7 @@ public class NodesAPI extends APIBase {
             @ApiParam(
                 value = "maximum number of results, 100 when not submitted",
                 required = false,
-                defaultValue = "100"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("100")
             @QueryParam("limit")
@@ -386,21 +484,22 @@ public class NodesAPI extends APIBase {
             @ApiParam(
                 value = "pagination offset, 0 when not submitted",
                 required = false,
-                defaultValue = "0"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                value = "role of the user, 'default' role when not submitted",
+                required = false
             )
             @QueryParam("role")
+            @DefaultValue("default")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -471,6 +570,30 @@ public class NodesAPI extends APIBase {
         value = "Get a certain node icon.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Icon found",
+                    response = Byte.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Icon not found"
+                )
+            }
+    )
     @Produces(
         {
             MediaTypes.IMAGE_PNG,
@@ -493,15 +616,16 @@ public class NodesAPI extends APIBase {
             @PathParam("nodekey")
             final String nodeKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                value = "role of the user, 'default' role when not submitted",
+                required = false
             )
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString,

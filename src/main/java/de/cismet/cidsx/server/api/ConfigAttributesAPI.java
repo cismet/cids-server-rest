@@ -10,6 +10,11 @@ package de.cismet.cidsx.server.api;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+
+import javax.servlet.http.HttpServletResponse;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -21,6 +26,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import de.cismet.cidsx.server.api.types.CidsAttribute;
+import de.cismet.cidsx.server.exceptions.NotImplementedException;
+
 /**
  * DOCUMENT ME!
  *
@@ -28,10 +36,8 @@ import javax.ws.rs.core.Response.Status;
  * @version  $Revision$, $Date$
  */
 @Api(
-    value = "/configattributes",
-    description = "Show, run and maintain custom actions within the cids system."
-//        ,
-//    listingPath = "/resources/configattributes"
+    tags = { "configattributes" },
+    authorizations = @Authorization(value = "basic")
 )
 @Path("/configattributes")
 @Produces("application/json")
@@ -45,23 +51,31 @@ public class ConfigAttributesAPI {
      * @param   role  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  NotImplementedException  DOCUMENT ME!
      */
     @GET
-    @Produces("application/json")
     @ApiOperation(
         value = "Get all configattributes.",
         notes = "-"
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 501,
+                    message = "The Config Attributes API is not yet supported"
+                )
+            }
     )
     public Response getConfigattributes(
             @DefaultValue("default")
             @ApiParam(
                 value = "role of the user, 'default' role when not submitted",
-                required = false,
-                defaultValue = "default"
+                required = false
             )
             @QueryParam("role")
             final String role) {
-        return Response.status(Status.SERVICE_UNAVAILABLE).type(MediaType.TEXT_PLAIN).build();
+        throw new NotImplementedException("The Config Attributes API is not yet supported");
     }
 
     /**
@@ -71,6 +85,8 @@ public class ConfigAttributesAPI {
      * @param   role             DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  NotImplementedException  DOCUMENT ME!
      */
     @Path("/{configattribute}")
     @GET
@@ -78,15 +94,22 @@ public class ConfigAttributesAPI {
         value = "Get a certain configattribute.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 501,
+                    message = "The Config Attributes API is not yet supported"
+                )
+            }
+    )
     public Response getConfigattribute(@PathParam("configattribute") final String configattribute,
             @DefaultValue("default")
             @ApiParam(
                 value = "role of the user, 'default' role when not submitted",
-                required = false,
-                defaultValue = "default"
+                required = false
             )
             @QueryParam("role")
             final String role) {
-        return Response.status(Status.SERVICE_UNAVAILABLE).type(MediaType.TEXT_PLAIN).build();
+        throw new NotImplementedException("The Config Attributes API is not yet supported");
     }
 }

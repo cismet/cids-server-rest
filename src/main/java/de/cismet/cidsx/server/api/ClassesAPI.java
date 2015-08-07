@@ -71,7 +71,7 @@ public class ClassesAPI extends APIBase {
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * Get all classes.
+     * Get default classes.
      *
      * @param   domain      DOCUMENT ME!
      * @param   limit       DOCUMENT ME!
@@ -133,10 +133,10 @@ public class ClassesAPI extends APIBase {
             @QueryParam("offset")
             final int offset,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -168,8 +168,9 @@ public class ClassesAPI extends APIBase {
                     allLocalClasses);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
-            // Iterate through all domains and delegate and combine the result
-            final String message = "domain 'all' is not supported by this web service operation";
+            // Iterate through default domains and delegate and combine the result
+            final String message = "domain '" + ServerConstants.ALL_DOMAINS
+                        + "' is not supported by this web service operation";
             log.error(message);
             throw new CidsServerException(message, message,
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -244,10 +245,10 @@ public class ClassesAPI extends APIBase {
             @PathParam("classkey")
             final String classKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -273,7 +274,8 @@ public class ClassesAPI extends APIBase {
 
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(theClass).build();
         } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
-            final String message = "domain 'all' is not supported by this web service operation";
+            final String message = "domain '" + ServerConstants.ALL_DOMAINS
+                        + "' is not supported by this web service operation";
             log.error(message);
             throw new CidsServerException(message, message,
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -367,10 +369,10 @@ public class ClassesAPI extends APIBase {
             @PathParam("classkey")
             final String classKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
 
@@ -427,7 +429,8 @@ public class ClassesAPI extends APIBase {
                         .type(acceptedMediaType)
                         .build();
         } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
-            final String message = "domain 'all' is not supported by this web service operation";
+            final String message = "domain '" + ServerConstants.ALL_DOMAINS
+                        + "' is not supported by this web service operation";
             log.error(message);
             throw new CidsServerException(message, message,
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -522,10 +525,10 @@ public class ClassesAPI extends APIBase {
             @PathParam("attributekey")
             final String attributeKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -550,7 +553,8 @@ public class ClassesAPI extends APIBase {
                                     role))
                         .build();
         } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
-            final String message = "domain 'all' is not supported by this web service operation";
+            final String message = "domain '" + ServerConstants.ALL_DOMAINS
+                        + "' is not supported by this web service operation";
             log.error(message);
             throw new CidsServerException(message, message,
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);

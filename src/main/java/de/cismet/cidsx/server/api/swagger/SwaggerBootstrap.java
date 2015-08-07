@@ -50,8 +50,17 @@ public class SwaggerBootstrap extends HttpServlet {
 
         swagger.tag(new Tag().name("classes").description("list them, get them, get class attributes"));
 
-        swagger.tag(new Tag().name("entities").description("CRUD them").externalDocs(
-                new ExternalDocs("Find out more about our store", "https://github.com/cismet/cids-server-rest")));
+        swagger.tag(new Tag().name("entities").description("list them, get them").externalDocs(
+                new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
+
+        swagger.tag(new Tag().name("configattributes").description("CRUD them").externalDocs(
+                new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
+
+        swagger.tag(new Tag().name("nodes").description("list them, get children of them").externalDocs(
+                new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
+
+        swagger.tag(new Tag().name("service").description("get service information").externalDocs(
+                new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
 
         context.setAttribute("swagger", swagger);
 

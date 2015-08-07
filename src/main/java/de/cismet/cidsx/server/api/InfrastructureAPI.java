@@ -5,11 +5,6 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.cismet.cidsx.server.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,6 +12,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 
 import java.util.Date;
 import java.util.Enumeration;
@@ -33,6 +31,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import de.cismet.cidsx.server.api.swagger.CidsClassCollectionResource;
+import de.cismet.cidsx.server.api.swagger.ServerStatusCollectionResource;
 import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.ServerStatus;
 import de.cismet.cidsx.server.data.RuntimeContainer;
@@ -43,14 +43,9 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
  * @author   Pascal Dihé
  * @version  $Revision$, $Date$
  */
-@Api(
-    value = "/service",
-    description = "General Service API that provides common infrastructure service methods."
-//        ,
-//    listingPath = "/services"
-)
+@Api(tags = { "service" })
 @Path("/service")
-@Produces("application/json")
+@Produces(MediaType.APPLICATION_JSON)
 public class InfrastructureAPI extends APIBase {
 
     //~ Methods ----------------------------------------------------------------
@@ -65,6 +60,15 @@ public class InfrastructureAPI extends APIBase {
     @ApiOperation(
         value = "Pings the service and returns status information",
         notes = "-"
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Pong",
+                    response = Long.class
+                )
+            }
     )
     public Response ping() {
         final JsonNode pong = RuntimeContainer.getServer().getInfrastructureCore().doPing();
@@ -82,6 +86,15 @@ public class InfrastructureAPI extends APIBase {
         value = "Returns the domain name of the service.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Domain",
+                    response = String.class
+                )
+            }
+    )
     public Response getDomain() {
         final JsonNode domain = RuntimeContainer.getServer().getInfrastructureCore().getDomain();
         return Response.status(Response.Status.OK).header("Location", getLocation()).entity(domain).build();
@@ -97,6 +110,15 @@ public class InfrastructureAPI extends APIBase {
     @ApiOperation(
         value = "Returns the domain names of the services reachable by this service.",
         notes = "-"
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Domains",
+                    response = GenericCollectionResource.class
+                )
+            }
     )
     public Response getDomains() {
         final List<JsonNode> domains = RuntimeContainer.getServer().getInfrastructureCore().getDomains();
@@ -123,7 +145,7 @@ public class InfrastructureAPI extends APIBase {
     @Path("/status")
     @GET
     @ApiOperation(
-        value = "Returns the domain name of the service.",
+        value = "Returns all server statuses.",
         notes = "-"
     )
     public Response getStatuses(@Context final HttpServletRequest request) {
@@ -156,6 +178,19 @@ public class InfrastructureAPI extends APIBase {
     @ApiOperation(
         value = "Returns a specific server status.",
         notes = "-"
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Server Status ",
+                    response = ServerStatus.class
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Status not found"
+                )
+            }
     )
     public Response getStatus(
             @ApiParam(

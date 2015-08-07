@@ -30,6 +30,8 @@ import java.io.InputStream;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -59,6 +61,7 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.ActionNotFoundException;
 import de.cismet.cidsx.server.exceptions.ActionTaskNotFoundException;
+import de.cismet.cidsx.server.exceptions.CidsServerException;
 import de.cismet.cidsx.server.exceptions.InvalidParameterException;
 
 /**
@@ -79,7 +82,7 @@ public class ActionAPI extends APIBase {
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * Returns meta-information about all actions supported by the server. Returns a list of {@link ActionTask} JSON
+     * Returns meta-information about default actions supported by the server. Returns a list of {@link ActionTask} JSON
      * objects.
      *
      * @param   domain      DOCUMENT ME!
@@ -89,6 +92,8 @@ public class ActionAPI extends APIBase {
      * @param   authString  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  CidsServerException  DOCUMENT ME!
      */
     @GET
     @ApiOperation(
@@ -140,10 +145,10 @@ public class ActionAPI extends APIBase {
             @QueryParam("offset")
             final int offset,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -175,12 +180,12 @@ public class ActionAPI extends APIBase {
                     allActions);
 
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
-        } else if (domain.equalsIgnoreCase("all")) {
-            // Iterate through all domains and delegate an dcombine the result
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity("Parameter domain=all not supported yet.")
-                        .type(MediaType.TEXT_PLAIN)
-                        .build();
+        } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
+            final String message = "domain '" + ServerConstants.ALL_DOMAINS
+                        + "' is not supported by this web service operation";
+            log.error(message);
+            throw new CidsServerException(message, message,
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
             // domain contains a single domain name that is not the local domain
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -252,10 +257,10 @@ public class ActionAPI extends APIBase {
             @PathParam("actionkey")
             final String actionKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -353,10 +358,10 @@ public class ActionAPI extends APIBase {
             @PathParam("actionkey")
             final String actionKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -502,10 +507,10 @@ public class ActionAPI extends APIBase {
             @FormDataParam("file")
             final FormDataBodyPart bodyPart,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -691,10 +696,10 @@ public class ActionAPI extends APIBase {
             @PathParam("taskkey")
             final String taskKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -817,10 +822,10 @@ public class ActionAPI extends APIBase {
             @QueryParam("offset")
             final int offset,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -938,10 +943,10 @@ public class ActionAPI extends APIBase {
             @PathParam("resultkey")
             final String resultKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -1058,10 +1063,10 @@ public class ActionAPI extends APIBase {
             @PathParam("taskkey")
             final String taskKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
