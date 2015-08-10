@@ -16,8 +16,16 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.ResponseHeader;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -32,27 +40,30 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import de.cismet.cidsx.server.api.swagger.SearchInfoCollectionResource;
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.CollectionResource;
+import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.SearchInfo;
 import de.cismet.cidsx.server.api.types.SearchParameters;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import de.cismet.cidsx.server.exceptions.CidsServerException;
 
 /**
- * DOCUMENT ME!
+ * Show, run and maintain custom actions within the cids system.
  *
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
+
 @Api(
-    value = "/searches",
-    description = "Show, run and maintain custom actions within the cids system."
-//        ,
-//    listingPath = "/resources/searches"
+    tags = { "searches" },
+    authorizations = @Authorization(value = "basic")
 )
 @Path("/searches")
-@Produces("application/json")
+@Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class SearchesAPI extends APIBase {
 
     //~ Methods ----------------------------------------------------------------
@@ -67,25 +78,46 @@ public class SearchesAPI extends APIBase {
      * @param   authString  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  CidsServerException  DOCUMENT ME!
      */
     @GET
     @ApiOperation(
         value = "Get information about all custom searches supported by the server.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Classes found",
+                    response = SearchInfoCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                )
+            }
+    )
     public Response getCustomSearches(
             @ApiParam(
-                value = "possible values are 'all','local' or a existing [domainname]. 'all' when not submitted",
-                required = false,
-                defaultValue = "local"
+                value = "possible values are 'all', 'local' or a existing [domainname]. 'local' when not submitted",
+                required = false
             )
-            @DefaultValue("all")
+            @DefaultValue("local")
             @QueryParam("domain")
             final String domain,
             @ApiParam(
                 value = "maximum number of results, 100 when not submitted",
                 required = false,
-                defaultValue = "100"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("100")
             @QueryParam("limit")
@@ -93,21 +125,22 @@ public class SearchesAPI extends APIBase {
             @ApiParam(
                 value = "pagination offset, 0 when not submitted",
                 required = false,
-                defaultValue = "0"
+                allowableValues = "range[0, infinity]"
             )
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                value = "role of the user, 'default' role when not submitted",
+                required = false
             )
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -120,7 +153,7 @@ public class SearchesAPI extends APIBase {
             final List<SearchInfo> allSearches = RuntimeContainer.getServer()
                         .getSearchCore()
                         .getAllSearches(user, role);
-            final CollectionResource result = new CollectionResource(
+            final GenericCollectionResource<SearchInfo> result = new GenericCollectionResource<SearchInfo>(
                     getLocation(),
                     offset,
                     limit,
@@ -130,12 +163,13 @@ public class SearchesAPI extends APIBase {
                     "not available",
                     allSearches);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
-        } else if (domain.equalsIgnoreCase("all")) {
-            // Iterate through all domains and delegate an dcombine the result
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity("Parameter domain=all not supported yet.")
-                        .type(MediaType.TEXT_PLAIN)
-                        .build();
+        } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
+            // Iterate through default domains and delegate and combine the result
+            final String message = "domain '" + ServerConstants.ALL_DOMAINS
+                        + "' is not supported by this web service operation";
+            log.error(message);
+            throw new CidsServerException(message, message,
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
             // domain contains a single domain name that is not the local domain
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -166,6 +200,30 @@ public class SearchesAPI extends APIBase {
         value = "Get a certain custom search.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Search found",
+                    response = SearchInfo.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Search not found"
+                )
+            }
+    )
     public Response describeSearch(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -180,15 +238,16 @@ public class SearchesAPI extends APIBase {
             @PathParam("searchkey")
             final String searchKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
+                value = "role of the user, 'default' role when not submitted",
+                required = false
             )
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -221,9 +280,9 @@ public class SearchesAPI extends APIBase {
      * @param   params      DOCUMENT ME!
      * @param   domain      DOCUMENT ME!
      * @param   searchKey   DOCUMENT ME!
-     * @param   role        DOCUMENT ME!
      * @param   limit       DOCUMENT ME!
      * @param   offset      DOCUMENT ME!
+     * @param   role        DOCUMENT ME!
      * @param   authString  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
@@ -234,6 +293,26 @@ public class SearchesAPI extends APIBase {
     @ApiOperation(
         value = "Execute a custom search.",
         notes = "-"
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Search Results",
+                    response = GenericCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                )
+            }
     )
     public Response executeGetSearch(
             @ApiParam(
@@ -247,22 +326,15 @@ public class SearchesAPI extends APIBase {
             @PathParam("domain")
             final String domain,
             @ApiParam(
-                value = "identifier (searchkey) of the class.",
+                value = "identifier (searchkey) of the search.",
                 required = true
             )
             @PathParam("searchkey")
             final String searchKey,
             @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            @QueryParam("role")
-            final String role,
-            @ApiParam(
                 value = "maximum number of results, 100 when not submitted",
                 required = false,
-                defaultValue = "100"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("100")
             @QueryParam("limit")
@@ -270,14 +342,22 @@ public class SearchesAPI extends APIBase {
             @ApiParam(
                 value = "pagination offset, 0 when not submitted",
                 required = false,
-                defaultValue = "0"
+                allowableValues = "range[0, infinity]"
             )
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
             @ApiParam(
-                value = "Basic Auth Authorization String",
+                value = "role of the user, 'default' role when not submitted",
                 required = false
+            )
+            @DefaultValue("default")
+            @QueryParam("role")
+            final String role,
+            @ApiParam(
+                value = "Basic Auth Authorization String",
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -290,10 +370,10 @@ public class SearchesAPI extends APIBase {
             // FIXME: custom JSON to java object deserialization for SearchParameter based on additionalTypeInfo
             // in ParameterInfo! Currently, Java Beans will be deserialized to key/value maps, not the actual
             // JavaBean Objects!
-            final List<JsonNode> allActions = RuntimeContainer.getServer()
+            final List<JsonNode> searchResults = RuntimeContainer.getServer()
                         .getSearchCore()
                         .executeSearch(user, searchKey, params.getList(), limit, offset, role);
-            final CollectionResource result = new CollectionResource(
+            final GenericCollectionResource<JsonNode> result = new GenericCollectionResource<JsonNode>(
                     getLocation(),
                     offset,
                     limit,
@@ -301,7 +381,7 @@ public class SearchesAPI extends APIBase {
                     null,
                     "not available",
                     "not available",
-                    allActions);
+                    searchResults);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else {
             return null;
@@ -310,7 +390,7 @@ public class SearchesAPI extends APIBase {
 
 //    @Path("/{domain}.{searchname}/results")
 //    @POST
-//    @Consumes("application/json")
+//    @Consumes(MediaType.APPLICATION_JSON)
 //    @ApiOperation(value = "Execute a custom search.", notes = "-")
 //    public Response executePostSearch(
 //            SearchParameter searchParameter,
@@ -324,7 +404,7 @@ public class SearchesAPI extends APIBase {
 //    }
 //    @Path("byquery/{domain}.{class}")
 //    @POST
-//    @Consumes("application/json")
+//    @Consumes(MediaType.APPLICATION_JSON)
 //    @ApiOperation(value = "Get objects from a simple query.", notes = "-")
 //    public Response getObjectsByQuery(
 //            @ApiParam(value = "a simple object query.", required = true) SimpleObjectQuery query,
@@ -349,7 +429,7 @@ public class SearchesAPI extends APIBase {
 //
 //    @Path("byquery/{domain}")
 //    @POST
-//    @Consumes("application/json")
+//    @Consumes(MediaType.APPLICATION_JSON)
 //    @ApiOperation(value = "Get objects (from different classes) from a query.", notes = "-")
 //    public Response getObjectsByQuery(
 //            @ApiParam(value = "a simple object query.", required = true) SimpleObjectQuery query,

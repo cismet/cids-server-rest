@@ -10,6 +10,7 @@ package de.cismet.cidsx.server.api;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -17,19 +18,18 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+
+import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
 /**
- * DOCUMENT ME!
+ * ... subscriptions within the cids system.
  *
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
 @Api(
-    value = "/subscriptions",
-    description = "... subscriptions within the cids system."
-//        ,
-//    listingPath = "/resources/subscriptions"
+    tags = { "subscriptions" },
+    authorizations = @Authorization(value = "basic")
 )
 @Path("/subscriptions")
 @Produces("application/json")
@@ -44,30 +44,29 @@ public class SubscriptionsAPI {
      * @param   role    DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  NotImplementedException  DOCUMENT ME!
      */
     @GET
-    // @Path("/all")
     @ApiOperation(
         value = "Get all subscriptions.",
         notes = "-"
     )
     public Response getSubscriptions(
-            @DefaultValue("all")
-            @QueryParam("domain")
             @ApiParam(
                 value = "possible values are 'all','local' or a existing [domainname]. 'all' when not submitted",
-                required = false,
-                defaultValue = "all"
+                required = false
             )
+            @DefaultValue("local")
+            @QueryParam("domain")
             final String domain,
+            @DefaultValue("default")
             @ApiParam(
                 value = "role of the user, 'default' role when not submitted",
-                required = false,
-                defaultValue = "default"
+                required = false
             )
-            @DefaultValue("default")
             @QueryParam("role")
             final String role) {
-        return Response.status(Status.SERVICE_UNAVAILABLE).build();
+        throw new NotImplementedException("The Subscriptions API is not yet supported");
     }
 }

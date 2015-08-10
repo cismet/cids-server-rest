@@ -306,7 +306,7 @@ public class NodesAPI extends APIBase {
      */
     @Path("/{domain}/children")
     @POST
-    @Consumes("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(
         value = "Get the children of a certain node from the dynamicchildren section of the node.",
         notes = "-"
@@ -568,7 +568,8 @@ public class NodesAPI extends APIBase {
     @GET
     @ApiOperation(
         value = "Get a certain node icon.",
-        notes = "-"
+        notes = "-",
+        hidden = true
     )
     @ApiResponses(
         value = {

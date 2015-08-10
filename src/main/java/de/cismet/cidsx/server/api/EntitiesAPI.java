@@ -16,6 +16,10 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.ResponseHeader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,8 +53,9 @@ import javax.ws.rs.core.Variant;
 import de.cismet.cidsx.base.types.MediaTypes;
 
 import de.cismet.cidsx.server.annotations.PATCH;
+import de.cismet.cidsx.server.api.swagger.CidsClassCollectionResource;
 import de.cismet.cidsx.server.api.tools.Tools;
-import de.cismet.cidsx.server.api.types.CollectionResource;
+import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
@@ -66,9 +71,12 @@ import de.cismet.cidsx.server.trigger.EntityCoreAwareCidsTrigger;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
-@Api(value = "/resources")
-@Produces("application/json")
-@Path("/resources")
+@Api(
+    tags = { "entities" },
+    authorizations = @Authorization(value = "basic")
+)
+@Produces(MediaType.APPLICATION_JSON)
+@Path("/entities")
 @Slf4j
 public class EntitiesAPI extends APIBase {
 
@@ -119,6 +127,30 @@ public class EntitiesAPI extends APIBase {
         value = "Get an empty instance of a certain class.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Entity created",
+                    response = String.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Class not found"
+                )
+            }
+    )
     public Response getEmptyInstance(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -134,14 +166,15 @@ public class EntitiesAPI extends APIBase {
             final String classKey,
             @ApiParam(
                 value = "role of the user, 'default' role when not submitted",
-                required = false,
-                defaultValue = "default"
+                required = false
             )
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -192,6 +225,30 @@ public class EntitiesAPI extends APIBase {
         value = "Get default objects of a certain class.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Entities found",
+                    response = GenericCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Class not found"
+                )
+            }
+    )
     public Response getAllObjects(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -215,7 +272,7 @@ public class EntitiesAPI extends APIBase {
             @ApiParam(
                 value = "maximum number of results, 100 when not submitted",
                 required = false,
-                defaultValue = "100"
+                allowableValues = "range[1, infinity]"
             )
             @DefaultValue("100")
             @QueryParam("limit")
@@ -223,42 +280,60 @@ public class EntitiesAPI extends APIBase {
             @ApiParam(
                 value = "pagination offset, 0 when not submitted",
                 required = false,
-                defaultValue = "0"
+                allowableValues = "range[0, infinity]"
             )
             @DefaultValue("0")
             @QueryParam("offset")
             final int offset,
-            @ApiParam(value = "a list of properties in the resulting objects that should be expanded")
+            @ApiParam(
+                value = "a list of properties in the resulting objects that should be expanded",
+                required = false
+            )
             @QueryParam("expand")
             final String expand,
-            @ApiParam(value = "the level of expansion")
+            @ApiParam(
+                value = "the level of expansion",
+                required = false,
+                allowableValues = "range[0, infinity]"
+            )
             @QueryParam("level")
             final String level,
-            @ApiParam(value = "the fields of the resulting object, default fields when not submitted")
+            @ApiParam(
+                value = "the fields of the resulting object, default fields when not submitted",
+                required = false
+            )
             @QueryParam("fields")
             final String fields,
-            @ApiParam(value = "profile of the object, 'full' profile when not submitted and no fields are present")
+            @ApiParam(
+                value = "profile of the object, 'full' profile when not submitted and no fields are present",
+                required = false
+            )
             @QueryParam("profile")
+            @DefaultValue("full")
             final String profile,
-            @ApiParam(value = "filter string, use 'field:value' as syntax and seperate the expressions with ','")
+            @ApiParam(
+                value = "filter string, use 'field:value' as syntax and seperate the expressions with ','",
+                required = false
+            )
             @QueryParam("filter")
             final String filter,
             @ApiParam(
                 value = "Omit properties that have 'null' as value",
-                defaultValue = "true"
+                required = false
             )
+            @DefaultValue("true")
             @QueryParam("omitNullValues")
             final boolean omitNullValues,
             @ApiParam(
-                value =
-                    "if you don't want already expanded properties to be expanded again, set this parameter to true",
-                defaultValue = "false"
+                value = "if you don't want already expanded properties to be expanded again, set this parameter to true"
             )
+            @DefaultValue("false")
             @QueryParam("deduplicate")
             final boolean deduplicate,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -267,7 +342,7 @@ public class EntitiesAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List l = RuntimeContainer.getServer()
+            final List entities = RuntimeContainer.getServer()
                         .getEntityCore(classKey)
                         .getAllObjects(
                             user,
@@ -368,14 +443,14 @@ public class EntitiesAPI extends APIBase {
                     filter,
                     omitNullValues);
 
-            final CollectionResource result = new CollectionResource("/" + baseref,
+            final GenericCollectionResource<JsonNode> result = new GenericCollectionResource<JsonNode>("/" + baseref,
                     _offset,
                     _limit,
                     first,
                     prev,
                     next,
                     last,
-                    l);
+                    entities);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
@@ -466,13 +541,44 @@ public class EntitiesAPI extends APIBase {
      * @param   authString                DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  CidsServerException  DOCUMENT ME!
      */
     @PUT
     @Path("{domain}.{class}/{objectid}")
-    @Consumes("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(
         value = "Update or creates an object.",
         notes = "-"
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Entity updated",
+                    response = String.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 400,
+                    message = "Invalid Entity",
+                    response = String.class
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Entity not found"
+                )
+            }
     )
     public Response updateObject(@ApiParam(
                 value = "Object to be updated.",
@@ -503,16 +609,13 @@ public class EntitiesAPI extends APIBase {
             @DefaultValue("false")
             @QueryParam("requestResultingInstance")
             final boolean requestResultingInstance,
-            @ApiParam(
-                value = "role of the user, 'default' role when not submitted",
-                required = false,
-                defaultValue = "default"
-            )
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -525,7 +628,10 @@ public class EntitiesAPI extends APIBase {
             try {
                 body = (com.fasterxml.jackson.databind.JsonNode)MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
-                log.error(ex.getMessage(), ex);
+                final String message = "Entity '" + domain + "." + classKey
+                            + "@" + objectId + "' could not be updated: " + ex.getMessage();
+                log.error(message, ex);
+                throw new CidsServerException(message, ex);
             }
             final Collection<CidsTrigger> rightTriggers = getRightTriggers(domain, classKey);
             final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
@@ -576,14 +682,45 @@ public class EntitiesAPI extends APIBase {
      * @param   authString                DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  CidsServerException  DOCUMENT ME!
      */
     @PATCH
     @Path("{domain}.{class}/{objectid}")
-    @Consumes("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(
         httpMethod = "PATCH",
         value = "Patches an object.",
         notes = "-"
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Entity patched",
+                    response = String.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 400,
+                    message = "Invalid Entity",
+                    response = String.class
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Entity not found"
+                )
+            }
     )
     public Response patchObject(@ApiParam(
                 value = "Object to be patched.",
@@ -609,8 +746,7 @@ public class EntitiesAPI extends APIBase {
             final String objectId,
             @ApiParam(
                 value = "role of the user, 'default' role when not submitted",
-                required = false,
-                defaultValue = "default"
+                required = false
             )
             @DefaultValue("false")
             @QueryParam("requestResultingInstance")
@@ -618,7 +754,8 @@ public class EntitiesAPI extends APIBase {
             @QueryParam("role") final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -631,8 +768,10 @@ public class EntitiesAPI extends APIBase {
             try {
                 body = (JsonNode)MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
-                // ProblemHandling
-                log.error(ex.getMessage(), ex);
+                final String message = "Entity '" + domain + "." + classKey
+                            + "@" + objectId + "' could not be patched: " + ex.getMessage();
+                log.error(message, ex);
+                throw new CidsServerException(message, ex);
             }
             final Collection<CidsTrigger> rightTriggers = getRightTriggers(domain, classKey);
             final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
@@ -683,11 +822,36 @@ public class EntitiesAPI extends APIBase {
      * @return  DOCUMENT ME!
      */
     @POST
-    @Consumes("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("{domain}.{class}")
     @ApiOperation(
         value = "Create a new object.",
         notes = "-"
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Classes found",
+                    response = CidsClassCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 400,
+                    message = "Invalid Entity",
+                    response = String.class
+                )
+            }
     )
     public Response createObject(@ApiParam(
                 value = "Object to be created.",
@@ -714,9 +878,9 @@ public class EntitiesAPI extends APIBase {
             final boolean requestResultingInstance,
             @ApiParam(
                 value = "role of the user, 'default' role when not submitted",
-                required = false,
-                defaultValue = "default"
+                required = false
             )
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
@@ -796,7 +960,31 @@ public class EntitiesAPI extends APIBase {
     @GET
     @ApiOperation(
         value = "Get a certain object by its id.",
-        notes = "-x"
+        notes = ""
+    )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Entities found",
+                    response = GenericCollectionResource.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Entity not found"
+                )
+            }
     )
     public Response getObject(
             @ApiParam(
@@ -827,29 +1015,43 @@ public class EntitiesAPI extends APIBase {
             )
             @QueryParam("role")
             final String role,
-            @ApiParam(value = "a list of properties in the resulting objects that should be expanded")
+            @ApiParam(
+                value = "a list of properties in the resulting objects that should be expanded",
+                required = false
+            )
             @QueryParam("expand")
             final String expand,
-            @ApiParam(value = "the level of expansion")
+            @ApiParam(
+                value = "the level of expansion",
+                required = false,
+                allowableValues = "range[0, infinity]"
+            )
             @QueryParam("level")
             final String level,
-            @ApiParam(value = "the fields of the resulting object, default fields when not submitted")
+            @ApiParam(
+                value = "the fields of the resulting object, default fields when not submitted",
+                required = false
+            )
             @QueryParam("fields")
             final String fields,
-            @ApiParam(value = "profile of the object, 'full' profile when not submitted and no fields are present")
+            @ApiParam(
+                value = "profile of the object, 'full' profile when not submitted and no fields are present",
+                required = false
+            )
             @QueryParam("profile")
+            @DefaultValue("full")
             final String profile,
             @ApiParam(
                 value = "Omit properties that have 'null' as value",
-                defaultValue = "true"
+                required = false
             )
+            @DefaultValue("true")
             @QueryParam("omitNullValues")
             final boolean omitNullValues,
             @ApiParam(
-                value =
-                    "if you don't want already expanded properties to be expanded again, set this parameter to true",
-                defaultValue = "false"
+                value = "if you don't want already expanded properties to be expanded again, set this parameter to true"
             )
+            @DefaultValue("false")
             @QueryParam("deduplicate")
             final boolean deduplicate,
             @ApiParam(
@@ -924,6 +1126,29 @@ public class EntitiesAPI extends APIBase {
         value = "Delete a certain object.",
         notes = "-"
     )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Entity deleted"
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Entity not found"
+                )
+            }
+    )
     public Response deleteObject(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -941,11 +1166,13 @@ public class EntitiesAPI extends APIBase {
                 value = "role of the user, 'default' role when not submitted",
                 required = false
             )
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString) {
@@ -1059,6 +1286,30 @@ public class EntitiesAPI extends APIBase {
     // MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON
     // }
     // )
+    @ApiResponses(
+        value = {
+                @ApiResponse(
+                    code = 200,
+                    message = "Entity Icon found",
+                    response = Byte.class
+                ),
+                @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                name = "WWW-Authenticate",
+                                description = "WWW-Authenticate",
+                                response = String.class
+                            )
+                        }
+                ),
+                @ApiResponse(
+                    code = 404,
+                    message = "Entity Icon not found"
+                )
+            }
+    )
     public Response getIcon(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -1077,14 +1328,15 @@ public class EntitiesAPI extends APIBase {
             final String objectId,
             @ApiParam(
                 value = "role of the user, 'default' role when not submitted",
-                required = false,
-                defaultValue = "default"
+                required = false
             )
+            @DefaultValue("default")
             @QueryParam("role")
             final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
-                required = false
+                required = false,
+                access = "internal"
             )
             @HeaderParam("Authorization")
             final String authString,

@@ -18,7 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 /**
- * DOCUMENT ME!
+ * Bootstrap Servlet for configuring Swagger API Listings.
  *
  * @version  $Revision$, $Date$
  */
@@ -50,16 +50,28 @@ public class SwaggerBootstrap extends HttpServlet {
 
         swagger.tag(new Tag().name("classes").description("list them, get them, get class attributes"));
 
-        swagger.tag(new Tag().name("entities").description("list them, get them").externalDocs(
+        swagger.tag(new Tag().name("entities").description("CRUD them").externalDocs(
                 new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
 
-        swagger.tag(new Tag().name("configattributes").description("CRUD them").externalDocs(
+        swagger.tag(new Tag().name("configattributes").description("CRUD them (coming soon)").externalDocs(
                 new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
 
         swagger.tag(new Tag().name("nodes").description("list them, get children of them").externalDocs(
                 new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
 
+        swagger.tag(new Tag().name("permissions").description("list them, get them (coming soon)").externalDocs(
+                new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
+
+        swagger.tag(new Tag().name("subscriptions").description("get them, create them (coming soon)").externalDocs(
+                new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
+
         swagger.tag(new Tag().name("service").description("get service information").externalDocs(
+                new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
+
+        swagger.tag(new Tag().name("searches").description("get them, describe them, get results").externalDocs(
+                new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
+
+        swagger.tag(new Tag().name("users").description("get them, validate them, get the roles").externalDocs(
                 new ExternalDocs("Find out more", "https://github.com/cismet/cids-server-rest")));
 
         context.setAttribute("swagger", swagger);

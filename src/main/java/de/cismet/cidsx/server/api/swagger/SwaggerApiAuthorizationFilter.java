@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * DOCUMENT ME!
+ * Simple API Authorization Filter that filters all parameters with property access = internal.
  *
  * @version  $Revision$, $Date$
  */
