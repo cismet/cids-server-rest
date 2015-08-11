@@ -1050,18 +1050,19 @@ public class EntitiesAPI extends APIBase {
      * @throws  EntityNotFoundException  DOCUMENT ME!
      * @throws  CidsServerException      DOCUMENT ME!
      */
-    @Path("/{domain}.{classkey}/{objectid}")
-    @GET
-    @ApiOperation(
-        value = "Get an object icon.",
-        notes = "-"
-    )
-    @Produces(
-        {
-            MediaTypes.IMAGE_PNG,
-            MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON
-        }
-    )
+    
+    //@Path("/{domain}.{classkey}/{objectid}")
+    //    @GET
+    //    @ApiOperation(
+    //        value = "Get an object icon.",
+    //        notes = "-"
+    //    )
+    //    @Produces(
+    //        {
+    //            MediaTypes.IMAGE_PNG,
+    //            MediaTypes.APPLICATION_X_CIDS_OBJECT_ICON
+    //        }
+    //    )
     public Response getIcon(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
