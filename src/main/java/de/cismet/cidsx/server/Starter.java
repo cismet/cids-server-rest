@@ -32,6 +32,8 @@ import org.openide.util.Lookup;
 
 import java.io.IOException;
 
+import java.net.InetAddress;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -287,6 +289,8 @@ public class Starter {
 
             server.start();
             StatusHolder.getInstance().putStatus("serverStart", String.valueOf(System.currentTimeMillis()));
+            System.out.println("\n\nServer started under: " + getURL());
+            System.out.println("\nA cool API Documention is available under: " + getSwaggerURL());
 
             if (!interactive) {
                 System.out.println("Server running non-interactive, use 'kill' to shutdown.");
@@ -294,7 +298,7 @@ public class Starter {
             } else {
                 StatusHolder.getInstance().putStatus("startupMode", "interactive");
                 try {
-                    System.out.println("\n\nServer started. Hit enter to shutdown.");
+                    System.out.println("\n\nHit enter to shutdown.");
                     System.in.read();
                     server.setStopAtShutdown(true);
                     System.exit(0);
@@ -310,6 +314,34 @@ public class Starter {
             }
             System.exit(1);
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getURL() {
+        String hostname = "localhost";
+        try {
+            final InetAddress addr = InetAddress.getLocalHost();
+            final byte[] ipAddr = addr.getAddress();
+            // Get hostname
+            hostname = addr.getHostAddress();
+        } catch (Exception skipBecauseOfWiseInitializationValue) {
+        }
+
+        return server.getConnectors()[0].getIntegralScheme() + "://" + hostname + ":"
+                    + server.getConnectors()[0].getPort();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getSwaggerURL() {
+        return getURL() + "/swagger";
     }
 
     /**
