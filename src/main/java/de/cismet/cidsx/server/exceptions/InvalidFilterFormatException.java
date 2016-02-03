@@ -26,8 +26,7 @@ public final class InvalidFilterFormatException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter
-    private final String filter;
+    @Getter private final String filter;
 
     //~ Constructors -----------------------------------------------------------
 

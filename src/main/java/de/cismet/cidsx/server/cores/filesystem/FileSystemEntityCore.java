@@ -1133,11 +1133,11 @@ public class FileSystemEntityCore implements EntityCore {
         return file.delete();
     }
 
-    @Override
     /**
      * Returns the parsed class name from the $self or $ref properties of the
      * object or throws an error, if the properties are not found or invalid.
      */
+    @Override
     public String getClassKey(final JsonNode jsonObject) {
         if (jsonObject.hasNonNull("$self")) {
             final Matcher matcher = CLASSKEY_PATTERN.matcher(jsonObject.get("$self").asText());
@@ -1158,11 +1158,11 @@ public class FileSystemEntityCore implements EntityCore {
         }
     }
 
-    @Override
     /**
      * Returns the value of the object property 'id' or tries to extract the id
      * from the $self or $ref properties. Returns -1 if no id is found.
      */
+    @Override
     public String getObjectId(final JsonNode jsonObject) {
         if (jsonObject.hasNonNull("id")) {
             return jsonObject.get("id").asText();

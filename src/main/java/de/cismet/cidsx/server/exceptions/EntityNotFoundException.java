@@ -25,8 +25,7 @@ public class EntityNotFoundException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter
-    private final String objectId;
+    @Getter private final String objectId;
 
     //~ Constructors -----------------------------------------------------------
 

@@ -28,8 +28,7 @@ public final class InvalidEntityException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter
-    private final JsonNode entity;
+    @Getter private final JsonNode entity;
 
     //~ Constructors -----------------------------------------------------------
 
