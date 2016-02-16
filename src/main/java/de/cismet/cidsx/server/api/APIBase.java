@@ -26,8 +26,7 @@ public class APIBase {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Context
-    private UriInfo _uriInfo;
+    @Context private UriInfo _uriInfo;
 
     //~ Methods ----------------------------------------------------------------
 
