@@ -35,6 +35,7 @@ import javax.ws.rs.core.Response;
 import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.ServerStatus;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import java.util.Date;
 
 /**
  * General Service API that provides common infrastructure service methods.
@@ -206,6 +207,7 @@ public class InfrastructureAPI extends APIBase {
         requestInfoMap.put("localName", request.getLocalName());
 
         final ServerStatus requestStatus = new ServerStatus("request", requestInfoMap);
+        requestStatus.setLastBuildDate(new Date(System.currentTimeMillis()));
         return requestStatus;
     }
 }
