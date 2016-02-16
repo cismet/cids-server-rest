@@ -13,25 +13,29 @@
 package de.cismet.cidsx.server.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
 import com.wordnik.swagger.core.ApiParam;
 
-import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.ServerStatus;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import java.util.Date;
 
 /**
  * General Service API that provides common infrastructure service methods.
@@ -111,6 +115,8 @@ public class InfrastructureAPI extends APIBase {
     /**
      * Returns all server statuses.
      *
+     * @param   request  DOCUMENT ME!
+     *
      * @return  All server statuses
      */
     @Path("/status")
@@ -119,8 +125,9 @@ public class InfrastructureAPI extends APIBase {
         value = "Returns the domain name of the service.",
         notes = "-"
     )
-    public Response getStatuses() {
+    public Response getStatuses(@Context final HttpServletRequest request) {
         final List<ServerStatus> statusList = RuntimeContainer.getServer().getInfrastructureCore().getStatuses();
+        statusList.add(this.buildRequestStatus(request));
 
         final GenericCollectionResource<ServerStatus> resultList = new GenericCollectionResource<ServerStatus>(
                 "/status",
@@ -139,6 +146,7 @@ public class InfrastructureAPI extends APIBase {
      * Returns a specific server status identified by the provided status key.
      *
      * @param   statusKey  key of the server status
+     * @param   request    DOCUMENT ME!
      *
      * @return  All server statuses
      */
@@ -154,8 +162,15 @@ public class InfrastructureAPI extends APIBase {
                 required = true
             )
             @PathParam("statuskey")
-            final String statusKey) {
-        final ServerStatus statusNode = RuntimeContainer.getServer().getInfrastructureCore().getStatus(statusKey);
+            final String statusKey,
+            @Context final HttpServletRequest request) {
+        final ServerStatus statusNode;
+        if (statusKey.equalsIgnoreCase("request")) {
+            statusNode = buildRequestStatus(request);
+        } else {
+            statusNode = RuntimeContainer.getServer().getInfrastructureCore().getStatus(statusKey);
+        }
+
         if (statusNode != null) {
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(statusNode).build();
         } else {
@@ -165,5 +180,34 @@ public class InfrastructureAPI extends APIBase {
                         .type(MediaType.TEXT_PLAIN)
                         .build();
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   request  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private ServerStatus buildRequestStatus(final HttpServletRequest request) {
+        final HashMap<String, String> requestInfoMap = new HashMap<String, String>();
+        final Enumeration requestAttributes = request.getAttributeNames();
+        while (requestAttributes.hasMoreElements()) {
+            final String attributeName = requestAttributes.nextElement().toString();
+            requestInfoMap.put(attributeName, request.getAttribute(attributeName).toString());
+        }
+
+        final Enumeration requestHeaders = request.getHeaderNames();
+        while (requestHeaders.hasMoreElements()) {
+            final String headerName = requestHeaders.nextElement().toString();
+            requestInfoMap.put(headerName.toString(), request.getHeader(headerName).toString());
+        }
+
+        requestInfoMap.put("localAddress", request.getLocalAddr());
+        requestInfoMap.put("localName", request.getLocalName());
+
+        final ServerStatus requestStatus = new ServerStatus("request", requestInfoMap);
+        requestStatus.setLastBuildDate(new Date(System.currentTimeMillis()));
+        return requestStatus;
     }
 }
