@@ -25,8 +25,7 @@ public class EntityInfoNotFoundException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter
-    private final String classKey;
+    @Getter private final String classKey;
 
     //~ Constructors -----------------------------------------------------------
 

@@ -25,8 +25,7 @@ public class NodeNotFoundException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter
-    private final String nodeKey;
+    @Getter private final String nodeKey;
 
     //~ Constructors -----------------------------------------------------------
 

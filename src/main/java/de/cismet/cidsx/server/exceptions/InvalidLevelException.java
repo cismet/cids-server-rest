@@ -27,8 +27,7 @@ public final class InvalidLevelException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter
-    private final Integer level;
+    @Getter private final Integer level;
 
     //~ Constructors -----------------------------------------------------------
 

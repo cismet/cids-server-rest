@@ -18,6 +18,7 @@ import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
 import com.wordnik.swagger.core.ApiParam;
 
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,6 @@ import javax.ws.rs.core.Response;
 import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.ServerStatus;
 import de.cismet.cidsx.server.data.RuntimeContainer;
-import java.util.Date;
 
 /**
  * General Service API that provides common infrastructure service methods.

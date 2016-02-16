@@ -25,10 +25,8 @@ public class InvalidParameterException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter
-    private final String key;
-    @Getter
-    private final String value;
+    @Getter private final String key;
+    @Getter private final String value;
 
     //~ Constructors -----------------------------------------------------------
 
