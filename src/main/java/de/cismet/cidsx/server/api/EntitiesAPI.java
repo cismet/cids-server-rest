@@ -573,12 +573,13 @@ public class EntitiesAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   jsonBody    DOCUMENT ME!
-     * @param   domain      DOCUMENT ME!
-     * @param   classKey    DOCUMENT ME!
-     * @param   objectId    DOCUMENT ME!
-     * @param   role        DOCUMENT ME!
-     * @param   authString  DOCUMENT ME!
+     * @param   jsonBody                  DOCUMENT ME!
+     * @param   domain                    DOCUMENT ME!
+     * @param   classKey                  DOCUMENT ME!
+     * @param   objectId                  DOCUMENT ME!
+     * @param   requestResultingInstance  DOCUMENT ME!
+     * @param   role                      DOCUMENT ME!
+     * @param   authString                DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -617,8 +618,10 @@ public class EntitiesAPI extends APIBase {
                 required = false,
                 defaultValue = "all"
             )
-            @QueryParam("role")
-            final String role,
+            @DefaultValue("false")
+            @QueryParam("requestResultingInstance")
+            final boolean requestResultingInstance,
+            @QueryParam("role") final String role,
             @ApiParam(
                 value = "Basic Auth Authorization String",
                 required = false
@@ -656,7 +659,8 @@ public class EntitiesAPI extends APIBase {
                                     objectId,
                                     body,
                                     // FIXME: what is the default
-                                    (role == null) ? "default" : role))
+                                    ((role == null) ? "default" : role),
+                                    requestResultingInstance))
                         .build();
             for (final CidsTrigger ct : rightTriggers) {
                 ct.afterUpdate(jsonBody, user);

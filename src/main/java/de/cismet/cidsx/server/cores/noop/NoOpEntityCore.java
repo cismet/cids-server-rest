@@ -69,7 +69,8 @@ public class NoOpEntityCore implements EntityCore {
             final String classKey,
             final String objectId,
             final JsonNode jsonObject,
-            final String role) {
+            final String role,
+            final boolean requestResultingInstance) {
         final String message = "The operation '"
                     + Thread.currentThread().getStackTrace()[1].getMethodName()
                     + "' is not yet supported by " + this.getClass().getSimpleName();

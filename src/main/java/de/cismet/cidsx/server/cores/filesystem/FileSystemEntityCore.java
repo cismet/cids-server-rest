@@ -469,7 +469,8 @@ public class FileSystemEntityCore implements EntityCore {
             final String classKey,
             final String objectId,
             final JsonNode jsonObject,
-            final String role) {
+            final String role,
+            final boolean requestResultingInstance) {
         final String message = "The operation '"
                     + Thread.currentThread().getStackTrace()[1].getMethodName()
                     + "' is not yet supported by " + this.getClass().getSimpleName();
@@ -1134,8 +1135,14 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * Returns the parsed class name from the $self or $ref properties of the
-     * object or throws an error, if the properties are not found or invalid.
+     * Returns the parsed class name from the $self or $ref properties of the object or throws an error, if the
+     * properties are not found or invalid.
+     *
+     * @param   jsonObject  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  Error  DOCUMENT ME!
      */
     @Override
     public String getClassKey(final JsonNode jsonObject) {
@@ -1159,8 +1166,14 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     /**
-     * Returns the value of the object property 'id' or tries to extract the id
-     * from the $self or $ref properties. Returns -1 if no id is found.
+     * Returns the value of the object property 'id' or tries to extract the id from the $self or $ref properties.
+     * Returns -1 if no id is found.
+     *
+     * @param   jsonObject  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  Error  DOCUMENT ME!
      */
     @Override
     public String getObjectId(final JsonNode jsonObject) {
