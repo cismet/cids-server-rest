@@ -36,9 +36,9 @@ public class PatchFailedException extends CidsServerException {
      * Creates a new NotImplementedException object.
      *
      * @param  developerMessage  DOCUMENT ME!
-     * @param  userMessage       DOCUMENT ME!
+     * @param  cause             userMessage DOCUMENT ME!
      */
-    public PatchFailedException(final String developerMessage, final String userMessage) {
-        super(developerMessage, userMessage, HttpServletResponse.SC_NOT_IMPLEMENTED);
+    public PatchFailedException(final String developerMessage, final Throwable cause) {
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_IMPLEMENTED, cause);
     }
 }
