@@ -22,7 +22,7 @@ public final class InvalidLevelException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String userMessage =
+    private static final String USER_MESSAGE =
         "The Format of the Level Parameter is not currect. Expected a numeric value.";
 
     //~ Instance fields --------------------------------------------------------
@@ -37,7 +37,7 @@ public final class InvalidLevelException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidLevelException(final String message) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST);
         this.level = -1;
     }
 
@@ -49,7 +49,7 @@ public final class InvalidLevelException extends CidsServerException {
      * @param  cause    the exception cause
      */
     public InvalidLevelException(final String message, final Throwable cause) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST, cause);
         this.level = -1;
     }
 
@@ -60,7 +60,7 @@ public final class InvalidLevelException extends CidsServerException {
      * @param  level    DOCUMENT ME!
      */
     public InvalidLevelException(final String message, final Integer level) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST);
         this.level = level;
     }
 
@@ -72,7 +72,7 @@ public final class InvalidLevelException extends CidsServerException {
      * @param  level    DOCUMENT ME!
      */
     public InvalidLevelException(final String message, final Throwable cause, final Integer level) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST, cause);
         this.level = level;
     }
 }

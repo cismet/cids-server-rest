@@ -21,7 +21,7 @@ public class EntityNotFoundException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String userMessage = "The requested Entity could not be found.";
+    private static final String USER_MESSAGE = "The requested Entity could not be found.";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -36,7 +36,7 @@ public class EntityNotFoundException extends CidsServerException {
      * @param  objectId          DOCUMENT ME!
      */
     public EntityNotFoundException(final String developerMessage, final String objectId) {
-        super(developerMessage, userMessage, HttpServletResponse.SC_NOT_FOUND);
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_FOUND);
         this.objectId = objectId;
     }
 
@@ -49,7 +49,7 @@ public class EntityNotFoundException extends CidsServerException {
      */
     public EntityNotFoundException(final String developerMessage,
             final Throwable cause, final String objectId) {
-        super(developerMessage, userMessage, HttpServletResponse.SC_NOT_FOUND, cause);
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_FOUND, cause);
         this.objectId = objectId;
     }
 }

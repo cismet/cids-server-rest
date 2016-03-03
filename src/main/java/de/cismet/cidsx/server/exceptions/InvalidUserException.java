@@ -19,7 +19,7 @@ public final class InvalidUserException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String userMessage = "The user credentials could not be validated";
+    private static final String USER_MESSAGE = "The user credentials could not be validated";
 
     //~ Constructors -----------------------------------------------------------
 
@@ -29,7 +29,7 @@ public final class InvalidUserException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidUserException(final String message) {
-        super(message, userMessage, HttpServletResponse.SC_UNAUTHORIZED);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_UNAUTHORIZED);
     }
 
     /**
@@ -40,6 +40,6 @@ public final class InvalidUserException extends CidsServerException {
      * @param  cause    the exception cause
      */
     public InvalidUserException(final String message, final Throwable cause) {
-        super(message, userMessage, HttpServletResponse.SC_UNAUTHORIZED, cause);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_UNAUTHORIZED, cause);
     }
 }

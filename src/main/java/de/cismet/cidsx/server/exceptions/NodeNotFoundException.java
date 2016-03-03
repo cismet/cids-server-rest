@@ -21,7 +21,7 @@ public class NodeNotFoundException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String userMessage = "The requested Node could not be found.";
+    private static final String USER_MESSAGE = "The requested Node could not be found.";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -36,7 +36,7 @@ public class NodeNotFoundException extends CidsServerException {
      * @param  nodeKey           DOCUMENT ME!
      */
     public NodeNotFoundException(final String developerMessage, final String nodeKey) {
-        super(developerMessage, userMessage, HttpServletResponse.SC_NOT_FOUND);
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_FOUND);
         this.nodeKey = nodeKey;
     }
 
@@ -49,7 +49,7 @@ public class NodeNotFoundException extends CidsServerException {
      */
     public NodeNotFoundException(final String developerMessage,
             final Throwable cause, final String nodeKey) {
-        super(developerMessage, userMessage, HttpServletResponse.SC_NOT_FOUND, cause);
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_FOUND, cause);
         this.nodeKey = nodeKey;
     }
 }
