@@ -21,7 +21,7 @@ public class EntityInfoNotFoundException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String userMessage = "The requested Entity Info (Class) could not be found.";
+    private static final String USER_MESSAGE = "The requested Entity Info (Class) could not be found.";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -36,7 +36,7 @@ public class EntityInfoNotFoundException extends CidsServerException {
      * @param  classKey          DOCUMENT ME!
      */
     public EntityInfoNotFoundException(final String developerMessage, final String classKey) {
-        super(developerMessage, userMessage, HttpServletResponse.SC_NOT_FOUND);
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_FOUND);
         this.classKey = classKey;
     }
 
@@ -49,7 +49,7 @@ public class EntityInfoNotFoundException extends CidsServerException {
      */
     public EntityInfoNotFoundException(final String developerMessage,
             final Throwable cause, final String classKey) {
-        super(developerMessage, userMessage, HttpServletResponse.SC_NOT_FOUND, cause);
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_FOUND, cause);
         this.classKey = classKey;
     }
 }
