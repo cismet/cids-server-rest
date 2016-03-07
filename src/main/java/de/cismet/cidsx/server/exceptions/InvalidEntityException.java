@@ -23,7 +23,7 @@ public final class InvalidEntityException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String userMessage =
+    private static final String USER_MESSAGE =
         "The Format of the Entitiy is not currect. Expected a valid JSON document";
 
     //~ Instance fields --------------------------------------------------------
@@ -38,7 +38,7 @@ public final class InvalidEntityException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidEntityException(final String message) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST);
         this.entity = null;
     }
 
@@ -60,7 +60,7 @@ public final class InvalidEntityException extends CidsServerException {
      * @param  entity   DOCUMENT ME!
      */
     public InvalidEntityException(final String message, final JsonNode entity) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST);
         this.entity = entity;
     }
 
@@ -72,7 +72,7 @@ public final class InvalidEntityException extends CidsServerException {
      * @param  entity   DOCUMENT ME!
      */
     public InvalidEntityException(final String message, final Throwable cause, final JsonNode entity) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST, cause);
         this.entity = entity;
     }
 }

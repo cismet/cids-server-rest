@@ -21,7 +21,7 @@ public class InvalidParameterException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String userMessage = "The format or contant of a submitted request parameter is not correct.";
+    private static final String USER_MESSAGE = "The format or content of a submitted request parameter is not correct.";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -48,7 +48,7 @@ public class InvalidParameterException extends CidsServerException {
      */
     public InvalidParameterException(final String developerMessage,
             final String key, final Object value) {
-        super(developerMessage, userMessage, HttpServletResponse.SC_BAD_REQUEST);
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST);
 
         this.key = key;
         this.value = (value != null) ? value.toString() : null;
@@ -66,7 +66,7 @@ public class InvalidParameterException extends CidsServerException {
             final Throwable cause,
             final String key,
             final Object value) {
-        super(developerMessage, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST, cause);
 
         this.key = key;
         this.value = (value != null) ? value.toString() : null;

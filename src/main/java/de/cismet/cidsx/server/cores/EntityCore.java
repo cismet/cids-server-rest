@@ -75,11 +75,12 @@ public interface EntityCore extends CidsServerCore {
     /**
      * DOCUMENT ME!
      *
-     * @param   user        DOCUMENT ME!
-     * @param   classKey    DOCUMENT ME!
-     * @param   objectId    DOCUMENT ME!
-     * @param   jsonObject  DOCUMENT ME!
-     * @param   role        DOCUMENT ME!
+     * @param   user                      DOCUMENT ME!
+     * @param   classKey                  DOCUMENT ME!
+     * @param   objectId                  DOCUMENT ME!
+     * @param   jsonObject                DOCUMENT ME!
+     * @param   role                      DOCUMENT ME!
+     * @param   requestResultingInstance  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -87,7 +88,8 @@ public interface EntityCore extends CidsServerCore {
             String classKey,
             String objectId,
             com.fasterxml.jackson.databind.JsonNode jsonObject,
-            String role);
+            String role,
+            boolean requestResultingInstance);
 
     /**
      * DOCUMENT ME!

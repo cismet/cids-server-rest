@@ -19,7 +19,7 @@ public final class InvalidClassKeyException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String userMessage = "The Format of the Class Key is not currect. Expected classname.domain";
+    private static final String USER_MESSAGE = "The Format of the Class Key is not currect. Expected classname.domain";
 
     //~ Constructors -----------------------------------------------------------
 
@@ -29,7 +29,7 @@ public final class InvalidClassKeyException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidClassKeyException(final String message) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST);
     }
 
     /**
@@ -40,6 +40,6 @@ public final class InvalidClassKeyException extends CidsServerException {
      * @param  cause    the exception cause
      */
     public InvalidClassKeyException(final String message, final Throwable cause) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST, cause);
     }
 }

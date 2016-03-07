@@ -21,7 +21,7 @@ public final class InvalidFilterFormatException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String userMessage =
+    private static final String USER_MESSAGE =
         "The Format of the filter parameter is not correct, expected a Regular Expression.";
 
     //~ Instance fields --------------------------------------------------------
@@ -36,7 +36,7 @@ public final class InvalidFilterFormatException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidFilterFormatException(final String message) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST);
         this.filter = null;
     }
 
@@ -48,7 +48,7 @@ public final class InvalidFilterFormatException extends CidsServerException {
      * @param  cause    the exception cause
      */
     public InvalidFilterFormatException(final String message, final Throwable cause) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST, cause);
         this.filter = null;
     }
 
@@ -59,7 +59,7 @@ public final class InvalidFilterFormatException extends CidsServerException {
      * @param  filter   level DOCUMENT ME!
      */
     public InvalidFilterFormatException(final String message, final String filter) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST);
         this.filter = filter;
     }
 
@@ -71,7 +71,7 @@ public final class InvalidFilterFormatException extends CidsServerException {
      * @param  filter   DOCUMENT ME!
      */
     public InvalidFilterFormatException(final String message, final Throwable cause, final String filter) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST, cause);
         this.filter = filter;
     }
 }

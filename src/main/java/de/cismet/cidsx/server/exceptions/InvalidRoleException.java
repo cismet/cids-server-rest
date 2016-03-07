@@ -19,7 +19,7 @@ public final class InvalidRoleException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String userMessage = "The provided user role is not valid in this context.";
+    private static final String USER_MESSAGE = "The provided user role is not valid in this context.";
 
     //~ Constructors -----------------------------------------------------------
 
@@ -29,7 +29,7 @@ public final class InvalidRoleException extends CidsServerException {
      * @param  message  the detail message.
      */
     public InvalidRoleException(final String message) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST);
     }
 
     /**
@@ -40,6 +40,6 @@ public final class InvalidRoleException extends CidsServerException {
      * @param  cause    the exception cause
      */
     public InvalidRoleException(final String message, final Throwable cause) {
-        super(message, userMessage, HttpServletResponse.SC_BAD_REQUEST, cause);
+        super(message, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST, cause);
     }
 }

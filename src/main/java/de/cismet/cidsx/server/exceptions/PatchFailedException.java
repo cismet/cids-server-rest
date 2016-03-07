@@ -15,12 +15,11 @@ import javax.servlet.http.HttpServletResponse;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
-public class NotImplementedException extends CidsServerException {
+public class PatchFailedException extends CidsServerException {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String USER_MESSAGE =
-        "The functionality requested by this call is not provided by this server.";
+    private static final String USER_MESSAGE = "The patch could not be applied to the resource";
 
     //~ Constructors -----------------------------------------------------------
 
@@ -29,17 +28,17 @@ public class NotImplementedException extends CidsServerException {
      *
      * @param  developerMessage  DOCUMENT ME!
      */
-    public NotImplementedException(final String developerMessage) {
-        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_IMPLEMENTED);
+    public PatchFailedException(final String developerMessage) {
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
 
     /**
      * Creates a new NotImplementedException object.
      *
      * @param  developerMessage  DOCUMENT ME!
-     * @param  userMessage       DOCUMENT ME!
+     * @param  cause             userMessage DOCUMENT ME!
      */
-    public NotImplementedException(final String developerMessage, final String userMessage) {
-        super(developerMessage, userMessage, HttpServletResponse.SC_NOT_IMPLEMENTED);
+    public PatchFailedException(final String developerMessage, final Throwable cause) {
+        super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_IMPLEMENTED, cause);
     }
 }
