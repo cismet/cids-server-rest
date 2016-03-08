@@ -652,14 +652,11 @@ public class EntitiesAPI extends APIBase {
                         .header("Location", getLocation())
                         .entity(RuntimeContainer.getServer().getEntityCore(classKey).patchObject(
                                     user,
-                                    // FIXME: what is the correct class key and format
-                                    domain
-                                    + "."
-                                    + classKey,
+                                    classKey,
                                     objectId,
                                     body,
                                     // FIXME: what is the default
-                                    ((role == null) ? "default" : role),
+                                    (role == null) ? "default" : role,
                                     requestResultingInstance))
                         .build();
             for (final CidsTrigger ct : rightTriggers) {
