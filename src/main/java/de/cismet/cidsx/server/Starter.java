@@ -239,7 +239,7 @@ public class Starter {
             jcom.parse(args);
 
             final String swaggerBasePath;
-            if (basePath.matches(".*:\\d+$")) {
+            if (basePath.matches(".*:\\d+.*$")) {
                 swaggerBasePath = basePath;
             } else {
                 swaggerBasePath = basePath + ":" + port;
