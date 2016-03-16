@@ -24,8 +24,13 @@
 
   <script type="text/javascript">
     $(function () {
+      
+     var url = document.URL;
+     var baseUrl=url.substring(0,url.lastIndexOf('/swagger'));
+     baseUrl = baseUrl.lastIndexOf('/') !== baseUrl.length-1 ? baseUrl + '/' : baseUrl;
+        
       window.swaggerUi = new SwaggerUi({
-      url: window.location.origin+'/resources',
+      url: baseUrl+'resources',
       dom_id: "swagger-ui-container",
       supportedSubmitMethods: ['get', 'post', 'put', 'delete'],
       onComplete: function(swaggerApi, swaggerUi){
