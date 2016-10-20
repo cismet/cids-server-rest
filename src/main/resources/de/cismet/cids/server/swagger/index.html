@@ -73,6 +73,7 @@
                 if (username && username.trim() !== "" && password && password.trim() !== "") {
                     var basicAuth = new SwaggerClient.PasswordAuthorization('basic', username, password);
                     window.swaggerUi.api.clientAuthorizations.add("basicAuth", basicAuth);
+                    window.swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("Authorization", basicAuth, "header"));
                     log("added basic auth " + username);
                 }
             }
