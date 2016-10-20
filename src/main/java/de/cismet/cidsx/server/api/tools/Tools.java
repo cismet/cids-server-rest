@@ -9,6 +9,7 @@ package de.cismet.cidsx.server.api.tools;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.spi.container.ContainerRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,10 +23,12 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import de.cismet.cidsx.server.api.ServerConstants;
+import de.cismet.cidsx.server.api.types.GenericResourceWithContentType;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.CidsServerInfo;
 import de.cismet.cidsx.server.data.RuntimeContainer;
@@ -180,5 +183,49 @@ public class Tools {
         rb.entity(r.getEntityInputStream());
         // return the response
         return rb.build();
+    }
+
+    /**
+     * Checks if the content type of a server-generated resource matches the expectations of the client against the
+     * content type. If the client did not provide a content type (accept header field), the expectation is considered
+     * to be met.
+     *
+     * @param   request   the client request
+     * @param   resource  the resource to be delivered
+     *
+     * @throws  CidsServerException  if the client expectation id not met
+     */
+    public static void checkAcceptedContentTypes(final Request request,
+            final GenericResourceWithContentType resource) throws CidsServerException {
+        if (request instanceof ContainerRequest) {
+            final List<MediaType> acceptableMediaTypes = ((ContainerRequest)request).getAcceptableMediaTypes();
+            if ((acceptableMediaTypes != null) && !acceptableMediaTypes.isEmpty()) {
+                String contentTypes = new String();
+                boolean accepted = false;
+                for (final MediaType acceptedMediaType : acceptableMediaTypes) {
+                    contentTypes += (acceptedMediaType.toString() + ";");
+                    if (acceptedMediaType.toString().equalsIgnoreCase(resource.getContentType())
+                                || acceptedMediaType.toString().equalsIgnoreCase(MediaType.WILDCARD)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("client accepts return content type '" + resource.getContentType() + "!");
+                        }
+                        accepted = true;
+                    }
+                }
+
+                if (!accepted) {
+                    final String message = "The Client does not accept return content type '"
+                                + resource.getContentType()
+                                + " but expects '" + contentTypes + "'";
+                    log.error(message);
+                    throw new CidsServerException(message, HttpServletResponse.SC_NOT_ACCEPTABLE);
+                }
+            } else {
+                log.warn("cannot check accepted content types, client did not send accept header!");
+            }
+        } else {
+            log.warn("cannot check accepted content types, unsupported request type '"
+                        + request.getClass().getSimpleName() + "'");
+        }
     }
 }
