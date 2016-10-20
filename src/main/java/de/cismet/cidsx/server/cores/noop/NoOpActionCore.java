@@ -60,7 +60,7 @@ public class NoOpActionCore implements ActionCore {
             final ActionTask body,
             final String role,
             final boolean requestResultingInstance,
-            final InputStream fileAttachement) {
+            final GenericResourceWithContentType<InputStream> bodyResource) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 
@@ -101,7 +101,7 @@ public class NoOpActionCore implements ActionCore {
             final String actionKey,
             final ActionTask body,
             final String role,
-            final InputStream fileAttachement) {
+            final GenericResourceWithContentType<InputStream> bodyResource) {
         throw new NotImplementedException("ActioCore is not active.");
     }
 }

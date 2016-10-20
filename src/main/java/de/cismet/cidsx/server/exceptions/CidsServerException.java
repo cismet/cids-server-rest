@@ -9,6 +9,8 @@ package de.cismet.cidsx.server.exceptions;
 
 import lombok.Getter;
 
+import javax.servlet.http.HttpServletResponse;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -35,7 +37,17 @@ public class CidsServerException extends RuntimeException {
      * @param  cause             DOCUMENT ME!
      */
     public CidsServerException(final String developerMessage, final Throwable cause) {
-        this(developerMessage, developerMessage, 500, cause);
+        this(developerMessage, developerMessage, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, cause);
+    }
+
+    /**
+     * Creates a new CidsServerException object.
+     *
+     * @param  developerMessage  DOCUMENT ME!
+     * @param  httpErrorCode     DOCUMENT ME!
+     */
+    public CidsServerException(final String developerMessage, final int httpErrorCode) {
+        this(developerMessage, developerMessage, httpErrorCode);
     }
 
     /**

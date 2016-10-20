@@ -7,15 +7,22 @@
 ****************************************************/
 package de.cismet.cidsx.server.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.sun.jersey.multipart.BodyPartEntity;
+import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataParam;
+import com.sun.jersey.spi.container.ContainerRequest;
 
 import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
 import com.wordnik.swagger.core.ApiParam;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 
@@ -31,9 +38,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Variant;
+
+import de.cismet.cidsx.base.types.MediaTypes;
 
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.ActionResultInfo;
@@ -43,9 +55,11 @@ import de.cismet.cidsx.server.api.types.GenericCollectionResource;
 import de.cismet.cidsx.server.api.types.GenericResourceWithContentType;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import de.cismet.cidsx.server.exceptions.ActionNotFoundException;
+import de.cismet.cidsx.server.exceptions.ActionTaskNotFoundException;
 
 /**
- * DOCUMENT ME!
+ * Show, run and maintain custom actions within the cids system.
  *
  * @author   thorsten
  * @version  $Revision$, $Date$
@@ -56,13 +70,15 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
     listingPath = "/resources/actions"
 )
 @Path("/actions")
-@Produces("application/json")
+@Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class ActionAPI extends APIBase {
 
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * DOCUMENT ME!
+     * Returns meta-information about all actions supported by the server. Returns a list of {@link ActionTask} JSON
+     * objects.
      *
      * @param   domain      DOCUMENT ME!
      * @param   limit       DOCUMENT ME!
@@ -74,9 +90,10 @@ public class ActionAPI extends APIBase {
      */
     @GET
     @ApiOperation(
-        value = "Get all actions.",
+        value = "Get information about all actions supported by the server.",
         notes = "-"
     )
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getActions(
             @ApiParam(
                 value = "possible values are 'all','local' or a existing [domainname]. 'all' when not submitted",
@@ -124,6 +141,7 @@ public class ActionAPI extends APIBase {
             final List<com.fasterxml.jackson.databind.JsonNode> allActions = RuntimeContainer.getServer()
                         .getActionCore()
                         .getAllActions(user, role);
+
             final CollectionResource result = new CollectionResource(
                     getLocation(),
                     offset,
@@ -133,6 +151,7 @@ public class ActionAPI extends APIBase {
                     "not available",
                     "not available",
                     allActions);
+
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else if (domain.equalsIgnoreCase("all")) {
             // Iterate through all domains and delegate an dcombine the result
@@ -155,22 +174,26 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * DOCUMENT ME!
+     * Get information about a specific action identified by the provided action key. Returns a {@link ActionTask} JSON
+     * object.
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
      * @param   role        DOCUMENT ME!
      * @param   authString  DOCUMENT ME!
      *
-     * @return  DOCUMENT ME!
+     * @return  {@link ActionTask}
+     *
+     * @throws  ActionNotFoundException  DOCUMENT ME!
      */
     @Path("/{domain}.{actionkey}")
     @GET
     @ApiOperation(
-        value = "Show and describe an action.",
+        value = "Get information about a specific action",
         notes = "-"
     )
-    public Response describeAction(
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAction(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -201,10 +224,16 @@ public class ActionAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            return Response.status(Response.Status.OK)
-                        .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getActionCore().getAction(user, actionKey, role))
-                        .build();
+            final JsonNode action = RuntimeContainer.getServer().getActionCore().getAction(user, actionKey, role);
+
+            if (action != null) {
+                return Response.status(Response.Status.OK).header("Location", getLocation()).entity(action).build();
+            } else {
+                final String message = "Action '" + actionKey + " could not be found at domain '"
+                            + domain + "'!";
+                log.warn(message);
+                throw new ActionNotFoundException(message, actionKey);
+            }
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
@@ -220,7 +249,10 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * DOCUMENT ME!
+     * Get information about all running tasks (executed actions).<br>
+     * Returns a {@link ActionTask} JSON object that contains in contrast to the ActionTask entity returned by the
+     * {@link #getAction(java.lang.String, java.lang.String, java.lang.String, java.lang.String) } method additional
+     * task specific information.
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
@@ -234,9 +266,10 @@ public class ActionAPI extends APIBase {
     @GET
     @Path("/{domain}.{actionkey}/tasks")
     @ApiOperation(
-        value = "Get all running tasks.",
+        value = "Get information about all running tasks (executed actions).",
         notes = "-"
     )
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getRunningTasks(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -319,20 +352,21 @@ public class ActionAPI extends APIBase {
      * DOCUMENT ME!
      *
      * @param   taskParams                DOCUMENT ME!
-     * @param   attachmentInputStream     DOCUMENT ME!
-     * @param   contentdisp               DOCUMENT ME!
+     * @param   bodyPart                  DOCUMENT ME!
      * @param   domain                    DOCUMENT ME!
      * @param   actionKey                 DOCUMENT ME!
      * @param   role                      DOCUMENT ME!
      * @param   resultingInstanceType     DOCUMENT ME!
      * @param   requestResultingInstance  DOCUMENT ME!
      * @param   authString                DOCUMENT ME!
+     * @param   request                   DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
     @Path("/{domain}.{actionkey}/tasks")
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.WILDCARD })
     @ApiOperation(
         value = "Create a new task of this action.",
         notes = "Swagger has some problems with MULTIPART_FORM_DATA.<br><br> "
@@ -349,8 +383,7 @@ public class ActionAPI extends APIBase {
                     + "837211/3741823/613248dc-1763-11e4-99be-2b3cf5b376b9.png\"/>"
     )
     public Response createNewActionTask(@FormDataParam("taskparams") final ActionTask taskParams,
-            @FormDataParam("file") final InputStream attachmentInputStream,
-            @FormDataParam("file") final FormDataContentDisposition contentdisp,
+            @FormDataParam("file") final FormDataBodyPart bodyPart,
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
                 required = true
@@ -390,33 +423,79 @@ public class ActionAPI extends APIBase {
                 required = false
             )
             @HeaderParam("Authorization")
-            final String authString) {
+            final String authString,
+            @Context final Request request) {
         final User user = Tools.validationHelper(authString);
+
+        final GenericResourceWithContentType<InputStream> bodyResource;
+        if ((bodyPart != null) && (bodyPart.getEntity() != null)
+                    && BodyPartEntity.class.isAssignableFrom(bodyPart.getEntity().getClass())) {
+            final String contentType = bodyPart.getMediaType().toString();
+            final InputStream inputStream = ((BodyPartEntity)bodyPart.getEntity()).getInputStream();
+            bodyResource = new GenericResourceWithContentType(contentType, inputStream);
+            if (log.isDebugEnabled()) {
+                log.debug("create new action task '" + actionKey + "' with body part of type '"
+                            + contentType + "'");
+            }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("create new action task '" + actionKey + "' without body part");
+            }
+            bodyResource = null;
+        }
+
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
+
+        // FIXME: custom JSON to java object deserialization for ActionsParameters based on additionalTypeInfo
+        // in ParameterInfo! Currently, Java Beans will be deserialized to key/value maps, not the actual
+        // JavaBean Objects!
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             if ("task".equals(resultingInstanceType)) {
+                final JsonNode taskDescription = RuntimeContainer.getServer()
+                            .getActionCore()
+                            .createNewActionTask(
+                                user,
+                                actionKey,
+                                taskParams,
+                                role,
+                                requestResultingInstance,
+                                bodyResource);
                 return Response.status(Response.Status.OK)
                             .header("Location", getLocation())
-                            .entity(RuntimeContainer.getServer().getActionCore().createNewActionTask(
-                                        user,
-                                        actionKey,
-                                        taskParams,
-                                        role,
-                                        requestResultingInstance,
-                                        attachmentInputStream))
+                            .type(MediaType.APPLICATION_JSON_TYPE)
+                            .entity(taskDescription)
                             .build();
             } else if ("result".equals(resultingInstanceType)) {
-                return Response.status(Response.Status.OK)
-                            .header("Location", getLocation())
-                            .entity(RuntimeContainer.getServer().getActionCore().executeNewAction(
-                                        user,
-                                        actionKey,
-                                        taskParams,
-                                        role,
-                                        attachmentInputStream))
-                            .build();
+                final GenericResourceWithContentType actionResult = RuntimeContainer.getServer()
+                            .getActionCore()
+                            .executeNewAction(
+                                user,
+                                actionKey,
+                                taskParams,
+                                role,
+                                bodyResource);
+
+                if ((actionResult == null) || (actionResult.getRes() == null)) {
+                    log.warn("action " + actionKey + "' did not generate any result!");
+                    return Response.status(Response.Status.NO_CONTENT).header("Location", getLocation()).build();
+                } else {
+                    if ((actionResult.getContentType() == null) || actionResult.getContentType().isEmpty()) {
+                        log.warn("Server Action did not provide any content type information "
+                                    + "about the result, assuming '" + MediaType.APPLICATION_OCTET_STREAM + "'");
+                        actionResult.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                    }
+
+                    // check the response against the client's expectations
+                    Tools.checkAcceptedContentTypes(request, actionResult);
+
+                    return Response.status(Response.Status.OK)
+                                .header("Location", getLocation())
+                                .type(actionResult.getContentType())
+                                .entity(actionResult.getRes())
+                                .build();
+                }
             } else {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
@@ -444,6 +523,8 @@ public class ActionAPI extends APIBase {
      * @param   authString  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  ActionTaskNotFoundException  DOCUMENT ME!
      */
     @Path("/{domain}.{actionkey}/tasks/{taskkey}")
     @GET
@@ -451,6 +532,7 @@ public class ActionAPI extends APIBase {
         value = "Get task status.",
         notes = "-"
     )
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getTaskStatus(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -488,10 +570,18 @@ public class ActionAPI extends APIBase {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            return Response.status(Response.Status.OK)
-                        .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getActionCore().getTask(user, actionKey, taskKey, role))
-                        .build();
+            final JsonNode actionTask = RuntimeContainer.getServer()
+                        .getActionCore()
+                        .getTask(user, actionKey, taskKey, role);
+
+            if (actionTask != null) {
+                return Response.status(Response.Status.OK).header("Location", getLocation()).entity(actionTask).build();
+            } else {
+                final String message = "The Task '" + taskKey + "' of Action '"
+                            + actionKey + " could not be found at domain '" + domain + "'!";
+                log.warn(message);
+                throw new ActionTaskNotFoundException(message, taskKey);
+            }
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
             final MultivaluedMap queryParams = new MultivaluedMapImpl();
@@ -509,7 +599,8 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns meta-information about the results of a specific action task identified by the key of the action and the
+     * id of the Task.
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
@@ -527,6 +618,7 @@ public class ActionAPI extends APIBase {
         value = "Get task result.",
         notes = "-"
     )
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getTaskResults(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -583,7 +675,7 @@ public class ActionAPI extends APIBase {
             final List<ActionResultInfo> allActions = RuntimeContainer.getServer()
                         .getActionCore()
                         .getResults(user, actionKey, taskKey, role);
-            final CollectionResource result = new CollectionResource(
+            final GenericCollectionResource<ActionResultInfo> result = new GenericCollectionResource<ActionResultInfo>(
                     getLocation(),
                     offset,
                     limit,
@@ -611,7 +703,8 @@ public class ActionAPI extends APIBase {
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the actual result of an action. The type of the result depends on the current action is denoted by the
+     * return content type of the operation, e.g. application/json, text/plain, etc.
      *
      * @param   domain      DOCUMENT ME!
      * @param   actionKey   DOCUMENT ME!
@@ -619,8 +712,11 @@ public class ActionAPI extends APIBase {
      * @param   resultKey   DOCUMENT ME!
      * @param   role        DOCUMENT ME!
      * @param   authString  DOCUMENT ME!
+     * @param   request     DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  ActionTaskNotFoundException  DOCUMENT ME!
      */
     @Path("/{domain}.{actionkey}/tasks/{taskkey}/results/{resultkey}")
     @GET
@@ -628,21 +724,7 @@ public class ActionAPI extends APIBase {
         value = "Get task result.",
         notes = "-"
     )
-    @Produces(
-        {
-            "application/json",
-            "application/xml",
-            "text/plain",
-            "application/octet-stream",
-            "text/html",
-            "application/pdf",
-            "image/png",
-            "image/gif",
-            "image/jpeg",
-            "unknown/unknown",
-            "unknown/*"
-        }
-    )
+    @Produces(MediaType.WILDCARD)
     public Response getTaskResult(
             @ApiParam(
                 value = "identifier (domainname) of the domain.",
@@ -680,23 +762,36 @@ public class ActionAPI extends APIBase {
                 required = false
             )
             @HeaderParam("Authorization")
-            final String authString) {
+            final String authString,
+            @Context final Request request) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final GenericResourceWithContentType r = RuntimeContainer.getServer()
+            final GenericResourceWithContentType actionResult = RuntimeContainer.getServer()
                         .getActionCore()
                         .getResult(user, actionKey, taskKey, resultKey, role);
-            if (r != null) {
+            if ((actionResult != null) && (actionResult.getRes() != null)) {
+                if ((actionResult.getContentType() == null) || actionResult.getContentType().isEmpty()) {
+                    log.warn("Server Action did not provide any content type information "
+                                + "about the result, assuming '" + MediaType.APPLICATION_OCTET_STREAM + "'");
+                    actionResult.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                }
+
+                // check the response against the client's expectations
+                Tools.checkAcceptedContentTypes(request, actionResult);
+
                 return Response.status(Response.Status.OK)
-                            .header("Content-Type", r.getContentType())
                             .header("Location", getLocation())
-                            .entity(r.getRes())
+                            .entity(actionResult.getRes())
+                            .type(actionResult.getContentType())
                             .build();
             } else {
-                return Response.status(Response.Status.NOT_FOUND).header("Location", getLocation()).build();
+                final String message = "The Task '" + taskKey + "' of Action '"
+                            + actionKey + " could not be found at domain '" + domain + "'!";
+                log.warn(message);
+                throw new ActionTaskNotFoundException(message, taskKey);
             }
         } else {
             final WebResource delegateCall = Tools.getDomainWebResource(domain);
