@@ -70,7 +70,7 @@ public class SearchesAPI extends APIBase {
      */
     @GET
     @ApiOperation(
-        value = "Get all custom searches.",
+        value = "Get information about all custom searches supported by the server.",
         notes = "-"
     )
     public Response getCustomSearches(
@@ -312,6 +312,9 @@ public class SearchesAPI extends APIBase {
         }
 
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+            // FIXME: custom JSON to java object deserialization for SearchParameter based on additionalTypeInfo
+            // in ParameterInfo! Currently, Java Beans will be deserialized to key/value maps, not the actual
+            // JavaBean Objects!
             final List<JsonNode> allActions = RuntimeContainer.getServer()
                         .getSearchCore()
                         .executeSearch(user, searchKey, params.getList(), limit, offset, role);
