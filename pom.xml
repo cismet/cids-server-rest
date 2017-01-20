@@ -10,7 +10,7 @@
     
     <groupId>de.cismet.cids</groupId>
     <artifactId>cids-server-rest</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>4.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>cids Server REST</name>
@@ -31,7 +31,8 @@
         <connection>https://github.com/cismet/cids-server-rest.git</connection>
         <developerConnection>scm:git:git@github.com:cismet/cids-server-rest.git</developerConnection>
         <url>https://github.com/cismet/cids-server-rest</url>
-    </scm>
+      <tag>HEAD</tag>
+  </scm>
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/cismet/cids-server-rest/issues</url>
@@ -151,7 +152,7 @@
         <dependency>
             <groupId>de.cismet</groupId>
             <artifactId>jcommander</artifactId>
-            <version>1.36-SNAPSHOT</version>
+            <version>4.0</version>
         </dependency>
         <!-- this is only a helper library that is needed at compile time -->
         <dependency>
@@ -179,12 +180,12 @@
         <dependency>
             <groupId>de.cismet.commons</groupId>
             <artifactId>cismet-commons</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>4.0</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>cids-server-rest-types</artifactId>
-            <version>${project.version}</version>
+            <version>4.0</version>
         </dependency>
         <dependency>
             <groupId>org.mindrot</groupId>
@@ -198,7 +199,7 @@
         <profile>
             <id>case-insensitive-test-override</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
                 <plugins>
