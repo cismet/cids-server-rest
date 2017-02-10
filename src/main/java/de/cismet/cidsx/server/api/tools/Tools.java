@@ -9,6 +9,9 @@ package de.cismet.cidsx.server.api.tools;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinNT;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,6 +33,7 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.CidsServerInfo;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.CidsServerException;
+import java.lang.reflect.Field;
 
 /**
  * DOCUMENT ME!
@@ -181,4 +185,63 @@ public class Tools {
         // return the response
         return rb.build();
     }
+    
+    public static Integer processId(Process process) {
+		Integer pid=unixLikeProcessId(process);
+		if (pid==null) {
+			pid=windowsProcessId(process);
+		}
+		return pid;
+	}
+
+	static Integer unixLikeProcessId(Process process) {
+		Class<?> clazz = process.getClass();
+		try {
+			if (clazz.getName().equals("java.lang.UNIXProcess")) {
+				Field pidField = clazz.getDeclaredField("pid");
+				pidField.setAccessible(true);
+				Object value = pidField.get(process);
+				if (value instanceof Integer) {
+					log.debug("Detected pid: " + value);
+					return (Integer) value;
+				}
+			}
+		} catch (SecurityException sx) {
+			log.warn(sx.getMessage(), sx);
+		} catch (NoSuchFieldException e) {
+			log.warn(e.getMessage(), e);
+		} catch (IllegalArgumentException e) {
+			log.warn(e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			log.warn(e.getMessage(), e);
+		}
+		return null;
+	}
+	
+	/**
+	 * @see http://www.golesny.de/p/code/javagetpid
+	 * 
+	 * @return
+	 */
+	static Integer windowsProcessId(Process process) {
+		if (process.getClass().getName().equals("java.lang.Win32Process")
+				|| process.getClass().getName().equals("java.lang.ProcessImpl")) {
+			/* determine the pid on windows plattforms */
+			try {
+				Field f = process.getClass().getDeclaredField("handle");
+				f.setAccessible(true);
+				long handl = f.getLong(process);
+
+				Kernel32 kernel = Kernel32.INSTANCE;
+				WinNT.HANDLE handle = new WinNT.HANDLE();
+				handle.setPointer(Pointer.createConstant(handl));
+				int ret = kernel.GetProcessId(handle);
+				log.debug("Detected pid: " + ret);
+				return ret;
+			} catch (Throwable e) {
+				log.warn(e.getMessage(), e);
+			}
+		}
+		return null;
+	}
 }

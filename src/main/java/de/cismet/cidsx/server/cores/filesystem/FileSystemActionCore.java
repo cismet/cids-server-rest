@@ -16,6 +16,7 @@ import com.beust.jcommander.Parameters;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.cismet.cidsx.server.api.tools.Tools;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -263,7 +264,7 @@ public class FileSystemActionCore implements ActionCore {
                             env.put("cidsActionDirectory", resultDir);
                             final Process p = pb.start();
 
-                            final Integer i = de.flapdoodle.embed.process.runtime.Processes.processId(p);
+                            final Integer i = Tools.processId(p);
                             String s = String.valueOf(i);
 
                             FileUtils.writeStringToFile(pidFile, s);
