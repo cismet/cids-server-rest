@@ -256,6 +256,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--
+            Why oh, why, did you use testng?! :o(
+            See http://mail-archives.apache.org/mod_mbox/maven-surefire-dev/200711.mbox/%3CPine.WNT.4.64.0711191635230.2484@sfeng02.rf.lan%3E
+        -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
