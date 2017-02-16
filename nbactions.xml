@@ -191,4 +191,33 @@
             <activatedProfile>netbeans-fastbuild</activatedProfile>
         </activatedProfiles>
     </action>
+    <action>
+        <actionName>CUSTOM-build-case-insensitve</actionName>
+        <displayName>Build - case-insensitve</displayName>
+        <goals>
+            <goal>clean</goal>
+            <goal>install</goal>
+        </goals>
+        <activatedProfiles>
+            <activatedProfile>case-insensitive-test-override</activatedProfile>
+        </activatedProfiles>
+    </action>
+    <action>
+        <actionName>CUSTOM-run-case-insensitive</actionName>
+        <displayName>Run - case-insensitive</displayName>
+        <packagings>
+            <packaging>jar</packaging>
+        </packagings>
+        <goals>
+            <goal>process-classes</goal>
+            <goal>org.codehaus.mojo:exec-maven-plugin:exec</goal>
+        </goals>
+        <properties>
+            <exec.args>-Dlog4j.configuration=file:log4j.properties -Dcids-server-rest.fscore.caseSensitivityOverride=true -classpath %classpath de.cismet.cidsx.server.Starter @runtime.properties -interactive</exec.args>
+            <exec.executable>java</exec.executable>
+        </properties>
+        <activatedProfiles>
+            <activatedProfile>netbeans-fastbuild</activatedProfile>
+        </activatedProfiles>
+    </action>
 </actions>
