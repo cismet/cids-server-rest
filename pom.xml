@@ -89,14 +89,6 @@
         </dependency>
         <!-- END: cismet dependencies -->
         
-        <!-- BEGIN: runtime dependencies -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <!-- END: runtime dependencies -->
-
         <!-- BEGIN: managed dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -105,11 +97,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -156,7 +143,7 @@
         
         <!-- BEGIN: Runtime dependencies -->
         <!--
-            By inlcuding this !runtime! bindung we are formwarding
+            By inlcuding this !runtime! bindung we are forwarding
             all log messages collected by slf4j to log4j!
         -->
         <dependency>
@@ -169,8 +156,21 @@
             <artifactId>log4j</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <!-- END: Runtime dependencies -->
-
+        
+        <!-- BEGIN: Provided Dependencies -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>    
+        <!-- END: Provided Dependencies -->
+             
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
