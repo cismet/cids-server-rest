@@ -82,31 +82,6 @@
                 <version>5.0-SNAPSHOT</version>
             </dependency>
             <!-- END: cismet dependencies -->
-            
-            <!--
-                FIXME: Upgrade to recent swagger version aqnd get rid of the
-                old jackson 1.x dependencies
-            -->
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
-                <version>${jackson.legacy.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-jaxrs</artifactId>
-                <version>${jackson.legacy.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>${jackson.legacy.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-xc</artifactId>
-                <version>${jackson.legacy.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     
