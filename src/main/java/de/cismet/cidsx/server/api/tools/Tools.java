@@ -9,8 +9,13 @@ package de.cismet.cidsx.server.api.tools;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinNT;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Field;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -180,5 +185,86 @@ public class Tools {
         rb.entity(r.getEntityInputStream());
         // return the response
         return rb.build();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   process  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static Integer processId(final Process process) {
+        Integer pid = unixLikeProcessId(process);
+        if (pid == null) {
+            pid = windowsProcessId(process);
+        }
+        return pid;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   process  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    static Integer unixLikeProcessId(final Process process) {
+        final Class<?> clazz = process.getClass();
+        try {
+            if (clazz.getName().equals("java.lang.UNIXProcess")) {
+                final Field pidField = clazz.getDeclaredField("pid");
+                pidField.setAccessible(true);
+                final Object value = pidField.get(process);
+                if (value instanceof Integer) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Detected pid: " + value);
+                    }
+                    return (Integer)value;
+                }
+            }
+        } catch (SecurityException sx) {
+            log.warn(sx.getMessage(), sx);
+        } catch (NoSuchFieldException e) {
+            log.warn(e.getMessage(), e);
+        } catch (IllegalArgumentException e) {
+            log.warn(e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            log.warn(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   process  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @see     http://www.golesny.de/p/code/javagetpid
+     */
+    static Integer windowsProcessId(final Process process) {
+        if (process.getClass().getName().equals("java.lang.Win32Process")
+                    || process.getClass().getName().equals("java.lang.ProcessImpl")) {
+            /* determine the pid on windows plattforms */
+            try {
+                final Field f = process.getClass().getDeclaredField("handle");
+                f.setAccessible(true);
+                final long handl = f.getLong(process);
+
+                final Kernel32 kernel = Kernel32.INSTANCE;
+                final WinNT.HANDLE handle = new WinNT.HANDLE();
+                handle.setPointer(Pointer.createConstant(handl));
+                final int ret = kernel.GetProcessId(handle);
+                if (log.isDebugEnabled()) {
+                    log.debug("Detected pid: " + ret);
+                }
+                return ret;
+            } catch (Throwable e) {
+                log.warn(e.getMessage(), e);
+            }
+        }
+        return null;
     }
 }
