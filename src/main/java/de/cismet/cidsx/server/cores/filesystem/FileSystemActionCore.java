@@ -39,6 +39,7 @@ import java.util.concurrent.ExecutorService;
 
 import javax.servlet.http.HttpServletResponse;
 
+import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.Action;
 import de.cismet.cidsx.server.api.types.ActionResultInfo;
 import de.cismet.cidsx.server.api.types.ActionTask;
@@ -264,7 +265,7 @@ public class FileSystemActionCore implements ActionCore {
                             env.put("cidsActionDirectory", resultDir);
                             final Process p = pb.start();
 
-                            final Integer i = de.flapdoodle.embed.process.runtime.Processes.processId(p);
+                            final Integer i = Tools.processId(p);
                             String s = String.valueOf(i);
 
                             FileUtils.writeStringToFile(pidFile, s);
