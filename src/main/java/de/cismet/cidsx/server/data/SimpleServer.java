@@ -58,6 +58,7 @@ public class SimpleServer implements Server {
     InfrastructureCore infrastructureCore = new DefaultInfrastructureCore();
     String domainName;
     String registry;
+    ServerOptions serverOptions = new ServerOptions();
 
     //~ Methods ----------------------------------------------------------------
 
@@ -136,5 +137,10 @@ public class SimpleServer implements Server {
         }
 
         return activeCores;
+    }
+
+    @Override
+    public ServerOptions getServerOptions() {
+        return serverOptions;
     }
 }

@@ -358,10 +358,34 @@
     -->
     <profiles>
         <profile>
-            <id>case-insensitive-test-override</id>
+            <id>case-insensitive-test-override-windows</id>
             <activation>
                 <os>
                     <family>Windows</family>
+                </os>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <configuration>
+                                <systemPropertyVariables>
+                                    <cids-server-rest.fscore.caseSensitivityOverride>true</cids-server-rest.fscore.caseSensitivityOverride>
+                                </systemPropertyVariables>
+                                <excludedGroups>case_sensitivity</excludedGroups>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>case-insensitive-test-override-mac</id>
+            <activation>
+                <os>
+                    <family>Mac</family>
                 </os>
             </activation>
             <build>
