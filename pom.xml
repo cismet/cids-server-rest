@@ -5,7 +5,7 @@
     <parent>
         <groupId>de.cismet</groupId>
         <artifactId>cismet-parent</artifactId>
-        <version>5.0</version>
+        <version>5.1.2</version>
     </parent>
     
     <groupId>de.cismet.cids</groupId>
@@ -39,6 +39,19 @@
         <system>jenkins</system>
         <url>https://ci.cismet.de/job/cids-server-rest/</url>
     </ciManagement>
+    
+    <distributionManagement>
+        <repository>
+            <id>cismet-repo</id>
+            <name>cismet-libs-releases-local</name>
+            <url>https://repo.cismet.de/cismet-private-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>cismet-repo</id>
+            <name>cismet-libs-snapshots-local</name>
+            <url>https://repo.cismet.de/cismet-private-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
   
     <issueManagement>
         <system>GitHub</system>
@@ -51,7 +64,7 @@
             <dependency>
                 <groupId>de.cismet</groupId>
                 <artifactId>cismet-ext-bom</artifactId>
-                <version>5.0</version>
+                <version>5.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
