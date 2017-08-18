@@ -123,7 +123,8 @@ public class SearchesAPI extends APIBase {
 
             // searches whitelisting
             final List<SearchInfo> allSearchesFiltered = new ArrayList<SearchInfo>(allSearches);
-            if (RuntimeContainer.getServer().getServerOptions().getAllowedSearches() != null) {
+            if ((RuntimeContainer.getServer().getServerOptions().getAllowedSearches() != null)
+                        && (RuntimeContainer.getServer().getServerOptions().getAllowedSearches().size() > 0)) {
                 for (final SearchInfo si : allSearches) {
                     if (!RuntimeContainer.getServer().getServerOptions().getAllowedSearches().contains(si.getKey())) {
                         allSearchesFiltered.remove(si);
