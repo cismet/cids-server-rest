@@ -27,6 +27,7 @@ import org.mortbay.jetty.handler.ResourceHandler;
 import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.servlet.GzipFilter;
 
 import org.openide.util.Lookup;
 
@@ -95,6 +96,13 @@ public class Starter {
         description = "If set to interactive server waits for a <enter> to shutdown"
     )
     boolean standalone = false;
+
+    @Parameter(
+        names = { "-compression", "-gzip" },
+        description = "If set to true the server will use gzip compression if the client supports it.",
+        required = false
+    )
+    boolean compression = false;
 
     @Parameter(
         names = { "-sslDebug" },
@@ -368,6 +376,9 @@ public class Starter {
 
             final Context context = new Context(server, "/", Context.SESSIONS);
             context.addServlet(sh, "/*");
+            if (compression) {
+                context.addFilter(GzipFilter.class, "/*", 0);
+            }
             final String resoursceBaseDir = this.getClass()
                         .getClassLoader()
                         .getResource("de/cismet/cids/server/swagger")
