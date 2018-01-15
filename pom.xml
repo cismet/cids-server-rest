@@ -10,7 +10,7 @@
     
     <groupId>de.cismet.cids</groupId>
     <artifactId>cids-server-rest</artifactId>
-    <version>5.2-SNAPSHOT</version>
+    <version>6.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>cids Server REST</name>
@@ -64,7 +64,7 @@
             <dependency>
                 <groupId>de.cismet</groupId>
                 <artifactId>cismet-ext-bom</artifactId>
-                <version>5.1</version>
+                <version>6.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -73,26 +73,26 @@
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-commons</artifactId>
-                <version>5.0</version>
+                <version>6.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-commons</artifactId>
-                <version>5.0</version>
+                <version>6.0</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>de.cismet.cids</groupId>
                 <artifactId>cids-server-rest-types</artifactId>
-                <version>5.0</version>
+                <version>6.0</version>
             </dependency>
             <dependency>
                 <groupId>de.cismet</groupId>
                 <artifactId>jcommander</artifactId>
-                <version>5.0</version>
+                <version>6.0</version>
             </dependency>
             <!-- END: cismet dependencies -->
         </dependencies>
