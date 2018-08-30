@@ -126,10 +126,25 @@ public class Tools {
      * @return  DOCUMENT ME!
      */
     public static User validationHelper(final String authString) {
-        if (authString == null) {
+        User user;
+        if ((authString == null) && (RuntimeContainer.getServer().getServerOptions().getAnonymousUser() == null)) {
             return User.NONE;
+        } else if ((authString == null) && (RuntimeContainer.getServer().getServerOptions().getAnonymousUser() != null)
+                    && (RuntimeContainer.getServer().getServerOptions().getAnonymousPassword() != null)) {
+            user = new User(getBasicAuthString(
+                        RuntimeContainer.getServer().getServerOptions().getAnonymousUser(),
+                        RuntimeContainer.getServer().getServerOptions().getAnonymousPassword()));
+        } else {
+            user = new User(authString);
         }
-        User user = new User(authString);
+        // Check whether the user is whitelisted
+        if ((RuntimeContainer.getServer().getServerOptions().getAllowedUsers() != null)
+                    && (RuntimeContainer.getServer().getServerOptions().getAllowedUsers().size() > 0)) {
+            if (!RuntimeContainer.getServer().getServerOptions().getAllowedUsers().contains(user.getUser())) {
+                return User.NONE;
+            }
+        }
+
         if ((user.getDomain() == null) || user.getDomain().equalsIgnoreCase("local")
                     || user.getDomain().equalsIgnoreCase(RuntimeContainer.getServer().getDomainName())) {
             RuntimeContainer.getServer().getUserCore().validate(user);
@@ -155,6 +170,19 @@ public class Tools {
                     || ((user == User.NONE)
                         && ((RuntimeContainer.getServer().getUserCore() != null)
                             && !RuntimeContainer.getServer().getUserCore().isNoneUserAllowed()));
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   user  DOCUMENT ME!
+     * @param   pass  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static String getBasicAuthString(final String user, final String pass) {
+        final String usernameAndPassword = user + ":" + pass;
+        return "Basic " + java.util.Base64.getEncoder().encodeToString(usernameAndPassword.getBytes());
     }
 
     /**

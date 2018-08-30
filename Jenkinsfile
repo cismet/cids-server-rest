@@ -2,9 +2,7 @@ pipeline {
     agent any
     
     options {
-        buildDiscarder(logRotator(numToKeepStr:'5'))
-        timeout(time: 15, unit: 'MINUTES')
-        disableConcurrentBuilds()
+        timeout(time: 30, unit: 'MINUTES')
     }
 
     stages {
@@ -33,14 +31,14 @@ pipeline {
         }
         failure {
             emailext attachLog: true, 
-				to: "pascal@cismet.de", 
+				to: "dev@cismet.de", 
 				subject: "Build failed in Jenkins: ${currentBuild.fullDisplayName}",
                 body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
                 <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>"""
         }
         unstable {
             emailext attachLog: true, 
-				to: "pascal@cismet.de", 
+				to: "dev@cismet.de", 
 				subject: "Jenkins build became unstable: ${currentBuild.fullDisplayName}",
                 body: """<p>UNSTABLE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
                 <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>"""

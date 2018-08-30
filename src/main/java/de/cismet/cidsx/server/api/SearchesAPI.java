@@ -17,6 +17,7 @@ import com.wordnik.swagger.core.Api;
 import com.wordnik.swagger.core.ApiOperation;
 import com.wordnik.swagger.core.ApiParam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -119,6 +120,17 @@ public class SearchesAPI extends APIBase {
             final List<SearchInfo> allSearches = RuntimeContainer.getServer()
                         .getSearchCore()
                         .getAllSearches(user, role);
+
+            // searches whitelisting
+            final List<SearchInfo> allSearchesFiltered = new ArrayList<SearchInfo>(allSearches);
+            if ((RuntimeContainer.getServer().getServerOptions().getAllowedSearches() != null)
+                        && (RuntimeContainer.getServer().getServerOptions().getAllowedSearches().size() > 0)) {
+                for (final SearchInfo si : allSearches) {
+                    if (!RuntimeContainer.getServer().getServerOptions().getAllowedSearches().contains(si.getKey())) {
+                        allSearchesFiltered.remove(si);
+                    }
+                }
+            }
             final CollectionResource result = new CollectionResource(
                     getLocation(),
                     offset,
@@ -127,7 +139,7 @@ public class SearchesAPI extends APIBase {
                     null,
                     "not available",
                     "not available",
-                    allSearches);
+                    allSearchesFiltered);
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else if (domain.equalsIgnoreCase("all")) {
             // Iterate through all domains and delegate an dcombine the result
@@ -193,6 +205,13 @@ public class SearchesAPI extends APIBase {
             final String authString) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
+            return Tools.getUserProblemResponse();
+        }
+
+        // searches whitelisting
+        if ((RuntimeContainer.getServer().getServerOptions().getAllowedSearches() != null)
+                    && (RuntimeContainer.getServer().getServerOptions().getAllowedSearches().size() > 0)
+                    && !RuntimeContainer.getServer().getServerOptions().getAllowedSearches().contains(searchKey)) {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
@@ -285,6 +304,13 @@ public class SearchesAPI extends APIBase {
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
+        // searches whitelisting
+        if ((RuntimeContainer.getServer().getServerOptions().getAllowedSearches() != null)
+                    && (RuntimeContainer.getServer().getServerOptions().getAllowedSearches().size() > 0)
+                    && !RuntimeContainer.getServer().getServerOptions().getAllowedSearches().contains(searchKey)) {
+            return Tools.getUserProblemResponse();
+        }
+
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             // FIXME: custom JSON to java object deserialization for SearchParameter based on additionalTypeInfo
             // in ParameterInfo! Currently, Java Beans will be deserialized to key/value maps, not the actual

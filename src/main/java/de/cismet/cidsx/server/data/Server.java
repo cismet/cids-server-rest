@@ -108,4 +108,11 @@ public interface Server {
      * @return  active server cores
      */
     List<CidsServerCore> getActiveCores();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  all ServerOptions of the server
+     */
+    ServerOptions getServerOptions();
 }

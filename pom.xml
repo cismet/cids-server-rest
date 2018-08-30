@@ -5,12 +5,12 @@
     <parent>
         <groupId>de.cismet</groupId>
         <artifactId>cismet-parent</artifactId>
-        <version>5.1-SNAPSHOT</version>
+        <version>6.0</version>
     </parent>
     
     <groupId>de.cismet.cids</groupId>
     <artifactId>cids-server-rest</artifactId>
-    <version>5.1-UBA-SNAPSHOT</version>
+    <version>6.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>cids Server REST</name>
@@ -39,6 +39,19 @@
         <system>jenkins</system>
         <url>https://ci.cismet.de/job/cids-server-rest/</url>
     </ciManagement>
+    
+    <distributionManagement>
+        <repository>
+            <id>cismet-repo</id>
+            <name>cismet-libs-releases-local</name>
+            <url>https://repo.cismet.de/cismet-private-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>cismet-repo</id>
+            <name>cismet-libs-snapshots-local</name>
+            <url>https://repo.cismet.de/cismet-private-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
   
     <issueManagement>
         <system>GitHub</system>
@@ -51,7 +64,7 @@
             <dependency>
                 <groupId>de.cismet</groupId>
                 <artifactId>cismet-ext-bom</artifactId>
-                <version>5.0.1</version>
+                <version>6.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -60,26 +73,26 @@
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-commons</artifactId>
-                <version>5.0</version>
+                <version>6.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-commons</artifactId>
-                <version>5.0</version>
+                <version>6.0</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>de.cismet.cids</groupId>
                 <artifactId>cids-server-rest-types</artifactId>
-                <version>5.0-UBA</version>
+                <version>6.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>de.cismet</groupId>
                 <artifactId>jcommander</artifactId>
-                <version>5.0</version>
+                <version>6.0</version>
             </dependency>
             <!-- END: cismet dependencies -->
         </dependencies>
@@ -145,6 +158,11 @@
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -357,10 +375,34 @@
     -->
     <profiles>
         <profile>
-            <id>case-insensitive-test-override</id>
+            <id>case-insensitive-test-override-windows</id>
             <activation>
                 <os>
                     <family>Windows</family>
+                </os>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <configuration>
+                                <systemPropertyVariables>
+                                    <cids-server-rest.fscore.caseSensitivityOverride>true</cids-server-rest.fscore.caseSensitivityOverride>
+                                </systemPropertyVariables>
+                                <excludedGroups>case_sensitivity</excludedGroups>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>case-insensitive-test-override-mac</id>
+            <activation>
+                <os>
+                    <family>Mac</family>
                 </os>
             </activation>
             <build>

@@ -27,6 +27,7 @@ import org.mortbay.jetty.handler.ResourceHandler;
 import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.servlet.GzipFilter;
 
 import org.openide.util.Lookup;
 
@@ -97,6 +98,13 @@ public class Starter {
     boolean standalone = false;
 
     @Parameter(
+        names = { "-compression", "-gzip" },
+        description = "If set to true the server will use gzip compression if the client supports it.",
+        required = false
+    )
+    boolean compression = false;
+
+    @Parameter(
         names = { "-sslDebug" },
         description = "If set to true the server will not use ssl connections, should not be true in production. "
                     + "If set to false you have to provide a keystore that contains the server certificate or the server "
@@ -157,12 +165,77 @@ public class Starter {
     private String sslKeystoreClientPassword;
 
     @Parameter(
+        names = { "-corsAccessControlAllowOrigin" },
+        description = "The password of the server's ssl certificate private key entry. If it is not provided the http "
+                    + "container will ask for it which makes the startup interactive."
+    )
+    @SuppressWarnings("FieldMayBeFinal")
+    private String corsAccessControlAllowOrigin = "*";
+
+    @Parameter(
+        names = { "-corsAccessControlAllowMethods" },
+        description = "The password of the server's ssl certificate private key entry. If it is not provided the http "
+                    + "container will ask for it which makes the startup interactive."
+    )
+    @SuppressWarnings("FieldMayBeFinal")
+    private String corsAccessControlAllowMethods = "GET, POST, DELETE, PUT, OPTIONS";
+
+    @Parameter(
+        names = { "-corsAccessControlAllowHeaders" },
+        description = "The password of the server's ssl certificate private key entry. If it is not provided the http "
+                    + "container will ask for it which makes the startup interactive."
+    )
+    @SuppressWarnings("FieldMayBeFinal")
+    private String corsAccessControlAllowHeaders = "Content-Type, Authorization";
+
+    @Parameter(
         names = { "-enableCore", "-addmodule", "-modules", "-m", "--modules" },
         description = "active modules",
         variableArity = true,
         required = true
     )
+    @SuppressWarnings("FieldMayBeFinal")
     private List<String> activeModulesParameter = new ArrayList<String>();
+
+    @Parameter(
+        names = { "-allowedUsers", "-users", "-u" },
+        description = "only these users are allowed to login",
+        variableArity = true,
+        required = false
+    )
+    @SuppressWarnings("FieldMayBeFinal")
+    private List<String> allowedUsers = new ArrayList<String>();
+
+    @Parameter(
+        names = { "-anonymousUser", "-defaultUser" },
+        description = "This user is used when no explicit user is set."
+    )
+    @SuppressWarnings("FieldMayBeFinal")
+    private String anonymousUser;
+
+    @Parameter(
+        names = { "-anonymousPassword", "-defaultPassword" },
+        description = "The password of the anonymous user in the cids System."
+    )
+    @SuppressWarnings("FieldMayBeFinal")
+    private String anonymousPass;
+
+    @Parameter(
+        names = { "-hideSensitiveInformation", "-productionMode" },
+        description = "Sensitive Information will not be shown in the status list if this is set to true.",
+        arity = 1
+    )
+    @SuppressWarnings("FieldMayBeFinal")
+    private boolean hideSenisitiveInformation = true;
+
+    @Parameter(
+        names = { "-allowedSearches", "-searchesWhiteList", "-swl" },
+        description = "only these searches can be executed",
+        variableArity = true,
+        required = false
+    )
+    @SuppressWarnings("FieldMayBeFinal")
+    private List<String> allowedSearches = new ArrayList<String>();
 
     //~ Constructors -----------------------------------------------------------
 
@@ -244,6 +317,45 @@ public class Starter {
             } else {
                 swaggerBasePath = basePath + ":" + port;
             }
+
+            cidsCoreHolder.getServerOptions().setCorsAccessControlAllowOrigin(corsAccessControlAllowOrigin);
+            cidsCoreHolder.getServerOptions().setCorsAccessControlAllowMethods(corsAccessControlAllowMethods);
+            cidsCoreHolder.getServerOptions().setCorsAccessControlAllowHeaders(corsAccessControlAllowHeaders);
+
+            if (!hideSenisitiveInformation) {
+                StatusHolder.getInstance()
+                        .putStatus(
+                            "corsAccessControlAllowOrigin",
+                            cidsCoreHolder.getServerOptions().getCorsAccessControlAllowOrigin());
+                StatusHolder.getInstance()
+                        .putStatus(
+                            "corsAccessControlAllowMethods",
+                            cidsCoreHolder.getServerOptions().getCorsAccessControlAllowMethods());
+                StatusHolder.getInstance()
+                        .putStatus(
+                            "corsAccessControlAllowHeaders",
+                            cidsCoreHolder.getServerOptions().getCorsAccessControlAllowHeaders());
+            }
+
+            cidsCoreHolder.getServerOptions().setAnonymousUser(anonymousUser);
+            cidsCoreHolder.getServerOptions().setAnonymousPassword(anonymousPass);
+
+            cidsCoreHolder.getServerOptions().setAllowedUsers(allowedUsers);
+            cidsCoreHolder.getServerOptions().setAllowedSearches(allowedSearches);
+
+            if (!hideSenisitiveInformation) {
+                StatusHolder.getInstance()
+                        .putStatus("anonymousUser", cidsCoreHolder.getServerOptions().getAnonymousUser());
+                StatusHolder.getInstance()
+                        .putStatus(
+                            "allowedUsers",
+                            new ArrayList<String>(cidsCoreHolder.getServerOptions().getAllowedUsers()).toString());
+                StatusHolder.getInstance()
+                        .putStatus(
+                            "allowedSearches",
+                            new ArrayList<String>(cidsCoreHolder.getServerOptions().getAllowedSearches()).toString());
+            }
+
             RuntimeContainer.setServer(cidsCoreHolder);
             JaxrsApiReader.setFormatString("");
             final ServletHolder sh = new ServletHolder(ServletContainer.class);
@@ -264,6 +376,9 @@ public class Starter {
 
             final Context context = new Context(server, "/", Context.SESSIONS);
             context.addServlet(sh, "/*");
+            if (compression) {
+                context.addFilter(GzipFilter.class, "/*", 0);
+            }
             final String resoursceBaseDir = this.getClass()
                         .getClassLoader()
                         .getResource("de/cismet/cids/server/swagger")
