@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cidsx.server.cores;
 
+import java.security.Key;
+
 import de.cismet.cidsx.server.api.types.User;
 
 /**
@@ -33,4 +35,13 @@ public interface UserCore extends CidsServerCore {
      * @return  DOCUMENT ME!
      */
     User validate(User user);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   domain  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    Key getPublicJwtKey(String domain);
 }
