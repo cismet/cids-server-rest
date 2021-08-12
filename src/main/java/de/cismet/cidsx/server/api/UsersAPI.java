@@ -102,47 +102,6 @@ public class UsersAPI {
     /**
      * DOCUMENT ME!
      *
-     * @param   authString  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    @Path("/jwt")
-    @GET
-    @Produces("application/json")
-    @ApiOperation(
-        value = "Validate the user whose credentials are submitted via the header and return the jwt.",
-        notes = "-"
-    )
-    @ApiErrors(
-        value = {
-                @ApiError(
-                    code = 400,
-                    reason = "Invalid user supplied"
-                ),
-                @ApiError(
-                    code = 404,
-                    reason = "User not found"
-                )
-            }
-    )
-    public Response jwt(
-            @ApiParam(
-                value = "Basic Auth Realm",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString) {
-        final User user = Tools.validationHelper(authString);
-        if ((authString == null) || !user.isValidated()) {
-            return Response.status(Response.Status.UNAUTHORIZED).header("WWW-Authenticate", "Basic").build();
-        } else {
-            return Response.status(Response.Status.OK).entity("{\"jtw\":\"" + user.getJwt() + "\"}").build();
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
      * @param   domain  authString DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
