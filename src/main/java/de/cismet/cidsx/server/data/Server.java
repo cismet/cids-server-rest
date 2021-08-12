@@ -13,6 +13,7 @@ import de.cismet.cidsx.server.cores.ActionCore;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.cores.EntityInfoCore;
+import de.cismet.cidsx.server.cores.GraphQlCore;
 import de.cismet.cidsx.server.cores.InfrastructureCore;
 import de.cismet.cidsx.server.cores.NodeCore;
 import de.cismet.cidsx.server.cores.PermissionCore;
@@ -81,6 +82,13 @@ public interface Server {
      * @return  DOCUMENT ME!
      */
     UserCore getUserCore();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    GraphQlCore getGraphQlCore();
 
     /**
      * Returns the active InfrastructureCore implementation.

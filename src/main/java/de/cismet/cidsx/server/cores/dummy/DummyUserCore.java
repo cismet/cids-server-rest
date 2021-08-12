@@ -9,6 +9,8 @@ package de.cismet.cidsx.server.cores.dummy;
 
 import org.openide.util.lookup.ServiceProvider;
 
+import java.security.Key;
+
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.UserCore;
@@ -35,6 +37,12 @@ public class DummyUserCore implements UserCore {
 
         return user;
     }
+
+    @Override
+    public Key getPublicJwtKey(final String domain) {
+        return null;
+    }
+
     @Override
     public String getCoreKey() {
         return "core.dummy.user"; // NOI18N

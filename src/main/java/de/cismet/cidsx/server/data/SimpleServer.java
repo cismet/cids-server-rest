@@ -22,6 +22,7 @@ import de.cismet.cidsx.server.cores.ActionCore;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.cores.EntityInfoCore;
+import de.cismet.cidsx.server.cores.GraphQlCore;
 import de.cismet.cidsx.server.cores.InfrastructureCore;
 import de.cismet.cidsx.server.cores.NodeCore;
 import de.cismet.cidsx.server.cores.PermissionCore;
@@ -30,6 +31,7 @@ import de.cismet.cidsx.server.cores.UserCore;
 import de.cismet.cidsx.server.cores.builtin.DefaultInfrastructureCore;
 import de.cismet.cidsx.server.cores.noop.NoOpActionCore;
 import de.cismet.cidsx.server.cores.noop.NoOpEntityInfoCore;
+import de.cismet.cidsx.server.cores.noop.NoOpGraphQlCore;
 import de.cismet.cidsx.server.cores.noop.NoOpNodeCore;
 import de.cismet.cidsx.server.cores.noop.NoOpSearchCore;
 import de.cismet.cidsx.server.data.unused.CustomAttributeCore;
@@ -59,6 +61,7 @@ public class SimpleServer implements Server {
     String domainName;
     String registry;
     ServerOptions serverOptions = new ServerOptions();
+    GraphQlCore graphQlCore = new NoOpGraphQlCore();
 
     //~ Methods ----------------------------------------------------------------
 
@@ -89,6 +92,8 @@ public class SimpleServer implements Server {
             setSearchCore((SearchCore)core);
         } else if (core instanceof UserCore) {
             setUserCore((UserCore)core);
+        } else if (core instanceof GraphQlCore) {
+            setGraphQlCore((GraphQlCore)core);
         } else if (core instanceof InfrastructureCore) {
             setInfrastructureCore((InfrastructureCore)core);
         } else {
