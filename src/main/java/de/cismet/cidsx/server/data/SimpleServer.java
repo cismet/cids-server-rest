@@ -27,6 +27,7 @@ import de.cismet.cidsx.server.cores.InfrastructureCore;
 import de.cismet.cidsx.server.cores.NodeCore;
 import de.cismet.cidsx.server.cores.PermissionCore;
 import de.cismet.cidsx.server.cores.SearchCore;
+import de.cismet.cidsx.server.cores.SecresCore;
 import de.cismet.cidsx.server.cores.UserCore;
 import de.cismet.cidsx.server.cores.builtin.DefaultInfrastructureCore;
 import de.cismet.cidsx.server.cores.noop.NoOpActionCore;
@@ -34,6 +35,7 @@ import de.cismet.cidsx.server.cores.noop.NoOpEntityInfoCore;
 import de.cismet.cidsx.server.cores.noop.NoOpGraphQlCore;
 import de.cismet.cidsx.server.cores.noop.NoOpNodeCore;
 import de.cismet.cidsx.server.cores.noop.NoOpSearchCore;
+import de.cismet.cidsx.server.cores.noop.NoOpWebdavCore;
 import de.cismet.cidsx.server.data.unused.CustomAttributeCore;
 
 /**
@@ -62,6 +64,7 @@ public class SimpleServer implements Server {
     String registry;
     ServerOptions serverOptions = new ServerOptions();
     GraphQlCore graphQlCore = new NoOpGraphQlCore();
+    SecresCore secresCore = new NoOpWebdavCore();
 
     //~ Methods ----------------------------------------------------------------
 
@@ -94,6 +97,8 @@ public class SimpleServer implements Server {
             setUserCore((UserCore)core);
         } else if (core instanceof GraphQlCore) {
             setGraphQlCore((GraphQlCore)core);
+        } else if (core instanceof SecresCore) {
+            setSecresCore((SecresCore)core);
         } else if (core instanceof InfrastructureCore) {
             setInfrastructureCore((InfrastructureCore)core);
         } else {
@@ -139,6 +144,14 @@ public class SimpleServer implements Server {
 
         if (this.userCore != null) {
             activeCores.add(this.userCore);
+        }
+
+        if (this.graphQlCore != null) {
+            activeCores.add(this.graphQlCore);
+        }
+
+        if (this.secresCore != null) {
+            activeCores.add(this.secresCore);
         }
 
         return activeCores;

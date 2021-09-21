@@ -14,9 +14,12 @@ package de.cismet.cidsx.server.cores.noop;
 
 import org.openide.util.lookup.ServiceProvider;
 
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
-import de.cismet.cidsx.server.cores.GraphQlCore;
+import de.cismet.cidsx.server.cores.SecresCore;
 import de.cismet.cidsx.server.exceptions.NotImplementedException;
 
 /**
@@ -26,17 +29,20 @@ import de.cismet.cidsx.server.exceptions.NotImplementedException;
  * @version  $Revision$, $Date$
  */
 @ServiceProvider(service = CidsServerCore.class)
-public class NoOpGraphQlCore implements GraphQlCore {
+public class NoOpWebdavCore implements SecresCore {
 
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public String executeQuery(final User user, final String role, final String request) {
-        throw new NotImplementedException("GraphQl is not active.");
+    public ResponseBuilder executeQuery(final User user,
+            final String type,
+            final String url,
+            final MultivaluedMap<String, String> queryParams) {
+        throw new NotImplementedException("Secres is not active.");
     }
 
     @Override
     public String getCoreKey() {
-        return "core.noop.graphQl";
+        return "core.noop.secres";
     }
 }
