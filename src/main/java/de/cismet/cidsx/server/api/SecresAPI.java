@@ -52,7 +52,7 @@ public class SecresAPI extends APIBase {
      *
      * @return  DOCUMENT ME!
      */
-    @Path("/{jwt}/{name}/{url}")
+    @Path("/{jwt}/{name}/{url:.+}")
     @GET
     @ApiOperation(
         value = "Sends server resources",
