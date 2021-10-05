@@ -43,6 +43,7 @@ import java.util.List;
 import de.cismet.cidsx.server.api.ServerConstants;
 import de.cismet.cidsx.server.api.types.ServerStatus;
 import de.cismet.cidsx.server.cores.CidsServerCore;
+import de.cismet.cidsx.server.cores.InitialisableCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.data.SimpleServer;
 import de.cismet.cidsx.server.data.StatusHolder;
@@ -291,6 +292,11 @@ public class Starter {
                 if (activeModulesParameter.contains(core.getCoreKey())) {
                     activeModules.add(core);
                     cidsCoreHolder.feedCore(core);
+
+                    if (core instanceof InitialisableCore) {
+                        ((InitialisableCore)core).init();
+                    }
+
                     System.out.println(core.getCoreKey() + " activated");
                 }
             }
