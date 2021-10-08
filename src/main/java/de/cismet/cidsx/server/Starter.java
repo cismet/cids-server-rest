@@ -87,6 +87,12 @@ public class Starter {
     String basePath = "http://localhost";
 
     @Parameter(
+        names = "-resourcesBasePath",
+        description = "Basepath of the server resources"
+    )
+    String resourcesBasePath = null;
+
+    @Parameter(
         names = { "-domainname", "-domain" },
         description = "If set to interactive server waits for a <enter> to shutdown"
     )
@@ -294,7 +300,7 @@ public class Starter {
                     cidsCoreHolder.feedCore(core);
 
                     if (core instanceof InitialisableCore) {
-                        ((InitialisableCore)core).init();
+                        ((InitialisableCore)core).init(resourcesBasePath);
                     }
 
                     System.out.println(core.getCoreKey() + " activated");
