@@ -24,6 +24,8 @@ public interface InitialisableCore {
 
     /**
      * DOCUMENT ME!
+     *
+     * @param  pathServerResources  DOCUMENT ME!
      */
-    void init();
+    void init(String pathServerResources);
 }
