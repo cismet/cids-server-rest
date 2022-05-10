@@ -14,6 +14,8 @@ package de.cismet.cidsx.server.cores.noop;
 
 import org.openide.util.lookup.ServiceProvider;
 
+import javax.ws.rs.core.MultivaluedMap;
+
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.GraphQlCore;
@@ -31,7 +33,10 @@ public class NoOpGraphQlCore implements GraphQlCore {
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public String executeQuery(final User user, final String role, final String request) {
+    public Object executeQuery(final User user,
+            final String role,
+            final String request,
+            final String contentType) {
         throw new NotImplementedException("GraphQl is not active.");
     }
 
