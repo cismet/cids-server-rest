@@ -22,11 +22,15 @@ public interface GraphQlCore extends CidsServerCore {
     /**
      * DOCUMENT ME!
      *
-     * @param   user     DOCUMENT ME!
-     * @param   role     query DOCUMENT ME!
-     * @param   request  variables DOCUMENT ME!
+     * @param   user         DOCUMENT ME!
+     * @param   role         query DOCUMENT ME!
+     * @param   request      variables DOCUMENT ME!
+     * @param   contentType  queryParams DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    String executeQuery(final User user, final String role, final String request);
+    Object executeQuery(final User user,
+            final String role,
+            final String request,
+            final String contentType);
 }

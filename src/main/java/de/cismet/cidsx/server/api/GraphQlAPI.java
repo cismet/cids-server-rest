@@ -20,8 +20,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.User;
@@ -47,9 +49,10 @@ public class GraphQlAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   authString  DOCUMENT ME!
-     * @param   domain      DOCUMENT ME!
-     * @param   jsonBody    DOCUMENT ME!
+     * @param   authString   DOCUMENT ME!
+     * @param   domain       DOCUMENT ME!
+     * @param   jsonBody     DOCUMENT ME!
+     * @param   contentType  info DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -86,15 +89,29 @@ public class GraphQlAPI extends APIBase {
             )
             @PathParam("domain")
             final String domain,
-            final String jsonBody) {
+            final String jsonBody,
+            @HeaderParam("Accept-Encoding") final String contentType) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
 
-        return Response.status(Response.Status.OK)
-                    .header("Location", getLocation())
-                    .entity(RuntimeContainer.getServer().getGraphQlCore().executeQuery(user, domain, jsonBody))
-                    .build();
+        final Object result = RuntimeContainer.getServer()
+                    .getGraphQlCore()
+                    .executeQuery(
+                        user,
+                        domain,
+                        jsonBody,
+                        contentType);
+
+        if (result instanceof byte[]) {
+            return Response.status(Response.Status.OK)
+                        .header("Location", getLocation())
+                        .entity(result)
+                        .header("Content-Encoding", "gzip")
+                        .build();
+        } else {
+            return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
+        }
     }
 }
