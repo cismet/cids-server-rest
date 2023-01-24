@@ -18,16 +18,17 @@ import com.wordnik.swagger.jaxrs.JaxrsApiReader;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.handler.ContextHandlerCollection;
-import org.mortbay.jetty.handler.ResourceHandler;
-import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.servlet.GzipFilter;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import org.openide.util.Lookup;
 
@@ -110,6 +111,15 @@ public class Starter {
         required = false
     )
     boolean compression = false;
+
+    @Parameter(
+        names = { "-swaggerEnabled" },
+        description = "If set to true the server use the swagger handler. ",
+        arity =
+            1
+//        required = false
+    )
+    private boolean swaggerEnabled = false;
 
     @Parameter(
         names = { "-sslDebug" },
@@ -323,13 +333,6 @@ public class Starter {
             jcom.setAllowParameterOverwriting(true);
             jcom.parse(args);
 
-            final String swaggerBasePath;
-            if (basePath.matches(".*:\\d+.*$")) {
-                swaggerBasePath = basePath;
-            } else {
-                swaggerBasePath = basePath + ":" + port;
-            }
-
             cidsCoreHolder.getServerOptions().setCorsAccessControlAllowOrigin(corsAccessControlAllowOrigin);
             cidsCoreHolder.getServerOptions().setCorsAccessControlAllowMethods(corsAccessControlAllowMethods);
             cidsCoreHolder.getServerOptions().setCorsAccessControlAllowHeaders(corsAccessControlAllowHeaders);
@@ -382,43 +385,90 @@ public class Starter {
             sh.setInitParameter(
                 "com.sun.jersey.spi.container.ContainerResponseFilters",
                 "de.cismet.cidsx.server.api.tools.CORSResponseFilter");
-            sh.setInitParameter("swagger.version", "1.0");
-            sh.setInitParameter("swagger.api.basepath", swaggerBasePath); // no trailing slash please
+
+            if (swaggerEnabled) {
+                final String swaggerBasePath;
+
+                if (basePath.matches(".*:\\d+.*$")) {
+                    swaggerBasePath = basePath;
+                } else {
+                    swaggerBasePath = basePath + ":" + port;
+                }
+
+                sh.setInitParameter("swagger.version", "1.0");
+                sh.setInitParameter("swagger.api.basepath", swaggerBasePath); // no trailing slash please
+//                sh.setInitParameter("swagger.version", "1.0");
+//                sh.setInitParameter("com.sun.jersey.config.property.packages", "com.api.resources;io.swagger.jaxrs.json;io.swagger.jaxrs.listing");
+            }
             server = new Server(port);
 
-            final Context context = new Context(server, "/", Context.SESSIONS);
+            final ServletContextHandler context = new ServletContextHandler(
+                    server,
+                    "/",
+                    ServletContextHandler.SESSIONS);
             context.addServlet(sh, "/*");
-            if (compression) {
-                context.addFilter(GzipFilter.class, "/*", 0);
+
+            ServletContextHandler swagger = null;
+
+            if (swaggerEnabled) {
+                final String resoursceBaseDir = this.getClass()
+                            .getClassLoader()
+                            .getResource("de/cismet/cids/server/swagger")
+                            .toExternalForm();
+
+                swagger = new ServletContextHandler(
+                        server,
+                        "/swagger",
+                        ServletContextHandler.SESSIONS); // NOI18N
+
+                swagger.setHandler(new ResourceHandler());
+                swagger.setResourceBase(resoursceBaseDir);
             }
-            final String resoursceBaseDir = this.getClass()
-                        .getClassLoader()
-                        .getResource("de/cismet/cids/server/swagger")
-                        .toExternalForm();
-
-            final Context swagger = new Context(server, "/swagger", Context.SESSIONS); // NOI18N
-
-            swagger.setHandler(new ResourceHandler());
-            swagger.setResourceBase(resoursceBaseDir);
 
             final ContextHandlerCollection contexts = new ContextHandlerCollection();
-            contexts.setHandlers(
-                new Handler[] {
-                    swagger,
-                    context
-                });
 
-            server.setHandlers(contexts.getHandlers());
+            if (swagger != null) {
+                contexts.setHandlers(
+                    new Handler[] {
+                        swagger,
+                        context
+                    });
+            } else {
+                contexts.setHandlers(
+                    new Handler[] { context });
+            }
+
+            final HandlerCollection handlerCollection = new HandlerCollection(contexts.getHandlers());
+
+            if (compression) {
+                final GzipHandler gzipHandler = new GzipHandler();
+                gzipHandler.setHandler(handlerCollection);
+                gzipHandler.setIncludedMethods("PUT", "POST", "GET");
+                server.setHandler(gzipHandler);
+            } else {
+                server.setHandler(handlerCollection);
+            }
 
             final Connector connector = getConnector();
             server.setConnectors(new Connector[] { connector });
-            StatusHolder.getInstance().putStatus("connector", connector.getName());
 
             server.start();
+            // join blocks until the jetty server is started
+// server.join();
+            while (!server.isStarted()) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    // nothing to do
+                }
+            }
+            // connector.getName() returns null until the server was started
+            StatusHolder.getInstance().putStatus("connector", connector.getName());
             StatusHolder.getInstance().putStatus("serverStart", String.valueOf(System.currentTimeMillis()));
             System.out.println("\n\nServer started under: " + getURL());
-            System.out.println("\nA cool API Documention is available under: " + getSwaggerURL());
-
+            if (swaggerEnabled) {
+                System.out.println("\nA cool API Documention is available under: " + getSwaggerURL());
+            }
             if (!interactive) {
                 System.out.println("Server running non-interactive, use 'kill' to shutdown.");
                 StatusHolder.getInstance().putStatus("startupMode", "non-interactive");
@@ -458,8 +508,8 @@ public class Starter {
         } catch (Exception skipBecauseOfWiseInitializationValue) {
         }
 
-        return server.getConnectors()[0].getIntegralScheme() + "://" + hostname + ":"
-                    + server.getConnectors()[0].getPort();
+        return ((ServerConnector)server.getConnectors()[0]).getDefaultProtocol() + "://" + hostname + ":"
+                    + ((ServerConnector)server.getConnectors()[0]).getLocalPort();
     }
 
     /**
@@ -479,30 +529,33 @@ public class Starter {
      * @throws  IllegalStateException  DOCUMENT ME!
      */
     private Connector getConnector() {
-        final Connector connector;
+        final ServerConnector connector;
         if (sslDebug) {
             log.warn("server interface is in debug mode, no security applied!"); // NOI18N
-            connector = new SocketConnector();
+            connector = new ServerConnector(server);
+            connector.setName("default");
         } else {
             if (log.isInfoEnabled()) {
                 log.info("server interface uses SSL connector");                 // NOI18N
             }
 
             try {
-                final SslSocketConnector ssl = new SslSocketConnector();
-                ssl.setMaxIdleTime(30000);
-                ssl.setKeystore(sslKeystoreServer);
-                ssl.setPassword(sslKeystoreServerPassword);
-                ssl.setKeyPassword(sslKeystoreServerKeyPassword);
+                final SslContextFactory.Server ssl = new SslContextFactory.Server();
+//                final SslSocketConnector ssl = new SslSocketConnector();
+//                ssl.setMaxIdleTime(30000);
+                ssl.setKeyStorePath(sslKeystoreServer);
+                ssl.setKeyStorePassword(sslKeystoreServerPassword);
+                ssl.setKeyManagerPassword(sslKeystoreServerKeyPassword);
 
                 if (sslClientAuth) {
-                    ssl.setTruststore(sslKeystoreClient);
-                    ssl.setTrustPassword(sslKeystoreClientPassword);
+                    ssl.setTrustStorePath(sslKeystoreClient);
+                    ssl.setTrustStorePassword(sslKeystoreClientPassword);
                 }
                 ssl.setWantClientAuth(sslClientAuth);
                 ssl.setNeedClientAuth(sslClientAuth);
 
-                connector = ssl;
+                connector = new ServerConnector(server, ssl);
+                connector.setName("ssl");
             } catch (final Exception e) {
                 final String message = "cannot initialise SSL connector"; // NOI18N
                 log.error(message, e);
@@ -511,7 +564,8 @@ public class Starter {
         }
 
         connector.setPort(port);
-        connector.setHeaderBufferSize(HEADER_BUFFER_SIZE);
+        connector.setAcceptedReceiveBufferSize(HEADER_BUFFER_SIZE);
+//        connector.setHeaderBufferSize(HEADER_BUFFER_SIZE);
 
         return connector;
     }

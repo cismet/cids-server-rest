@@ -14,9 +14,9 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -204,7 +204,7 @@ public class RestRegistry {
         sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
             "true");
         final Server server = new Server(8888);
-        final Context context = new Context(server, "/", Context.SESSIONS);
+        final ServletContextHandler context = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
         context.addServlet(sh, "/*");
         server.start();
         log.info("REST Registry available at: " + dns.get(REGISTRY).getUri());
