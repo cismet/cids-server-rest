@@ -13,11 +13,11 @@ import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.Use;
 
-import com.wordnik.swagger.core.Api;
-import com.wordnik.swagger.core.ApiError;
-import com.wordnik.swagger.core.ApiErrors;
-import com.wordnik.swagger.core.ApiOperation;
-import com.wordnik.swagger.core.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,7 +48,8 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
 @Api(
     value = "/users",
     description = "Show, run and maintain custom actions within the cids system.",
-    listingPath = "/resources/users"
+    tags = { "users" }
+//    ,listingPath = "/resources/users"
 )
 @Path("/users")
 @Produces("application/json")
@@ -70,15 +71,15 @@ public class UsersAPI {
         value = "Validate the user whose credentials are submitted via the header.",
         notes = "-"
     )
-    @ApiErrors(
+    @ApiResponses(
         value = {
-                @ApiError(
+                @ApiResponse(
                     code = 400,
-                    reason = "Invalid user supplied"
+                    message = "Invalid user supplied"
                 ),
-                @ApiError(
+                @ApiResponse(
                     code = 404,
-                    reason = "User not found"
+                    message = "User not found"
                 )
             }
     )

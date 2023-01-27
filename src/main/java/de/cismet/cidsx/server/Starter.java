@@ -14,7 +14,8 @@ import com.beust.jcommander.Parameters;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
-import com.wordnik.swagger.jaxrs.JaxrsApiReader;
+import io.swagger.jaxrs.config.DefaultJaxrsConfig;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,6 +64,8 @@ public class Starter {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final int HEADER_BUFFER_SIZE = 512 * 1024; // = 512kb
+    // this static variable creates a possibility to determine, wheter compression is active
+    public static boolean gzipHandled = false;
 
     //~ Instance fields --------------------------------------------------------
 
@@ -291,6 +294,7 @@ public class Starter {
             jcom.setAcceptUnknownOptions(true);
             jcom.setAllowParameterOverwriting(true);
             jcom.parse(args);
+            gzipHandled = compression;
             final SimpleServer cidsCoreHolder = new SimpleServer();
             if (standalone) {
                 cidsCoreHolder.setRegistry(ServerConstants.STANDALONE);
@@ -372,7 +376,8 @@ public class Starter {
             }
 
             RuntimeContainer.setServer(cidsCoreHolder);
-            JaxrsApiReader.setFormatString("");
+            SwaggerSerializers.setPrettyPrint(true);
+
             final ServletHolder sh = new ServletHolder(ServletContainer.class);
             sh.setInitParameter(
                 "com.sun.jersey.config.property.packages",
@@ -397,8 +402,9 @@ public class Starter {
 
                 sh.setInitParameter("swagger.version", "1.0");
                 sh.setInitParameter("swagger.api.basepath", swaggerBasePath); // no trailing slash please
-//                sh.setInitParameter("swagger.version", "1.0");
-//                sh.setInitParameter("com.sun.jersey.config.property.packages", "com.api.resources;io.swagger.jaxrs.json;io.swagger.jaxrs.listing");
+                sh.setInitParameter(
+                    "com.sun.jersey.config.property.packages",
+                    "com.api.resources;io.swagger.jaxrs.json;io.swagger.jaxrs.listing;io.swagger.jaxrs.listing;de.cismet.cidsx.server.api");
             }
             server = new Server(port);
 
@@ -453,8 +459,9 @@ public class Starter {
             server.setConnectors(new Connector[] { connector });
 
             server.start();
-            // join blocks until the jetty server is started
-// server.join();
+
+            // wait until the server is started
+            // do not use server.join() because this would block the thread
             while (!server.isStarted()) {
                 try {
                     Thread.sleep(10);
@@ -465,10 +472,13 @@ public class Starter {
             // connector.getName() returns null until the server was started
             StatusHolder.getInstance().putStatus("connector", connector.getName());
             StatusHolder.getInstance().putStatus("serverStart", String.valueOf(System.currentTimeMillis()));
+            System.out.println("\nServer gzip support: " + (compression ? "is active" : "not active"));
             System.out.println("\n\nServer started under: " + getURL());
+
             if (swaggerEnabled) {
                 System.out.println("\nA cool API Documention is available under: " + getSwaggerURL());
             }
+
             if (!interactive) {
                 System.out.println("Server running non-interactive, use 'kill' to shutdown.");
                 StatusHolder.getInstance().putStatus("startupMode", "non-interactive");
