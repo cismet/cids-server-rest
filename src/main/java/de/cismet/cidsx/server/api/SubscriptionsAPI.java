@@ -7,9 +7,9 @@
 ****************************************************/
 package de.cismet.cidsx.server.api;
 
-import com.wordnik.swagger.core.Api;
-import com.wordnik.swagger.core.ApiOperation;
-import com.wordnik.swagger.core.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -28,7 +28,8 @@ import javax.ws.rs.core.Response.Status;
 @Api(
     value = "/subscriptions",
     description = "... subscriptions within the cids system.",
-    listingPath = "/resources/subscriptions"
+    tags = { "subscriptions" }
+//    ,listingPath = "/resources/subscriptions"
 )
 @Path("/subscriptions")
 @Produces("application/json")

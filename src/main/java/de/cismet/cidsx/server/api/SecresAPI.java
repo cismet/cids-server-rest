@@ -7,11 +7,11 @@
 ****************************************************/
 package de.cismet.cidsx.server.api;
 
-import com.wordnik.swagger.core.Api;
-import com.wordnik.swagger.core.ApiError;
-import com.wordnik.swagger.core.ApiErrors;
-import com.wordnik.swagger.core.ApiOperation;
-import com.wordnik.swagger.core.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,7 +34,8 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
 @Api(
     value = "/secres",
     description = "Sends secured server resources",
-    listingPath = "/resources/secres"
+    tags = { "secres" }
+//    ,listingPath = "/resources/secres"
 )
 @Path("/secres")
 @Produces("application/json")
@@ -58,15 +59,15 @@ public class SecresAPI extends APIBase {
         value = "Sends server resources",
         notes = "-"
     )
-    @ApiErrors(
+    @ApiResponses(
         value = {
-                @ApiError(
+                @ApiResponse(
                     code = 400,
-                    reason = "Invalid user supplied"
+                    message = "Invalid user supplied"
                 ),
-                @ApiError(
+                @ApiResponse(
                     code = 404,
-                    reason = "User not found"
+                    message = "User not found"
                 )
             }
     )

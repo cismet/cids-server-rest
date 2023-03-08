@@ -7,11 +7,11 @@
 ****************************************************/
 package de.cismet.cidsx.server.api;
 
-import com.wordnik.swagger.core.Api;
-import com.wordnik.swagger.core.ApiError;
-import com.wordnik.swagger.core.ApiErrors;
-import com.wordnik.swagger.core.ApiOperation;
-import com.wordnik.swagger.core.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import de.cismet.cidsx.server.Starter;
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
@@ -38,7 +39,7 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
 @Api(
     value = "/graphQl",
     description = "Show, run and maintain graphQl actions within the cids system.",
-    listingPath = "/resources/graphql"
+    tags = { "graphQl" }
 )
 @Path("/graphql")
 @Produces("application/json")
@@ -64,15 +65,15 @@ public class GraphQlAPI extends APIBase {
         value = "Validate the user whose credentials are submitted via the header.",
         notes = "-"
     )
-    @ApiErrors(
+    @ApiResponses(
         value = {
-                @ApiError(
+                @ApiResponse(
                     code = 400,
-                    reason = "Invalid user supplied"
+                    message = "Invalid user supplied"
                 ),
-                @ApiError(
+                @ApiResponse(
                     code = 404,
-                    reason = "User not found"
+                    message = "User not found"
                 )
             }
     )
@@ -102,7 +103,7 @@ public class GraphQlAPI extends APIBase {
                         user,
                         domain,
                         jsonBody,
-                        contentType);
+                        Starter.gzipHandled ? "application/json" : contentType);
 
         if (result instanceof byte[]) {
             return Response.status(Response.Status.OK)
