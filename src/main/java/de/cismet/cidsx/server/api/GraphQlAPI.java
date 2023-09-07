@@ -105,11 +105,17 @@ public class GraphQlAPI extends APIBase {
                         jsonBody,
                         Starter.gzipHandled ? "application/json" : contentType);
 
-        if (result instanceof byte[]) {
+        if ((result instanceof byte[]) && contentType.contains("gzip")) {
             return Response.status(Response.Status.OK)
                         .header("Location", getLocation())
                         .entity(result)
                         .header("Content-Encoding", "gzip")
+                        .build();
+        } else if ((result instanceof byte[]) && !contentType.contains("gzip")) {
+            return Response.status(Response.Status.OK)
+                        .header("Location", getLocation())
+                        .entity(result)
+                        .header("Content-Encoding", "application/octet-stream")
                         .build();
         } else {
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
