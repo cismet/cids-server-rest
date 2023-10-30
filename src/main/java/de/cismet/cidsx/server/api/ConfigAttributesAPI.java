@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiParam;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -20,6 +21,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import de.cismet.cidsx.server.Starter;
+import de.cismet.cidsx.server.api.tools.Tools;
+import de.cismet.cidsx.server.api.types.User;
+import de.cismet.cidsx.server.data.RuntimeContainer;
 
 /**
  * DOCUMENT ME!
@@ -35,40 +41,15 @@ import javax.ws.rs.core.Response.Status;
 )
 @Path("/configattributes")
 @Produces("application/json")
-public class ConfigAttributesAPI {
+public class ConfigAttributesAPI extends APIBase {
 
     //~ Methods ----------------------------------------------------------------
 
     /**
      * DOCUMENT ME!
      *
-     * @param   role  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    @GET
-    @Produces("application/json")
-    @ApiOperation(
-        value = "Get all configattributes.",
-        notes = "-"
-    )
-    public Response getConfigattributes(
-            @DefaultValue("default")
-            @ApiParam(
-                value = "role of the user, 'default' role when not submitted",
-                required = false,
-                defaultValue = "default"
-            )
-            @QueryParam("role")
-            final String role) {
-        return Response.status(Status.SERVICE_UNAVAILABLE).type(MediaType.TEXT_PLAIN).build();
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   configattribute  DOCUMENT ME!
-     * @param   role             DOCUMENT ME!
+     * @param   configattribute  the name of the config attribute
+     * @param   authString       jwt the jwt og the user
      *
      * @return  DOCUMENT ME!
      */
@@ -79,14 +60,34 @@ public class ConfigAttributesAPI {
         notes = "-"
     )
     public Response getConfigattribute(@PathParam("configattribute") final String configattribute,
-            @DefaultValue("default")
             @ApiParam(
-                value = "role of the user, 'default' role when not submitted",
-                required = false,
-                defaultValue = "default"
+                value = "Basic Auth Realm",
+                required = false
             )
-            @QueryParam("role")
-            final String role) {
-        return Response.status(Status.SERVICE_UNAVAILABLE).type(MediaType.TEXT_PLAIN).build();
+            @HeaderParam("Authorization")
+            final String authString) {
+        final User user = Tools.validationHelper(authString);
+
+        if (Tools.canHazUserProblems(user)) {
+            return Tools.getUserProblemResponse();
+        }
+
+        final String value = RuntimeContainer.getServer()
+                    .getConfigAttributesCore()
+                    .getConfigattribute(user, configattribute);
+
+        if (value != null) {
+            return Response.status(Response.Status.OK)
+                        .header("Location", getLocation())
+                        .entity("{\"" + configattribute + "\":\"" + value + "\"}")
+                        .header("Content-Encoding", "gzip")
+                        .build();
+        } else {
+            return Response.status(Response.Status.OK)
+                        .header("Location", getLocation())
+                        .entity("{\"" + configattribute + "\": null}")
+                        .header("Content-Encoding", "gzip")
+                        .build();
+        }
     }
 }
