@@ -30,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import de.cismet.cidsx.server.Starter;
 import de.cismet.cidsx.server.api.ServerConstants;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.CidsServerInfo;
@@ -109,9 +110,15 @@ public class Tools {
                     HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             }
         } else {
-            final String message = "server is standalone, cannot ask registry for domain '" + domain + "'";
-            log.error(message);
-            throw new CidsServerException(message, message, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            final String url = Starter.friendlyDomains.get(domain);
+
+            if (url != null) {
+                return RuntimeContainer.getClient().resource(url);
+            } else {
+                final String message = "server is standalone, cannot ask registry for domain '" + domain + "'";
+                log.error(message);
+                throw new CidsServerException(message, message, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            }
         }
     }
 
@@ -121,6 +128,8 @@ public class Tools {
      * @param   authString  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
+     *
+     * @throws  CidsServerException  DOCUMENT ME!
      */
     public static User validationHelper(final String authString) {
         User user;
@@ -150,7 +159,20 @@ public class Tools {
             final ClientResponse crValidationCall = delegateCall.path("/users")
                         .header("Authorization", authString)
                         .get(ClientResponse.class);
-            user = crValidationCall.getEntity(User.class);
+            try {
+                user = crValidationCall.getEntity(User.class);
+                if (user != null) {
+                    user.setValidated(true);
+                } else {
+                    final String message = "The given user is from domain '" + user.getDomain() + "' and not valid.";
+                    log.error(message);
+                    throw new CidsServerException(message, message, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                }
+            } catch (Exception e) {
+                final String message = "The given user is from domain '" + user.getDomain() + "' and not valid.";
+                log.error(message);
+                throw new CidsServerException(message, message, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            }
         }
         return user;
     }

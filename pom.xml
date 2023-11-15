@@ -87,7 +87,7 @@
             <dependency>
                 <groupId>de.cismet</groupId>
                 <artifactId>jcommander</artifactId>
-                <version>7.0</version>
+                <version>8.0</version>
             </dependency>
             <!-- END: cismet dependencies -->
         </dependencies>
