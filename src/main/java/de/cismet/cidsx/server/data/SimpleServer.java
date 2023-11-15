@@ -20,6 +20,7 @@ import java.util.List;
 
 import de.cismet.cidsx.server.cores.ActionCore;
 import de.cismet.cidsx.server.cores.CidsServerCore;
+import de.cismet.cidsx.server.cores.ConfigAttributesCore;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.cores.EntityInfoCore;
 import de.cismet.cidsx.server.cores.GraphQlCore;
@@ -31,6 +32,7 @@ import de.cismet.cidsx.server.cores.SecresCore;
 import de.cismet.cidsx.server.cores.UserCore;
 import de.cismet.cidsx.server.cores.builtin.DefaultInfrastructureCore;
 import de.cismet.cidsx.server.cores.noop.NoOpActionCore;
+import de.cismet.cidsx.server.cores.noop.NoOpConfigAttributesCore;
 import de.cismet.cidsx.server.cores.noop.NoOpEntityInfoCore;
 import de.cismet.cidsx.server.cores.noop.NoOpGraphQlCore;
 import de.cismet.cidsx.server.cores.noop.NoOpNodeCore;
@@ -64,6 +66,7 @@ public class SimpleServer implements Server {
     String registry;
     ServerOptions serverOptions = new ServerOptions();
     GraphQlCore graphQlCore = new NoOpGraphQlCore();
+    ConfigAttributesCore configAttributesCore = new NoOpConfigAttributesCore();
     SecresCore secresCore = new NoOpWebdavCore();
 
     //~ Methods ----------------------------------------------------------------
@@ -89,6 +92,8 @@ public class SimpleServer implements Server {
             setCustomAttributeCore((CustomAttributeCore)core);
         } else if (core instanceof NodeCore) {
             setNodeCore((NodeCore)core);
+        } else if (core instanceof ConfigAttributesCore) {
+            setConfigAttributesCore((ConfigAttributesCore)core);
         } else if (core instanceof ActionCore) {
             setActionCore((ActionCore)core);
         } else if (core instanceof SearchCore) {
@@ -132,6 +137,10 @@ public class SimpleServer implements Server {
 
         if (this.nodeCore != null) {
             activeCores.add(this.nodeCore);
+        }
+
+        if (this.configAttributesCore != null) {
+            activeCores.add(this.configAttributesCore);
         }
 
         if (this.permissionCore != null) {

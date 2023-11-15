@@ -10,7 +10,7 @@
     
     <groupId>de.cismet.cids</groupId>
     <artifactId>cids-server-rest</artifactId>
-    <version>8.0.1</version>
+    <version>8.0.2</version>
     <packaging>jar</packaging>
 
     <name>cids Server REST</name>
@@ -27,7 +27,7 @@
         <connection>https://github.com/cismet/cids-server-rest.git</connection>
         <developerConnection>scm:git:git@github.com:cismet/cids-server-rest.git</developerConnection>
         <url>https://github.com/cismet/cids-server-rest</url>
-        <tag>v8.0.1</tag>
+        <tag>v8.0.2</tag>
     </scm>
   
     <ciManagement>
@@ -87,7 +87,7 @@
             <dependency>
                 <groupId>de.cismet</groupId>
                 <artifactId>jcommander</artifactId>
-                <version>7.0</version>
+                <version>8.0</version>
             </dependency>
             <!-- END: cismet dependencies -->
         </dependencies>

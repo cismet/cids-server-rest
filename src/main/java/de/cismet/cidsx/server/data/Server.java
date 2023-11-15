@@ -11,6 +11,7 @@ import java.util.List;
 
 import de.cismet.cidsx.server.cores.ActionCore;
 import de.cismet.cidsx.server.cores.CidsServerCore;
+import de.cismet.cidsx.server.cores.ConfigAttributesCore;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.cores.EntityInfoCore;
 import de.cismet.cidsx.server.cores.GraphQlCore;
@@ -83,6 +84,13 @@ public interface Server {
      * @return  DOCUMENT ME!
      */
     UserCore getUserCore();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    ConfigAttributesCore getConfigAttributesCore();
 
     /**
      * DOCUMENT ME!

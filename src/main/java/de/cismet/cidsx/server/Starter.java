@@ -39,8 +39,11 @@ import java.net.InetAddress;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import de.cismet.cidsx.server.api.ServerConstants;
 import de.cismet.cidsx.server.api.types.ServerStatus;
@@ -66,6 +69,8 @@ public class Starter {
     private static final int HEADER_BUFFER_SIZE = 512 * 1024; // = 512kb
     // this static variable creates a possibility to determine, wheter compression is active
     public static boolean gzipHandled = false;
+
+    public static Map<String, String> friendlyDomains = new HashMap<String, String>();
 
     //~ Instance fields --------------------------------------------------------
 
@@ -257,6 +262,14 @@ public class Starter {
     @SuppressWarnings("FieldMayBeFinal")
     private List<String> allowedSearches = new ArrayList<String>();
 
+    @Parameter(
+        names = { "-friendlyDomain" },
+        description = "A List of all known domains server with their rest service urls",
+        arity = 1
+    )
+    @SuppressWarnings("FieldMayBeFinal")
+    private List<String> knownDomains = new ArrayList<String>();
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -373,6 +386,16 @@ public class Starter {
                         .putStatus(
                             "allowedSearches",
                             new ArrayList<String>(cidsCoreHolder.getServerOptions().getAllowedSearches()).toString());
+            }
+
+            if (knownDomains != null) {
+                for (final String dom : knownDomains) {
+                    final StringTokenizer tok = new StringTokenizer(dom, ";");
+
+                    if (tok.countTokens() == 2) {
+                        friendlyDomains.put(tok.nextToken(), tok.nextToken());
+                    }
+                }
             }
 
             RuntimeContainer.setServer(cidsCoreHolder);
