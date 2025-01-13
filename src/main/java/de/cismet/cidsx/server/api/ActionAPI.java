@@ -417,6 +417,7 @@ public class ActionAPI extends APIBase {
                                         actionKey,
                                         taskParams,
                                         role,
+                                        domain,
                                         attachmentInputStream))
                             .build();
             } else {

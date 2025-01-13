@@ -67,6 +67,7 @@ public interface ActionCore extends CidsServerCore {
      * @param   actionKey        DOCUMENT ME!
      * @param   body             DOCUMENT ME!
      * @param   role             DOCUMENT ME!
+     * @param   domain           DOCUMENT ME!
      * @param   fileAttachement  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
@@ -75,6 +76,7 @@ public interface ActionCore extends CidsServerCore {
             String actionKey,
             ActionTask body,
             String role,
+            String domain,
             InputStream fileAttachement);
 
     /**

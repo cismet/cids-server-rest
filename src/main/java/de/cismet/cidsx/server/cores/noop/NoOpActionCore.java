@@ -101,6 +101,7 @@ public class NoOpActionCore implements ActionCore {
             final String actionKey,
             final ActionTask body,
             final String role,
+            final String domain,
             final InputStream fileAttachement) {
         throw new NotImplementedException("ActioCore is not active.");
     }
