@@ -483,6 +483,7 @@ public class FileSystemActionCore implements ActionCore {
             final String actionKey,
             final ActionTask body,
             final String role,
+            final String domain,
             final InputStream fileAttachement) {
         final String message = "The operation '"
                     + Thread.currentThread().getStackTrace()[1].getMethodName()
