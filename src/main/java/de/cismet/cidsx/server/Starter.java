@@ -14,14 +14,13 @@ import com.beust.jcommander.Parameters;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
-import io.swagger.jaxrs.config.DefaultJaxrsConfig;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.DefaultConfiguration;
 import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
 
 import org.eclipse.jetty.server.Connector;
@@ -71,8 +70,6 @@ import de.cismet.cidsx.server.data.StatusHolder;
 public class Starter {
 
     //~ Static fields/initializers ---------------------------------------------
-
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Starter.class);
 
     private static final int HEADER_BUFFER_SIZE = 512 * 1024; // = 512kb
     // this static variable creates a possibility to determine, wheter compression is active
@@ -127,6 +124,8 @@ public class Starter {
         required = false
     )
     boolean compression = false;
+
+    private org.apache.log4j.Logger log;
 
     @Parameter(
         names = { "-swaggerEnabled" },
@@ -305,17 +304,6 @@ public class Starter {
     void init(final String[] args) {
         JCommander jcom = null;
         try {
-            final Collection<? extends CidsServerCore> cores = Lookup.getDefault().lookupAll(CidsServerCore.class);
-            final Collection<CidsServerCore> activeModules = new ArrayList<CidsServerCore>();
-            final ArrayList argProviders = new ArrayList(cores.size() + 1);
-
-            argProviders.add(this);
-            jcom = new JCommander(this);
-
-            jcom.setAcceptUnknownOptions(true);
-            jcom.setAllowParameterOverwriting(true);
-            jcom.parse(args);
-
             String log4jProp = System.getProperty("log4j.configuration");
 
             if (log4jProp != null) {
@@ -323,6 +311,7 @@ public class Starter {
                     // use version 1 configuration file. Try version 2 xml configuration file
                     log4jProp = log4jProp.substring(0, log4jProp.length() - ".properties".length()) + ".xml";
                 }
+                System.setProperty("log4j.configuration", log4jProp);
                 if (log4jProp.toLowerCase().startsWith("file:")) {
                     // do not use the file prefix
                     log4jProp = log4jProp.substring("file:".length());
@@ -334,8 +323,23 @@ public class Starter {
                     ctx.start(new XmlConfiguration(ctx, source)); // Apply new configuration
                 } catch (IOException e) {
                     System.err.println("Cannot read log4j config file: " + e.getMessage());
+                    Configurator.initialize(new DefaultConfiguration()).start();
                 }
+            } else {
+                Configurator.initialize(new DefaultConfiguration()).start();
             }
+            log = org.apache.log4j.Logger.getLogger(Starter.class);
+
+            final Collection<? extends CidsServerCore> cores = Lookup.getDefault().lookupAll(CidsServerCore.class);
+            final Collection<CidsServerCore> activeModules = new ArrayList<CidsServerCore>();
+            final ArrayList argProviders = new ArrayList(cores.size() + 1);
+
+            argProviders.add(this);
+            jcom = new JCommander(this);
+
+            jcom.setAcceptUnknownOptions(true);
+            jcom.setAllowParameterOverwriting(true);
+            jcom.parse(args);
 
             gzipHandled = compression;
             final SimpleServer cidsCoreHolder = new SimpleServer();
@@ -640,6 +644,16 @@ public class Starter {
      */
     // TODO: proper CLI api
     public static void main(final String[] args) {
+        String log4jProp = System.getProperty("log4j.configuration");
+
+        if (log4jProp != null) {
+            if (log4jProp.toLowerCase().endsWith(".properties")) {
+                // use version 1 configuration file. Try version 2 xml configuration file
+                log4jProp = log4jProp.substring(0, log4jProp.length() - ".properties".length()) + ".xml";
+            }
+            System.setProperty("log4j.configuration", log4jProp);
+        }
+
         final Starter s = new Starter();
         s.init(args);
     }
