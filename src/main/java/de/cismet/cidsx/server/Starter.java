@@ -19,6 +19,11 @@ import io.swagger.jaxrs.listing.SwaggerSerializers;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
+
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -33,7 +38,9 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import org.openide.util.Lookup;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.net.InetAddress;
 
@@ -61,10 +68,11 @@ import de.cismet.cidsx.server.data.StatusHolder;
  * @version  0.1
  */
 @Parameters(separators = "=")
-@Slf4j
 public class Starter {
 
     //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Starter.class);
 
     private static final int HEADER_BUFFER_SIZE = 512 * 1024; // = 512kb
     // this static variable creates a possibility to determine, wheter compression is active
@@ -307,6 +315,28 @@ public class Starter {
             jcom.setAcceptUnknownOptions(true);
             jcom.setAllowParameterOverwriting(true);
             jcom.parse(args);
+
+            String log4jProp = System.getProperty("log4j.configuration");
+
+            if (log4jProp != null) {
+                if (log4jProp.toLowerCase().endsWith(".properties")) {
+                    // use version 1 configuration file. Try version 2 xml configuration file
+                    log4jProp = log4jProp.substring(0, log4jProp.length() - ".properties".length()) + ".xml";
+                }
+                if (log4jProp.toLowerCase().startsWith("file:")) {
+                    // do not use the file prefix
+                    log4jProp = log4jProp.substring("file:".length());
+                }
+
+                try(final InputStream configStream = new FileInputStream(log4jProp)) {
+                    final ConfigurationSource source = new ConfigurationSource(configStream);
+                    final LoggerContext ctx = (LoggerContext)LogManager.getContext(false);
+                    ctx.start(new XmlConfiguration(ctx, source)); // Apply new configuration
+                } catch (IOException e) {
+                    System.err.println("Cannot read log4j config file: " + e.getMessage());
+                }
+            }
+
             gzipHandled = compression;
             final SimpleServer cidsCoreHolder = new SimpleServer();
             if (standalone) {
