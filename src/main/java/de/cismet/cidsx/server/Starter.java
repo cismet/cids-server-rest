@@ -51,6 +51,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import de.cismet.cids.utils.JerseyClientCache;
+
 import de.cismet.cidsx.server.api.ServerConstants;
 import de.cismet.cidsx.server.api.types.ServerStatus;
 import de.cismet.cidsx.server.cores.CidsServerCore;
@@ -354,6 +356,10 @@ public class Starter {
             StatusHolder.getInstance().putStatus("sslEnabled", String.valueOf(!this.sslDebug));
 
             cidsCoreHolder.setDomainName(domainName);
+
+            if (resourcesBasePath != null) {
+                JerseyClientCache.setServerResources(resourcesBasePath, null);
+            }
 
             for (final CidsServerCore core : cores) {
                 if (activeModulesParameter.contains(core.getCoreKey())) {
