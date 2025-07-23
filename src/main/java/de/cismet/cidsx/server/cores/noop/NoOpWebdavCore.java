@@ -37,7 +37,8 @@ public class NoOpWebdavCore implements SecresCore {
     public ResponseBuilder executeQuery(final User user,
             final String type,
             final String url,
-            final MultivaluedMap<String, String> queryParams) {
+            final MultivaluedMap<String, String> queryParams,
+            final String authString) {
         throw new NotImplementedException("Secres is not active.");
     }
 

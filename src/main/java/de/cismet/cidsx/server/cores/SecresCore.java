@@ -29,11 +29,13 @@ public interface SecresCore extends CidsServerCore {
      * @param   type         role query DOCUMENT ME!
      * @param   url          request variables DOCUMENT ME!
      * @param   queryParams  DOCUMENT ME!
+     * @param   authString   DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
     ResponseBuilder executeQuery(final User user,
             final String type,
             final String url,
-            final MultivaluedMap<String, String> queryParams);
+            final MultivaluedMap<String, String> queryParams,
+            final String authString);
 }
