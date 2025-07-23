@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -46,10 +47,11 @@ public class SecresAPI extends APIBase {
     /**
      * DOCUMENT ME!
      *
-     * @param   jwt   authString DOCUMENT ME!
-     * @param   name  domain DOCUMENT ME!
-     * @param   url   jsonBody DOCUMENT ME!
-     * @param   info  DOCUMENT ME!
+     * @param   jwt         authString DOCUMENT ME!
+     * @param   name        domain DOCUMENT ME!
+     * @param   url         jsonBody DOCUMENT ME!
+     * @param   info        DOCUMENT ME!
+     * @param   authString  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -90,7 +92,8 @@ public class SecresAPI extends APIBase {
             )
             @PathParam("url")
             final String url,
-            @Context final UriInfo info) {
+            @Context final UriInfo info,
+            @HeaderParam("Authorization") final String authString) {
         final User user = Tools.validationHelper(User.BEARER_AUTH_PREFIX + jwt);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
@@ -98,7 +101,7 @@ public class SecresAPI extends APIBase {
 
         return RuntimeContainer.getServer()
                     .getSecresCore()
-                    .executeQuery(user, name, url, info.getQueryParameters())
+                    .executeQuery(user, name, url, info.getQueryParameters(), authString)
                     .header("Location", getLocation())
                     .build();
     }
