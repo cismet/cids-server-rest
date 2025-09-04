@@ -10,7 +10,7 @@
     
     <groupId>de.cismet.cids</groupId>
     <artifactId>cids-server-rest</artifactId>
-    <version>9.1.1</version>
+    <version>9.1.2</version>
     <packaging>jar</packaging>
 
     <name>cids Server REST</name>
@@ -27,7 +27,7 @@
         <connection>https://github.com/cismet/cids-server-rest.git</connection>
         <developerConnection>scm:git:git@github.com:cismet/cids-server-rest.git</developerConnection>
         <url>https://github.com/cismet/cids-server-rest</url>
-        <tag>v9.1.1</tag>
+        <tag>v9.1.2</tag>
     </scm>
   
     <ciManagement>
@@ -68,26 +68,26 @@
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-commons</artifactId>
-                <version>9.0.2</version>
+                <version>9.0.6</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-commons</artifactId>
-                <version>9.0.2</version>
+                <version>9.0.6</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>de.cismet.cids</groupId>
                 <artifactId>cids-server-rest-types</artifactId>
-                <version>9.0</version>
+                <version>9.0.1</version>
             </dependency>
             <dependency>
                 <groupId>de.cismet.cids</groupId>
                 <artifactId>cids-server</artifactId>
-                <version>9.1</version>
+                <version>9.1.6</version>
             </dependency>
             <dependency>
                 <groupId>de.cismet</groupId>
@@ -276,9 +276,9 @@
         </dependency>
         <!-- swagger api end -->
         <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.3m</version>
+            <groupId>de.svenkubiak</groupId>
+            <artifactId>jBCrypt</artifactId>
+            <version>0.4</version>
         </dependency>
         
         <!-- BEGIN :TEST dependencies -->
@@ -361,7 +361,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>2.13.0</version>
+            <version>9.37.2</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

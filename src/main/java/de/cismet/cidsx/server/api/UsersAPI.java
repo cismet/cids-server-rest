@@ -10,8 +10,9 @@ package de.cismet.cidsx.server.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.nimbusds.jose.Algorithm;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.Use;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -134,10 +135,10 @@ public class UsersAPI {
             log.error("Error while creating key id", ex);
         }
 
-        final RSAKey jwkRsaPublicKey = new RSAKey((RSAPublicKey)pkey,
-                Use.SIGNATURE,
-                new Algorithm("RS256"),
-                keyId);
+        final RSAKey jwkRsaPublicKey = new RSAKey.Builder((RSAPublicKey)pkey).keyUse(KeyUse.SIGNATURE)
+                    .algorithm(JWSAlgorithm.RS256)
+                    .keyID(keyId)
+                    .build();
 
         key.setAlg("RS256");
         key.setKty("RSA");
