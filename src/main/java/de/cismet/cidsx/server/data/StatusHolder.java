@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -12,14 +12,12 @@
  */
 package de.cismet.cidsx.server.data;
 
-import lombok.extern.slf4j.Slf4j;
-
+import de.cismet.cidsx.server.api.types.ServerStatus;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
-import de.cismet.cidsx.server.api.types.ServerStatus;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Simple key/value store for storing and requesting server statuses.

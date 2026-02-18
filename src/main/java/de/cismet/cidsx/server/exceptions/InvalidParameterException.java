@@ -1,15 +1,14 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.exceptions;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
-
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * DOCUMENT ME!
@@ -25,8 +24,11 @@ public class InvalidParameterException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter private final String key;
-    @Getter private final String value;
+    @Getter
+    private final String key;
+
+    @Getter
+    private final String value;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -46,10 +48,8 @@ public class InvalidParameterException extends CidsServerException {
      * @param  key               DOCUMENT ME!
      * @param  value             DOCUMENT ME!
      */
-    public InvalidParameterException(final String developerMessage,
-            final String key, final Object value) {
+    public InvalidParameterException(final String developerMessage, final String key, final Object value) {
         super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST);
-
         this.key = key;
         this.value = (value != null) ? value.toString() : null;
     }
@@ -62,12 +62,13 @@ public class InvalidParameterException extends CidsServerException {
      * @param  key               DOCUMENT ME!
      * @param  value             DOCUMENT ME!
      */
-    public InvalidParameterException(final String developerMessage,
-            final Throwable cause,
-            final String key,
-            final Object value) {
+    public InvalidParameterException(
+        final String developerMessage,
+        final Throwable cause,
+        final String key,
+        final Object value
+    ) {
         super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_BAD_REQUEST, cause);
-
         this.key = key;
         this.value = (value != null) ? value.toString() : null;
     }

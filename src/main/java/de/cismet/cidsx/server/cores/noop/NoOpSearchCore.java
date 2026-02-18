@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -13,17 +13,14 @@
 package de.cismet.cidsx.server.cores.noop;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import org.openide.util.lookup.ServiceProvider;
-
-import java.util.List;
-
 import de.cismet.cidsx.server.api.types.SearchInfo;
 import de.cismet.cidsx.server.api.types.SearchParameter;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.SearchCore;
 import de.cismet.cidsx.server.exceptions.NotImplementedException;
+import java.util.List;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * DOCUMENT ME!
@@ -47,12 +44,14 @@ public class NoOpSearchCore implements SearchCore {
     }
 
     @Override
-    public List<JsonNode> executeSearch(final User user,
-            final String searchKey,
-            final List<SearchParameter> params,
-            final int limit,
-            final int offset,
-            final String role) {
+    public List<JsonNode> executeSearch(
+        final User user,
+        final String searchKey,
+        final List<SearchParameter> params,
+        final int limit,
+        final int offset,
+        final String role
+    ) {
         throw new NotImplementedException("SearchCore is not active.");
     }
 

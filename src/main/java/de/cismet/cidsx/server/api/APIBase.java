@@ -1,16 +1,17 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.UriInfo;
 
 /**
  * DOCUMENT ME!
@@ -26,7 +27,8 @@ public class APIBase {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Context private UriInfo _uriInfo;
+    @Context
+    private UriInfo _uriInfo;
 
     //~ Methods ----------------------------------------------------------------
 
@@ -37,5 +39,15 @@ public class APIBase {
      */
     protected String getLocation() {
         return _uriInfo.getAbsolutePath().toString();
+    }
+    
+    protected WebTarget addParams(WebTarget webTarget, final MultivaluedMap queryParameters) {
+        for (Object key : queryParameters.keySet()) {
+            if (key != null) {
+                webTarget = webTarget.queryParam(key.toString(), queryParameters.get(key));
+            }
+        }
+        
+        return webTarget;
     }
 }

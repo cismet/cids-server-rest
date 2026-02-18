@@ -1,15 +1,14 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.exceptions;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.Getter;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * DOCUMENT ME!
@@ -45,10 +44,8 @@ public class CidsServerException extends RuntimeException {
      * @param  userMessage       DOCUMENT ME!
      * @param  httpErrorCode     DOCUMENT ME!
      */
-    public CidsServerException(final String developerMessage, final String userMessage,
-            final int httpErrorCode) {
+    public CidsServerException(final String developerMessage, final String userMessage, final int httpErrorCode) {
         super(developerMessage);
-
         this.userMessage = userMessage;
         this.httpErrorCode = httpErrorCode;
     }
@@ -61,12 +58,13 @@ public class CidsServerException extends RuntimeException {
      * @param  httpErrorCode     DOCUMENT ME!
      * @param  cause             DOCUMENT ME!
      */
-    public CidsServerException(final String developerMessage,
-            final String userMessage,
-            final int httpErrorCode,
-            final Throwable cause) {
+    public CidsServerException(
+        final String developerMessage,
+        final String userMessage,
+        final int httpErrorCode,
+        final Throwable cause
+    ) {
         super(developerMessage, cause);
-
         this.userMessage = userMessage;
         this.httpErrorCode = httpErrorCode;
     }

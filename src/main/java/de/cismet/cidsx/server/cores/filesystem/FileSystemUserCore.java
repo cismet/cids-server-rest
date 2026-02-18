@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -13,20 +13,14 @@
 package de.cismet.cidsx.server.cores.filesystem;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.mindrot.jbcrypt.BCrypt;
-
-import org.openide.util.lookup.ServiceProvider;
-
-import java.io.File;
-
-import java.security.Key;
-
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.UserCore;
+import java.io.File;
+import java.security.Key;
+import lombok.extern.slf4j.Slf4j;
+import org.mindrot.jbcrypt.BCrypt;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * DOCUMENT ME!
@@ -65,14 +59,10 @@ public class FileSystemUserCore implements UserCore {
     @Override
     public User validate(final User user) {
         try {
-            final User userFromFS = mapper.readValue(new File(
-                        getBaseDir()
-                                + SEP
-                                + "users"
-                                + SEP
-                                + user.getUser()
-                                + ".json"),
-                    User.class);
+            final User userFromFS = mapper.readValue(
+                new File(getBaseDir() + SEP + "users" + SEP + user.getUser() + ".json"),
+                User.class
+            );
             user.setValidated(BCrypt.checkpw(user.getPass(), userFromFS.getPassHash()));
         } catch (Exception e) {
             log.error("Couldn't validate user", e);

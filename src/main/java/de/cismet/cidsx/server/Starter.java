@@ -1,28 +1,44 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.spi.container.servlet.ServletContainer;
-
-import io.swagger.jaxrs.listing.SwaggerSerializers;
-
+import de.cismet.cids.utils.JerseyClientCache;
+import de.cismet.cidsx.server.api.ServerConstants;
+import de.cismet.cidsx.server.api.types.ServerStatus;
+import de.cismet.cidsx.server.cores.CidsServerCore;
+import de.cismet.cidsx.server.cores.InitialisableCore;
+import de.cismet.cidsx.server.data.RuntimeContainer;
+import de.cismet.cidsx.server.data.SimpleServer;
+import de.cismet.cidsx.server.data.StatusHolder;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.core.config.DefaultConfiguration;
 import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
-
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -34,32 +50,8 @@ import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.openide.util.Lookup;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import java.net.InetAddress;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import de.cismet.cids.utils.JerseyClientCache;
-
-import de.cismet.cidsx.server.api.ServerConstants;
-import de.cismet.cidsx.server.api.types.ServerStatus;
-import de.cismet.cidsx.server.cores.CidsServerCore;
-import de.cismet.cidsx.server.cores.InitialisableCore;
-import de.cismet.cidsx.server.data.RuntimeContainer;
-import de.cismet.cidsx.server.data.SimpleServer;
-import de.cismet.cidsx.server.data.StatusHolder;
 
 /**
  * DOCUMENT ME!
@@ -82,30 +74,18 @@ public class Starter {
     //~ Instance fields --------------------------------------------------------
 
     Server server = null;
-    final Client client = Client.create();
+    final Client client = ClientBuilder.newClient();
 
-    @Parameter(
-        names = "-interactive",
-        description = "If set to interactive server waits for a <enter> to shutdown"
-    )
+    @Parameter(names = "-interactive", description = "If set to interactive server waits for a <enter> to shutdown")
     boolean interactive = false;
 
-    @Parameter(
-        names = "-port",
-        description = "If set to interactive server waits for a <enter> to shutdown"
-    )
+    @Parameter(names = "-port", description = "If set to interactive server waits for a <enter> to shutdown")
     int port = 8890;
 
-    @Parameter(
-        names = "-basePath",
-        description = "Basepath of the server (mainly used by swagger-doc )"
-    )
+    @Parameter(names = "-basePath", description = "Basepath of the server (mainly used by swagger-doc )")
     String basePath = "http://localhost";
 
-    @Parameter(
-        names = "-resourcesBasePath",
-        description = "Basepath of the server resources"
-    )
+    @Parameter(names = "-resourcesBasePath", description = "Basepath of the server resources")
     String resourcesBasePath = null;
 
     @Parameter(
@@ -132,17 +112,16 @@ public class Starter {
     @Parameter(
         names = { "-swaggerEnabled" },
         description = "If set to true the server use the swagger handler. ",
-        arity =
-            1
-//        required = false
+        arity = 1
+        //        required = false
     )
     private boolean swaggerEnabled = false;
 
     @Parameter(
         names = { "-sslDebug" },
-        description = "If set to true the server will not use ssl connections, should not be true in production. "
-                    + "If set to false you have to provide a keystore that contains the server certificate or the server "
-                    + "will not start up properly.",
+        description = "If set to true the server will not use ssl connections, should not be true in production. " +
+        "If set to false you have to provide a keystore that contains the server certificate or the server " +
+        "will not start up properly.",
         arity = 1
     )
     @SuppressWarnings("FieldMayBeFinal")
@@ -150,33 +129,33 @@ public class Starter {
 
     @Parameter(
         names = { "-sslKeystoreServer" },
-        description = "Path to the keystore holding the server's ssl certificate. The keystore should contain only one "
-                    + "certificate."
+        description = "Path to the keystore holding the server's ssl certificate. The keystore should contain only one " +
+        "certificate."
     )
     @SuppressWarnings("FieldMayBeFinal")
     private String sslKeystoreServer;
 
     @Parameter(
         names = { "-sslKeystoreServerPassword" },
-        description = "The password of the keystore holding the server's ssl certificate. If it is not provided the "
-                    + "http container will ask for it which makes the startup interactive."
+        description = "The password of the keystore holding the server's ssl certificate. If it is not provided the " +
+        "http container will ask for it which makes the startup interactive."
     )
     @SuppressWarnings("FieldMayBeFinal")
     private String sslKeystoreServerPassword;
 
     @Parameter(
         names = { "-sslKeystoreServerKeyPassword" },
-        description = "The password of the server's ssl certificate private key entry. If it is not provided the http "
-                    + "container will ask for it which makes the startup interactive."
+        description = "The password of the server's ssl certificate private key entry. If it is not provided the http " +
+        "container will ask for it which makes the startup interactive."
     )
     @SuppressWarnings("FieldMayBeFinal")
     private String sslKeystoreServerKeyPassword;
 
     @Parameter(
         names = { "-sslClientAuth" },
-        description = "If set to true the server will accept trusted clients only, specified by the client keystore. "
-                    + "Then you have to provide keystore that contains the accepted client certificate or the server will "
-                    + "not start up properly.",
+        description = "If set to true the server will accept trusted clients only, specified by the client keystore. " +
+        "Then you have to provide keystore that contains the accepted client certificate or the server will " +
+        "not start up properly.",
         arity = 1
     )
     @SuppressWarnings("FieldMayBeFinal")
@@ -192,40 +171,40 @@ public class Starter {
 
     @Parameter(
         names = { "-sslKeystoreClient" },
-        description = "Path to the keystore holding the certificates of the trusted clients. Only clients with the key "
-                    + "corresponding to one of the accepted certificates are allowed to connect."
+        description = "Path to the keystore holding the certificates of the trusted clients. Only clients with the key " +
+        "corresponding to one of the accepted certificates are allowed to connect."
     )
     @SuppressWarnings("FieldMayBeFinal")
     private String sslKeystoreClient;
 
     @Parameter(
         names = { "-sslKeystoreClientPassword" },
-        description = "The password of the keystore holding the certificates of the trusted clients. If it is not "
-                    + "provided the http container will ask for it which makes the startup interactive."
+        description = "The password of the keystore holding the certificates of the trusted clients. If it is not " +
+        "provided the http container will ask for it which makes the startup interactive."
     )
     @SuppressWarnings("FieldMayBeFinal")
     private String sslKeystoreClientPassword;
 
     @Parameter(
         names = { "-corsAccessControlAllowOrigin" },
-        description = "The password of the server's ssl certificate private key entry. If it is not provided the http "
-                    + "container will ask for it which makes the startup interactive."
+        description = "The password of the server's ssl certificate private key entry. If it is not provided the http " +
+        "container will ask for it which makes the startup interactive."
     )
     @SuppressWarnings("FieldMayBeFinal")
     private String corsAccessControlAllowOrigin = "*";
 
     @Parameter(
         names = { "-corsAccessControlAllowMethods" },
-        description = "The password of the server's ssl certificate private key entry. If it is not provided the http "
-                    + "container will ask for it which makes the startup interactive."
+        description = "The password of the server's ssl certificate private key entry. If it is not provided the http " +
+        "container will ask for it which makes the startup interactive."
     )
     @SuppressWarnings("FieldMayBeFinal")
     private String corsAccessControlAllowMethods = "GET, POST, DELETE, PUT, OPTIONS";
 
     @Parameter(
         names = { "-corsAccessControlAllowHeaders" },
-        description = "The password of the server's ssl certificate private key entry. If it is not provided the http "
-                    + "container will ask for it which makes the startup interactive."
+        description = "The password of the server's ssl certificate private key entry. If it is not provided the http " +
+        "container will ask for it which makes the startup interactive."
     )
     @SuppressWarnings("FieldMayBeFinal")
     private String corsAccessControlAllowHeaders = "Content-Type, Authorization";
@@ -328,9 +307,9 @@ public class Starter {
                     log4jProp = log4jProp.substring("file:".length());
                 }
 
-                try(final InputStream configStream = new FileInputStream(log4jProp)) {
+                try (final InputStream configStream = new FileInputStream(log4jProp)) {
                     final ConfigurationSource source = new ConfigurationSource(configStream);
-                    final LoggerContext ctx = (LoggerContext)LogManager.getContext(false);
+                    final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
                     ctx.start(new XmlConfiguration(ctx, source)); // Apply new configuration
                 } catch (IOException e) {
                     System.err.println("Cannot read log4j config file: " + e.getMessage());
@@ -376,7 +355,7 @@ public class Starter {
                     cidsCoreHolder.feedCore(core);
 
                     if (core instanceof InitialisableCore) {
-                        ((InitialisableCore)core).init(resourcesBasePath);
+                        ((InitialisableCore) core).init(resourcesBasePath);
                     }
 
                     System.out.println(core.getCoreKey() + " activated");
@@ -404,18 +383,24 @@ public class Starter {
             cidsCoreHolder.getServerOptions().setCorsAccessControlAllowHeaders(corsAccessControlAllowHeaders);
 
             if (!hideSenisitiveInformation) {
-                StatusHolder.getInstance()
-                        .putStatus(
-                            "corsAccessControlAllowOrigin",
-                            cidsCoreHolder.getServerOptions().getCorsAccessControlAllowOrigin());
-                StatusHolder.getInstance()
-                        .putStatus(
-                            "corsAccessControlAllowMethods",
-                            cidsCoreHolder.getServerOptions().getCorsAccessControlAllowMethods());
-                StatusHolder.getInstance()
-                        .putStatus(
-                            "corsAccessControlAllowHeaders",
-                            cidsCoreHolder.getServerOptions().getCorsAccessControlAllowHeaders());
+                StatusHolder
+                    .getInstance()
+                    .putStatus(
+                        "corsAccessControlAllowOrigin",
+                        cidsCoreHolder.getServerOptions().getCorsAccessControlAllowOrigin()
+                    );
+                StatusHolder
+                    .getInstance()
+                    .putStatus(
+                        "corsAccessControlAllowMethods",
+                        cidsCoreHolder.getServerOptions().getCorsAccessControlAllowMethods()
+                    );
+                StatusHolder
+                    .getInstance()
+                    .putStatus(
+                        "corsAccessControlAllowHeaders",
+                        cidsCoreHolder.getServerOptions().getCorsAccessControlAllowHeaders()
+                    );
             }
 
             cidsCoreHolder.getServerOptions().setAnonymousUser(anonymousUser);
@@ -425,16 +410,21 @@ public class Starter {
             cidsCoreHolder.getServerOptions().setAllowedSearches(allowedSearches);
 
             if (!hideSenisitiveInformation) {
-                StatusHolder.getInstance()
-                        .putStatus("anonymousUser", cidsCoreHolder.getServerOptions().getAnonymousUser());
-                StatusHolder.getInstance()
-                        .putStatus(
-                            "allowedUsers",
-                            new ArrayList<String>(cidsCoreHolder.getServerOptions().getAllowedUsers()).toString());
-                StatusHolder.getInstance()
-                        .putStatus(
-                            "allowedSearches",
-                            new ArrayList<String>(cidsCoreHolder.getServerOptions().getAllowedSearches()).toString());
+                StatusHolder
+                    .getInstance()
+                    .putStatus("anonymousUser", cidsCoreHolder.getServerOptions().getAnonymousUser());
+                StatusHolder
+                    .getInstance()
+                    .putStatus(
+                        "allowedUsers",
+                        new ArrayList<String>(cidsCoreHolder.getServerOptions().getAllowedUsers()).toString()
+                    );
+                StatusHolder
+                    .getInstance()
+                    .putStatus(
+                        "allowedSearches",
+                        new ArrayList<String>(cidsCoreHolder.getServerOptions().getAllowedSearches()).toString()
+                    );
             }
 
             if (knownDomains != null) {
@@ -450,20 +440,24 @@ public class Starter {
             cidsCoreHolder.getServerOptions().setJwtCacheActive(jwtCacheActive);
 
             RuntimeContainer.setServer(cidsCoreHolder);
-            SwaggerSerializers.setPrettyPrint(true);
+            SwaggerConfiguration oasConfig = new SwaggerConfiguration().prettyPrint(true);
+            OpenApiResource openApiResource = new OpenApiResource();
+            openApiResource.setOpenApiConfiguration(oasConfig);
 
-            final ServletHolder sh = new ServletHolder(ServletContainer.class);
+//            ServletHolder sh = new ServletHolder(new ServletContainer());
+            final ServletHolder sh = new ServletHolder(new ServletContainer());
             sh.setInitParameter(
                 "com.sun.jersey.config.property.packages",
-                "de.cismet.cidsx.server.api;"
-                        // + "de.cismet.cidsx.server.rest.resourcelistings;"
-                        + "com.fasterxml.jackson.jaxrs");
+                "de.cismet.cidsx.server.api;" +
+                // + "de.cismet.cidsx.server.rest.resourcelistings;"
+                "com.fasterxml.jackson.jaxrs"
+            );
 
-            sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
-                "true");
+            sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
             sh.setInitParameter(
                 "com.sun.jersey.spi.container.ContainerResponseFilters",
-                "de.cismet.cidsx.server.api.tools.CORSResponseFilter");
+                "de.cismet.cidsx.server.api.tools.CORSResponseFilter"
+            );
 
             if (swaggerEnabled) {
                 final String swaggerBasePath;
@@ -478,28 +472,25 @@ public class Starter {
                 sh.setInitParameter("swagger.api.basepath", swaggerBasePath); // no trailing slash please
                 sh.setInitParameter(
                     "com.sun.jersey.config.property.packages",
-                    "com.api.resources;io.swagger.jaxrs.json;io.swagger.jaxrs.listing;io.swagger.jaxrs.listing;de.cismet.cidsx.server.api");
+                    "com.api.resources;io.swagger.jaxrs.json;io.swagger.jaxrs.listing;io.swagger.jaxrs.listing;de.cismet.cidsx.server.api"
+                );
             }
             server = new Server(port);
 
             final ServletContextHandler context = new ServletContextHandler(
-                    server,
-                    "/",
-                    ServletContextHandler.SESSIONS);
+                server,
+                "/",
+                ServletContextHandler.SESSIONS
+            );
             context.addServlet(sh, "/*");
 
             ServletContextHandler swagger = null;
 
             if (swaggerEnabled) {
-                final String resoursceBaseDir = this.getClass()
-                            .getClassLoader()
-                            .getResource("de/cismet/cids/server/swagger")
-                            .toExternalForm();
+                final String resoursceBaseDir =
+                    this.getClass().getClassLoader().getResource("de/cismet/cids/server/swagger").toExternalForm();
 
-                swagger = new ServletContextHandler(
-                        server,
-                        "/swagger",
-                        ServletContextHandler.SESSIONS); // NOI18N
+                swagger = new ServletContextHandler(server, "/swagger", ServletContextHandler.SESSIONS); // NOI18N
 
                 swagger.setHandler(new ResourceHandler());
                 swagger.setResourceBase(resoursceBaseDir);
@@ -508,14 +499,9 @@ public class Starter {
             final ContextHandlerCollection contexts = new ContextHandlerCollection();
 
             if (swagger != null) {
-                contexts.setHandlers(
-                    new Handler[] {
-                        swagger,
-                        context
-                    });
+                contexts.setHandlers(new Handler[] { swagger, context });
             } else {
-                contexts.setHandlers(
-                    new Handler[] { context });
+                contexts.setHandlers(new Handler[] { context });
             }
 
             final HandlerCollection handlerCollection = new HandlerCollection(contexts.getHandlers());
@@ -589,11 +575,15 @@ public class Starter {
             final byte[] ipAddr = addr.getAddress();
             // Get hostname
             hostname = addr.getHostAddress();
-        } catch (Exception skipBecauseOfWiseInitializationValue) {
-        }
+        } catch (Exception skipBecauseOfWiseInitializationValue) {}
 
-        return ((ServerConnector)server.getConnectors()[0]).getDefaultProtocol() + "://" + hostname + ":"
-                    + ((ServerConnector)server.getConnectors()[0]).getLocalPort();
+        return (
+            ((ServerConnector) server.getConnectors()[0]).getDefaultProtocol() +
+            "://" +
+            hostname +
+            ":" +
+            ((ServerConnector) server.getConnectors()[0]).getLocalPort()
+        );
     }
 
     /**
@@ -620,13 +610,13 @@ public class Starter {
             connector.setName("default");
         } else {
             if (log.isInfoEnabled()) {
-                log.info("server interface uses SSL connector");                 // NOI18N
+                log.info("server interface uses SSL connector"); // NOI18N
             }
 
             try {
                 final SslContextFactory.Server ssl = new SslContextFactory.Server();
-//                final SslSocketConnector ssl = new SslSocketConnector();
-//                ssl.setMaxIdleTime(30000);
+                //                final SslSocketConnector ssl = new SslSocketConnector();
+                //                ssl.setMaxIdleTime(30000);
                 ssl.setKeyStorePath(sslKeystoreServer);
                 ssl.setKeyStorePassword(sslKeystoreServerPassword);
                 ssl.setKeyManagerPassword(sslKeystoreServerKeyPassword);
@@ -649,7 +639,7 @@ public class Starter {
 
         connector.setPort(port);
         connector.setAcceptedReceiveBufferSize(HEADER_BUFFER_SIZE);
-//        connector.setHeaderBufferSize(HEADER_BUFFER_SIZE);
+        //        connector.setHeaderBufferSize(HEADER_BUFFER_SIZE);
 
         return connector;
     }

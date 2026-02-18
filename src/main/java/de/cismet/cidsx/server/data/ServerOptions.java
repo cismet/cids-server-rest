@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -12,10 +12,9 @@
  */
 package de.cismet.cidsx.server.data;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 /**
  * DOCUMENT ME!
@@ -27,15 +26,33 @@ public class ServerOptions {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter @Setter private String corsAccessControlAllowOrigin = "*";
-    @Getter @Setter private String corsAccessControlAllowMethods = "GET, POST, DELETE, PUT, OPTIONS";
-    @Getter @Setter private String corsAccessControlAllowHeaders = "Content-Type, Authorization";
+    @Getter
+    @Setter
+    private String corsAccessControlAllowOrigin = "*";
 
-    @Getter @Setter private String anonymousUser = null;
-    @Getter @Setter private String anonymousPassword = null;
+    @Getter
+    @Setter
+    private String corsAccessControlAllowMethods = "GET, POST, DELETE, PUT, OPTIONS";
 
-    @Getter @Setter private List<String> allowedUsers = null;
-    @Getter @Setter private List<String> allowedSearches = null;
+    @Getter
+    @Setter
+    private String corsAccessControlAllowHeaders = "Content-Type, Authorization";
+
+    @Getter
+    @Setter
+    private String anonymousUser = null;
+
+    @Getter
+    @Setter
+    private String anonymousPassword = null;
+
+    @Getter
+    @Setter
+    private List<String> allowedUsers = null;
+
+    @Getter
+    @Setter
+    private List<String> allowedSearches = null;
 
     @Getter @Setter private Boolean jwtCacheActive = false;
 
@@ -44,6 +61,5 @@ public class ServerOptions {
     /**
      * Creates a new ServerOptions object.
      */
-    public ServerOptions() {
-    }
+    public ServerOptions() {}
 }

@@ -1,44 +1,39 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
-import lombok.extern.slf4j.Slf4j;
-
-import java.security.Key;
-import java.security.MessageDigest;
-import java.security.interfaces.RSAPublicKey;
-
-import java.util.Base64;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
-
 import de.cismet.cidsx.server.api.tools.Jwks;
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Response;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Base64;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DOCUMENT ME!
@@ -46,12 +41,13 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
-@Api(
-    value = "/users",
-    description = "Show, run and maintain custom actions within the cids system.",
-    tags = { "users" }
-//    ,listingPath = "/resources/users"
+@OpenAPIDefinition(
+    info = @Info(
+        title = "Subscriptions API",
+        description = "Show, run and maintain users within the cids system."
+    )
 )
+@Tag(name = "users", description = "Users within the cids system.")
 @Path("/users")
 @Produces("application/json")
 @Slf4j
@@ -68,34 +64,22 @@ public class UsersAPI {
      */
     @GET
     @Produces("application/json")
-    @ApiOperation(
-        value = "Validate the user whose credentials are submitted via the header.",
-        notes = "-"
-    )
+    @Operation(summary = "Validate the user whose credentials are submitted via the header.", description = "-")
     @ApiResponses(
         value = {
-                @ApiResponse(
-                    code = 400,
-                    message = "Invalid user supplied"
-                ),
-                @ApiResponse(
-                    code = 404,
-                    message = "User not found"
-                )
-            }
+            @ApiResponse(responseCode = "400", description = "Invalid user supplied"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+        }
     )
     public Response validate(
-            @ApiParam(
-                value = "Basic Auth Realm",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString) {
+        @Parameter(description = "Basic Auth Realm", required = false) @HeaderParam("Authorization") final String authString
+    ) {
         final User user = Tools.validationHelper(authString);
         if (!user.isValidated()) {
-            return Response.status(Response.Status.UNAUTHORIZED)
-                        .header("WWW-Authenticate", "Basic realm=\"Please Authenticate with cids Credentials\"")
-                        .build();
+            return Response
+                .status(Response.Status.UNAUTHORIZED)
+                .header("WWW-Authenticate", "Basic realm=\"Please Authenticate with cids Credentials\"")
+                .build();
         } else {
             return Response.status(Response.Status.OK).entity(user).build();
         }
@@ -111,18 +95,10 @@ public class UsersAPI {
     @Path("/jwk/{domain}")
     @GET
     @Produces("application/json")
-    @ApiOperation(
-        value = "return the current jwk.",
-        notes = "-"
-    )
+    @Operation(summary = "return the current jwk.", description = "-")
     public Response jwk(
-            @ApiParam(
-                value = "domain",
-                required = false,
-                defaultValue = "default"
-            )
-            @PathParam("domain")
-            final String domain) {
+        @Parameter(description = "domain", required = false, schema = @Schema(defaultValue = "default")) @PathParam("domain") final String domain
+    ) {
         final Key pkey = RuntimeContainer.getServer().getUserCore().getPublicJwtKey(domain);
         final Jwks jwk = new Jwks();
         final Jwks.Key key = new Jwks.Key();
@@ -135,10 +111,11 @@ public class UsersAPI {
             log.error("Error while creating key id", ex);
         }
 
-        final RSAKey jwkRsaPublicKey = new RSAKey.Builder((RSAPublicKey)pkey).keyUse(KeyUse.SIGNATURE)
-                    .algorithm(JWSAlgorithm.RS256)
-                    .keyID(keyId)
-                    .build();
+        final RSAKey jwkRsaPublicKey = new RSAKey.Builder((RSAPublicKey) pkey)
+            .keyUse(KeyUse.SIGNATURE)
+            .algorithm(JWSAlgorithm.RS256)
+            .keyID(keyId)
+            .build();
 
         key.setAlg("RS256");
         key.setKty("RSA");
@@ -150,10 +127,11 @@ public class UsersAPI {
         jwk.setKeys(new Jwks.Key[] { key });
 
         try {
-            return Response.status(Response.Status.OK)
-                        .header("cache-control", "max-age=300")
-                        .entity(new ObjectMapper().writeValueAsString(jwk))
-                        .build();
+            return Response
+                .status(Response.Status.OK)
+                .header("cache-control", "max-age=300")
+                .entity(new ObjectMapper().writeValueAsString(jwk))
+                .build();
         } catch (Exception ex) {
             log.error("Error while creating jwks", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -168,10 +146,7 @@ public class UsersAPI {
     @Path("/roles")
     @GET
     @Produces("application/json")
-    @ApiOperation(
-        value = "Get all roles.",
-        notes = "-"
-    )
+    @Operation(summary = "Get all roles.", description = "-")
     public Response getRoles() {
         return null;
     }
@@ -186,18 +161,12 @@ public class UsersAPI {
     @Path("/roles/{role}")
     @GET
     @Produces("application/json")
-    @ApiOperation(
-        value = "Get a certain role.",
-        notes = "-"
-    )
+    @Operation(summary = "Get a certain role.", description = "-")
     public Response getRole(
-            @ApiParam(
-                value = "role of the user",
-                required = false,
-                defaultValue = "default"
-            )
-            @PathParam("role")
-            final String role) {
+        @Parameter(description = "role of the user", required = false, schema = @Schema(defaultValue = "default")) @PathParam(
+            "role"
+        ) final String role
+    ) {
         return null;
     }
 }

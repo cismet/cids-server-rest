@@ -1,16 +1,15 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.cores;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response.ResponseBuilder;
-
 import de.cismet.cidsx.server.api.types.User;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
 
 /**
  * DOCUMENT ME!
@@ -19,7 +18,6 @@ import de.cismet.cidsx.server.api.types.User;
  * @version  1.0
  */
 public interface SecresCore extends CidsServerCore {
-
     //~ Methods ----------------------------------------------------------------
 
     /**
@@ -33,9 +31,11 @@ public interface SecresCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    ResponseBuilder executeQuery(final User user,
-            final String type,
-            final String url,
-            final MultivaluedMap<String, String> queryParams,
-            final String authString);
+    Response.ResponseBuilder executeQuery(
+        final User user,
+        final String type,
+        final String url,
+        final MultivaluedMap<String, String> queryParams,
+        final String authString
+    );
 }

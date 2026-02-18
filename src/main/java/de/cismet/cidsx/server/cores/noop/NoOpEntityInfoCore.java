@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -13,17 +13,12 @@
 package de.cismet.cidsx.server.cores.noop;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import org.openide.util.lookup.ServiceProvider;
-
-import java.util.List;
-
-import javax.ws.rs.core.MediaType;
-
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.EntityInfoCore;
 import de.cismet.cidsx.server.exceptions.NotImplementedException;
+import java.util.List;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * DOCUMENT ME!
@@ -47,10 +42,7 @@ public class NoOpEntityInfoCore implements EntityInfoCore {
     }
 
     @Override
-    public JsonNode getAttribute(final User user,
-            final String classKey,
-            final String attributeKey,
-            final String role) {
+    public JsonNode getAttribute(final User user, final String classKey, final String attributeKey, final String role) {
         throw new NotImplementedException("EntityInfoCore is not active.");
     }
 

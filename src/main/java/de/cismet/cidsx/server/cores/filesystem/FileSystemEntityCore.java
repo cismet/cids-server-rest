@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.cores.filesystem;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -14,22 +14,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import lombok.NonNull;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.io.IOUtils;
-
-import org.openide.util.lookup.ServiceProvider;
-
+import de.cismet.cidsx.server.api.tools.Tools;
+import de.cismet.cidsx.server.api.types.SimpleObjectQuery;
+import de.cismet.cidsx.server.api.types.User;
+import de.cismet.cidsx.server.cores.CidsServerCore;
+import de.cismet.cidsx.server.cores.EntityCore;
+import de.cismet.cidsx.server.data.RuntimeContainer;
+import de.cismet.cidsx.server.exceptions.InvalidClassKeyException;
+import de.cismet.cidsx.server.exceptions.InvalidEntityException;
+import de.cismet.cidsx.server.exceptions.InvalidFilterFormatException;
+import de.cismet.cidsx.server.exceptions.InvalidLevelException;
+import de.cismet.cidsx.server.exceptions.InvalidRoleException;
+import de.cismet.cidsx.server.exceptions.InvalidUserException;
+import de.cismet.cidsx.server.exceptions.NotImplementedException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,20 +50,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import de.cismet.cidsx.server.api.tools.Tools;
-import de.cismet.cidsx.server.api.types.SimpleObjectQuery;
-import de.cismet.cidsx.server.api.types.User;
-import de.cismet.cidsx.server.cores.CidsServerCore;
-import de.cismet.cidsx.server.cores.EntityCore;
-import de.cismet.cidsx.server.data.RuntimeContainer;
-import de.cismet.cidsx.server.exceptions.InvalidClassKeyException;
-import de.cismet.cidsx.server.exceptions.InvalidEntityException;
-import de.cismet.cidsx.server.exceptions.InvalidFilterFormatException;
-import de.cismet.cidsx.server.exceptions.InvalidLevelException;
-import de.cismet.cidsx.server.exceptions.InvalidRoleException;
-import de.cismet.cidsx.server.exceptions.InvalidUserException;
-import de.cismet.cidsx.server.exceptions.NotImplementedException;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * DOCUMENT ME!
@@ -105,26 +98,28 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public List<JsonNode> getAllObjects(@NonNull final User user,
-            @NonNull final String classKey,
-            @NonNull final String role,
-            final int limit,
-            final int offset,
-            final String expand,
-            final String level,
-            final String fields,
-            final String profile,
-            final String filter,
-            final boolean omitNullValues,
-            final boolean deduplicate) {
+    public List<JsonNode> getAllObjects(
+        @NonNull final User user,
+        @NonNull final String classKey,
+        @NonNull final String role,
+        final int limit,
+        final int offset,
+        final String expand,
+        final String level,
+        final String fields,
+        final String profile,
+        final String filter,
+        final boolean omitNullValues,
+        final boolean deduplicate
+    ) {
         if (!user.isValidated()) {
-            throw new InvalidUserException("user is not validated");  // NOI18N
+            throw new InvalidUserException("user is not validated"); // NOI18N
         }
         if (classKey.isEmpty()) {
             throw new InvalidClassKeyException("class key is empty"); // NOI18N
         }
         if (role.isEmpty()) {
-            throw new InvalidRoleException("role is empty");          // NOI18N
+            throw new InvalidRoleException("role is empty"); // NOI18N
         }
 
         // FIXME: what is the format of the expand parameter, why is the expand parameter not concrete (list of fields)?
@@ -146,15 +141,16 @@ public class FileSystemEntityCore implements EntityCore {
             lock.lock();
 
             return collectObjs(
-                    classKey,
-                    limit,
-                    offset,
-                    expandFields,
-                    includeFields,
-                    _level,
-                    _filter,
-                    omitNullValues,
-                    deduplicate);
+                classKey,
+                limit,
+                offset,
+                expandFields,
+                includeFields,
+                _level,
+                _filter,
+                omitNullValues,
+                deduplicate
+            );
         } finally {
             lock.unlock();
         }
@@ -178,7 +174,8 @@ public class FileSystemEntityCore implements EntityCore {
             if (kvs.length == 0) {
                 throw new InvalidFilterFormatException(
                     "error while parsing filter: no key-value pairs present", // NOI18N
-                    filter);
+                    filter
+                );
             }
 
             for (final String kv : kvs) {
@@ -187,7 +184,8 @@ public class FileSystemEntityCore implements EntityCore {
                 if (key_val.length < 2) {
                     throw new InvalidFilterFormatException(
                         "error while parsing filter: key and value must be separated by ':'", // NOI18N
-                        filter);
+                        filter
+                    );
                 }
 
                 final String key = key_val[0];
@@ -204,13 +202,15 @@ public class FileSystemEntityCore implements EntityCore {
                 if (properties.length == 0) {
                     throw new InvalidFilterFormatException(
                         "error while parsing filter: property list is empty", // NOI18N
-                        filter);
+                        filter
+                    );
                 } else {
                     for (final String p : properties) {
                         if (p.isEmpty()) {
                             throw new InvalidFilterFormatException(
                                 "error while parsing filter: property list contains empty property string", // NOI18N
-                                filter);
+                                filter
+                            );
                         }
                     }
                 }
@@ -225,7 +225,8 @@ public class FileSystemEntityCore implements EntityCore {
                         throw new InvalidFilterFormatException(
                             "error while parsing filter: invalid regex pattern", // NOI18N
                             e,
-                            filter);
+                            filter
+                        );
                     }
                 }
             }
@@ -251,15 +252,17 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @throws  IllegalStateException  DOCUMENT ME!
      */
-    private List<JsonNode> collectObjs(final String classKey,
-            final int limit,
-            final int offset,
-            final Collection<String> expandFields,
-            final Collection<String> includeFields,
-            final int level,
-            final Map<String[], Pattern> filter,
-            final boolean stripNullVals,
-            final boolean deduplicate) {
+    private List<JsonNode> collectObjs(
+        final String classKey,
+        final int limit,
+        final int offset,
+        final Collection<String> expandFields,
+        final Collection<String> includeFields,
+        final int level,
+        final Map<String[], Pattern> filter,
+        final boolean stripNullVals,
+        final boolean deduplicate
+    ) {
         assert classKey != null;
         assert expandFields != null;
         assert includeFields != null;
@@ -273,13 +276,14 @@ public class FileSystemEntityCore implements EntityCore {
             for (int i = 0; i < result.size(); ++i) {
                 final String ref = result.get(i).get("$ref").asText(); // NOI18N
                 final JsonNode expanded = readObj(
-                        ref,
-                        expandFields,
-                        includeFields,
-                        level,
-                        stripNullVals,
-                        deduplicate,
-                        cache);
+                    ref,
+                    expandFields,
+                    includeFields,
+                    level,
+                    stripNullVals,
+                    deduplicate,
+                    cache
+                );
                 if (expanded == null) {
                     final String message = "external modification occurred";
                     log.error(message);
@@ -312,13 +316,14 @@ public class FileSystemEntityCore implements EntityCore {
         if (!filter.isEmpty()) {
             @SuppressWarnings("unchecked")
             final JsonNode obj = readObj(
-                    ref,
-                    Collections.EMPTY_LIST,
-                    Collections.EMPTY_LIST,
-                    1,
-                    false,
-                    false,
-                    new HashMap<String, ObjectNode>(1, 1f));
+                ref,
+                Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST,
+                1,
+                false,
+                false,
+                new HashMap<String, ObjectNode>(1, 1f)
+            );
 
             final Map<String, JsonNode> cache = new HashMap<String, JsonNode>();
             cache.put(ref, obj);
@@ -352,7 +357,8 @@ public class FileSystemEntityCore implements EntityCore {
                                     // this will never occur because we built the node ourself
                                     throw new IllegalStateException(
                                         "cannot apply filter for object/array property", // NOI18N
-                                        ex);
+                                        ex
+                                    );
                                 }
                             }
 
@@ -364,14 +370,16 @@ public class FileSystemEntityCore implements EntityCore {
                         final String subref = n.get("$ref").asText(); // NOI18N
                         current = cache.get(subref);
                         if (current == null) {
-                            current = readObj(
+                            current =
+                                readObj(
                                     subref,
                                     Collections.EMPTY_LIST,
                                     Collections.EMPTY_LIST,
                                     1,
                                     false,
                                     false,
-                                    new HashMap<String, ObjectNode>(1, 1f));
+                                    new HashMap<String, ObjectNode>(1, 1f)
+                                );
 
                             assert current != null;
 
@@ -396,10 +404,12 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @return  DOCUMENT ME!
      */
-    private List<JsonNode> doCollectObjs(final String classKey,
-            final int limit,
-            final int offset,
-            final Map<String[], Pattern> filter) {
+    private List<JsonNode> doCollectObjs(
+        final String classKey,
+        final int limit,
+        final int offset,
+        final Map<String[], Pattern> filter
+    ) {
         assert classKey != null;
 
         final String dummyRef = buildRef(classKey, "dummy"); // NOI18N
@@ -411,22 +421,25 @@ public class FileSystemEntityCore implements EntityCore {
         }
 
         // cannot apply limit and offset here because we don't know if the filesystem does natural alphabetical ordering
-        final File[] objFiles = dir.listFiles(new FileFilter() {
-
-                    @Override
-                    public boolean accept(final File pathname) {
-                        return !pathname.isHidden() && pathname.isFile() && pathname.canRead();
-                    }
-                });
+        final File[] objFiles = dir.listFiles(
+            new FileFilter() {
+                @Override
+                public boolean accept(final File pathname) {
+                    return !pathname.isHidden() && pathname.isFile() && pathname.canRead();
+                }
+            }
+        );
 
         // ensure natural alphabetical ordering because some filesystems may have special ordering rules
-        Arrays.sort(objFiles, new Comparator<File>() {
-
+        Arrays.sort(
+            objFiles,
+            new Comparator<File>() {
                 @Override
                 public int compare(final File o1, final File o2) {
                     return o1.getName().compareTo(o2.getName());
                 }
-            });
+            }
+        );
 
         final int _offset = Math.max(0, offset);
         final int elements = (limit <= 0) ? (objFiles.length - _offset) : Math.min(limit, objFiles.length - _offset);
@@ -453,45 +466,53 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public JsonNode updateObject(final User user,
-            final String classKey,
-            final String objectId,
-            final JsonNode jsonObject,
-            final String role,
-            final boolean requestResultingInstance) {
+    public JsonNode updateObject(
+        final User user,
+        final String classKey,
+        final String objectId,
+        final JsonNode jsonObject,
+        final String role,
+        final boolean requestResultingInstance
+    ) {
         // FIXME: what is the difference between update and create (except that update usually only works for existing
         // top-level objects)? This is related to the behaviour of create in case of existing objects
         return createObject(user, classKey, jsonObject, role, requestResultingInstance);
     }
 
     @Override
-    public ObjectNode patchObject(final User user,
-            final String classKey,
-            final String objectId,
-            final JsonNode jsonObject,
-            final String role,
-            final boolean requestResultingInstance) {
-        final String message = "The operation '"
-                    + Thread.currentThread().getStackTrace()[1].getMethodName()
-                    + "' is not yet supported by " + this.getClass().getSimpleName();
+    public ObjectNode patchObject(
+        final User user,
+        final String classKey,
+        final String objectId,
+        final JsonNode jsonObject,
+        final String role,
+        final boolean requestResultingInstance
+    ) {
+        final String message =
+            "The operation '" +
+            Thread.currentThread().getStackTrace()[1].getMethodName() +
+            "' is not yet supported by " +
+            this.getClass().getSimpleName();
         log.error(message);
         throw new NotImplementedException(message);
     }
 
     @Override
-    public JsonNode createObject(@NonNull final User user,
-            @NonNull final String classKey,
-            @NonNull final JsonNode jsonObject,
-            @NonNull final String role,
-            final boolean requestResultingInstance) {
+    public JsonNode createObject(
+        @NonNull final User user,
+        @NonNull final String classKey,
+        @NonNull final JsonNode jsonObject,
+        @NonNull final String role,
+        final boolean requestResultingInstance
+    ) {
         if (!user.isValidated()) {
-            throw new InvalidUserException("user is not validated");  // NOI18N
+            throw new InvalidUserException("user is not validated"); // NOI18N
         }
         if (classKey.isEmpty()) {
             throw new InvalidClassKeyException("class key is empty"); // NOI18N
         }
         if (role.isEmpty()) {
-            throw new InvalidRoleException("role is empty");          // NOI18N
+            throw new InvalidRoleException("role is empty"); // NOI18N
         }
 
         final Lock lock = rwLock.writeLock();
@@ -526,7 +547,7 @@ public class FileSystemEntityCore implements EntityCore {
     private void writeObj(final JsonNode obj, final Set<String> selfs) throws InvalidEntityException {
         assert obj != null;
 
-        final JsonNode selfNode = obj.get("$self");                                                     // NOI18N
+        final JsonNode selfNode = obj.get("$self"); // NOI18N
         if (selfNode == null) {
             throw new InvalidEntityException("the object node does not contain a self reference", obj); // NOI18N
         }
@@ -539,14 +560,14 @@ public class FileSystemEntityCore implements EntityCore {
             final Entry<String, JsonNode> e = it.next();
             final JsonNode node = e.getValue();
             if (node.isObject()) {
-                final JsonNode subObj = handleObj((ObjectNode)node, selfs);
+                final JsonNode subObj = handleObj((ObjectNode) node, selfs);
                 if (obj.isObject()) {
-                    ((ObjectNode)obj).replace(e.getKey(), subObj);
+                    ((ObjectNode) obj).replace(e.getKey(), subObj);
                 } else {
                     log.error("writeObj: expected object node instead of json node: " + obj);
                 }
             } else if (node.isArray()) {
-                handleArray((ArrayNode)node, selfs);
+                handleArray((ArrayNode) node, selfs);
             }
         }
 
@@ -571,13 +592,14 @@ public class FileSystemEntityCore implements EntityCore {
         final String ref = obj.get("$self").asText(); // NOI18N
         @SuppressWarnings("unchecked")
         final JsonNode mergeObj = readObj(
-                ref,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                1,
-                false,
-                false,
-                new HashMap<String, ObjectNode>(1, 1f));
+            ref,
+            Collections.EMPTY_LIST,
+            Collections.EMPTY_LIST,
+            1,
+            false,
+            false,
+            new HashMap<String, ObjectNode>(1, 1f)
+        );
 
         if (mergeObj == null) {
             throw new IllegalStateException("external change occurred"); // NOI18N
@@ -587,7 +609,7 @@ public class FileSystemEntityCore implements EntityCore {
         while (it.hasNext()) {
             final Entry<String, JsonNode> entry = it.next();
             if (obj.isObject() && !obj.has(entry.getKey())) {
-                ((ObjectNode)obj).put(entry.getKey(), entry.getValue());
+                ((ObjectNode) obj).put(entry.getKey(), entry.getValue());
             }
         }
     }
@@ -606,8 +628,10 @@ public class FileSystemEntityCore implements EntityCore {
         final File file = new File(objPath);
 
         if (file.isDirectory()) {
-            throw new IllegalStateException("cannot write object: path occupied by directory: " // NOI18N
-                        + file.getAbsolutePath());
+            throw new IllegalStateException(
+                "cannot write object: path occupied by directory: " + // NOI18N
+                file.getAbsolutePath()
+            );
         } else {
             final File parent = file.getParentFile();
             if (!parent.exists()) {
@@ -619,7 +643,7 @@ public class FileSystemEntityCore implements EntityCore {
             try {
                 MAPPER.writer().writeValue(file, obj);
             } catch (final IOException ex) {
-                log.error("cannot write object: " + obj, ex);               // NOI18N
+                log.error("cannot write object: " + obj, ex); // NOI18N
                 throw new IllegalStateException("cannot write object", ex); // NOI18N
             }
         }
@@ -648,7 +672,7 @@ public class FileSystemEntityCore implements EntityCore {
         final String strippedRef = ref.substring(from + 1, to);
         final String objId = ref.substring(to);
 
-        final String[] split = strippedRef.split("\\.");                            // NOI18N
+        final String[] split = strippedRef.split("\\."); // NOI18N
         if (split.length != 2) {
             throw new InvalidClassKeyException("invalid reference format: " + ref); // NOI18N
         }
@@ -698,9 +722,9 @@ public class FileSystemEntityCore implements EntityCore {
         for (int i = 0; i < arrNode.size(); ++i) {
             final JsonNode sub = arrNode.get(i);
             if (sub.isArray()) {
-                handleArray((ArrayNode)sub, selfs);
+                handleArray((ArrayNode) sub, selfs);
             } else if (sub.isObject()) {
-                final JsonNode subObj = handleObj((ObjectNode)sub, selfs);
+                final JsonNode subObj = handleObj((ObjectNode) sub, selfs);
                 arrNode.set(i, subObj);
             }
         }
@@ -717,9 +741,9 @@ public class FileSystemEntityCore implements EntityCore {
      * @throws  InvalidEntityException  DOCUMENT ME!
      */
     private ObjectNode handleObj(final ObjectNode objNode, final Set<String> selfs) {
-        final JsonNode self = objNode.get("$self");                                                               // NOI18N
+        final JsonNode self = objNode.get("$self"); // NOI18N
         if (self == null) {
-            final JsonNode ref = objNode.get("$ref");                                                             // NOI18N
+            final JsonNode ref = objNode.get("$ref"); // NOI18N
             if (ref == null) {
                 throw new InvalidEntityException("the object node does not contain a (self) reference", objNode); // NOI18N
             } else {
@@ -733,7 +757,8 @@ public class FileSystemEntityCore implements EntityCore {
                 if (!selfs.contains(refString) && !objExists(refString)) {
                     throw new InvalidEntityException(
                         "the object node contains ref that does not point to an actual object", // NOI18N
-                        objNode);
+                        objNode
+                    );
                 }
 
                 return objNode;
@@ -750,28 +775,30 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public ObjectNode getObject(@NonNull final User user,
-            @NonNull final String classKey,
-            @NonNull final String objectId,
-            final String version,
-            final String expand,
-            final String level,
-            final String fields,
-            final String profile,
-            @NonNull final String role,
-            final boolean omitNullValues,
-            final boolean deduplicate) {
+    public ObjectNode getObject(
+        @NonNull final User user,
+        @NonNull final String classKey,
+        @NonNull final String objectId,
+        final String version,
+        final String expand,
+        final String level,
+        final String fields,
+        final String profile,
+        @NonNull final String role,
+        final boolean omitNullValues,
+        final boolean deduplicate
+    ) {
         if (!user.isValidated()) {
-            throw new InvalidUserException("user is not validated");  // NOI18N
+            throw new InvalidUserException("user is not validated"); // NOI18N
         }
         if (classKey.isEmpty()) {
             throw new InvalidClassKeyException("class key is empty"); // NOI18N
         }
         if (objectId.isEmpty()) {
-            throw new IllegalArgumentException("objectId is empty");  // NOI18N
+            throw new IllegalArgumentException("objectId is empty"); // NOI18N
         }
         if (role.isEmpty()) {
-            throw new InvalidRoleException("role is empty");          // NOI18N
+            throw new InvalidRoleException("role is empty"); // NOI18N
         }
 
         // FIXME: what is the format of the expand parameter, why is the expand parameter not concrete (list of fields)?
@@ -791,13 +818,14 @@ public class FileSystemEntityCore implements EntityCore {
             lock.lock();
 
             return readObj(
-                    ref,
-                    expandFields,
-                    includeFields,
-                    _level,
-                    omitNullValues,
-                    deduplicate,
-                    new HashMap<String, ObjectNode>());
+                ref,
+                expandFields,
+                includeFields,
+                _level,
+                omitNullValues,
+                deduplicate,
+                new HashMap<String, ObjectNode>()
+            );
         } finally {
             lock.unlock();
         }
@@ -853,13 +881,15 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @return  DOCUMENT ME!
      */
-    private ObjectNode readObj(final String ref,
-            final Collection<String> expandFields,
-            final Collection<String> includeFields,
-            final int level,
-            final boolean stripNullVals,
-            final boolean deduplicate,
-            final Map<String, ObjectNode> cache) {
+    private ObjectNode readObj(
+        final String ref,
+        final Collection<String> expandFields,
+        final Collection<String> includeFields,
+        final int level,
+        final boolean stripNullVals,
+        final boolean deduplicate,
+        final Map<String, ObjectNode> cache
+    ) {
         assert ref != null;
         assert expandFields != null;
         assert includeFields != null;
@@ -894,26 +924,28 @@ public class FileSystemEntityCore implements EntityCore {
                         // in case of deduplicate we keep the simple ref object if it has already been read
                         if (!deduplicate || (cache.get(subRef) == null)) {
                             final JsonNode subObj = readObj(
-                                    subRef,
-                                    expandFields,
-                                    includeFields,
-                                    level
-                                            - 1,
-                                    stripNullVals,
-                                    deduplicate,
-                                    cache);
+                                subRef,
+                                expandFields,
+                                includeFields,
+                                level - 1,
+                                stripNullVals,
+                                deduplicate,
+                                cache
+                            );
 
                             obj.replace(key, subObj);
                         }
                     }
                     if (val.isArray() && (expandFields.isEmpty() || expandFields.contains(key))) {
-                        readArray((ArrayNode)val,
+                        readArray(
+                            (ArrayNode) val,
                             expandFields,
                             includeFields,
                             level,
                             stripNullVals,
                             deduplicate,
-                            cache);
+                            cache
+                        );
                     }
                 }
             }
@@ -933,29 +965,31 @@ public class FileSystemEntityCore implements EntityCore {
      * @param  deduplicate    DOCUMENT ME!
      * @param  cache          DOCUMENT ME!
      */
-    private void readArray(final ArrayNode arr,
-            final Collection<String> expandFields,
-            final Collection<String> includeFields,
-            final int level,
-            final boolean stripNullVals,
-            final boolean deduplicate,
-            final Map<String, ObjectNode> cache) {
+    private void readArray(
+        final ArrayNode arr,
+        final Collection<String> expandFields,
+        final Collection<String> includeFields,
+        final int level,
+        final boolean stripNullVals,
+        final boolean deduplicate,
+        final Map<String, ObjectNode> cache
+    ) {
         for (int i = 0; i < arr.size(); ++i) {
             final JsonNode sub = arr.get(i);
             if (sub.isArray()) {
-                readArray((ArrayNode)sub, expandFields, includeFields, level, stripNullVals, deduplicate, cache);
+                readArray((ArrayNode) sub, expandFields, includeFields, level, stripNullVals, deduplicate, cache);
             } else if (sub.isObject()) {
                 // $ref has to be present, otherwise data is corrupted
                 final String subRef = sub.get("$ref").asText(); // NOI18N
                 final JsonNode subObj = readObj(
-                        subRef,
-                        expandFields,
-                        includeFields,
-                        level
-                                - 1,
-                        stripNullVals,
-                        deduplicate,
-                        cache);
+                    subRef,
+                    expandFields,
+                    includeFields,
+                    level - 1,
+                    stripNullVals,
+                    deduplicate,
+                    cache
+                );
                 arr.set(i, subObj);
             }
         }
@@ -970,9 +1004,11 @@ public class FileSystemEntityCore implements EntityCore {
      *
      * @return  DOCUMENT ME!
      */
-    private ObjectNode filterProperties(final ObjectNode obj,
-            final Collection<String> includeFields,
-            final boolean stripNullVals) {
+    private ObjectNode filterProperties(
+        final ObjectNode obj,
+        final Collection<String> includeFields,
+        final boolean stripNullVals
+    ) {
         assert obj != null;
         assert includeFields != null;
 
@@ -1011,16 +1047,18 @@ public class FileSystemEntityCore implements EntityCore {
             BufferedInputStream bis = null;
             try {
                 bis = new BufferedInputStream(new FileInputStream(file));
-                ret = (ObjectNode)MAPPER.reader().readTree(bis);
+                ret = (ObjectNode) MAPPER.reader().readTree(bis);
             } catch (final FileNotFoundException e) {
                 throw new IllegalStateException(
                     "file was present and readable but while opening stream an error occurred", // NOI18N
-                    e);
+                    e
+                );
             } catch (final IOException e) {
                 throw new IllegalStateException(
-                    "file cannot be read, file corrupted or external process blocking: " // NOI18N
-                            + file.getAbsolutePath(),
-                    e);
+                    "file cannot be read, file corrupted or external process blocking: " + // NOI18N
+                    file.getAbsolutePath(),
+                    e
+                );
             } finally {
                 IOUtils.closeQuietly(bis);
             }
@@ -1036,34 +1074,40 @@ public class FileSystemEntityCore implements EntityCore {
     }
 
     @Override
-    public ObjectNode getObjectsByQuery(final User user,
-            final SimpleObjectQuery query,
-            final String role,
-            final int limit,
-            final int offset) {
-        final String message = "The operation '"
-                    + Thread.currentThread().getStackTrace()[1].getMethodName()
-                    + "' is not yet supported by " + this.getClass().getSimpleName();
+    public ObjectNode getObjectsByQuery(
+        final User user,
+        final SimpleObjectQuery query,
+        final String role,
+        final int limit,
+        final int offset
+    ) {
+        final String message =
+            "The operation '" +
+            Thread.currentThread().getStackTrace()[1].getMethodName() +
+            "' is not yet supported by " +
+            this.getClass().getSimpleName();
         log.error(message);
         throw new NotImplementedException(message);
     }
 
     @Override
-    public boolean deleteObject(@NonNull final User user,
-            @NonNull final String classKey,
-            @NonNull final String objectId,
-            @NonNull final String role) {
+    public boolean deleteObject(
+        @NonNull final User user,
+        @NonNull final String classKey,
+        @NonNull final String objectId,
+        @NonNull final String role
+    ) {
         if (!user.isValidated()) {
-            throw new InvalidUserException("user is not validated");  // NOI18N
+            throw new InvalidUserException("user is not validated"); // NOI18N
         }
         if (classKey.isEmpty()) {
             throw new InvalidClassKeyException("class key is empty"); // NOI18N
         }
         if (objectId.isEmpty()) {
-            throw new IllegalArgumentException("objectId is empty");  // NOI18N
+            throw new IllegalArgumentException("objectId is empty"); // NOI18N
         }
         if (role.isEmpty()) {
-            throw new InvalidRoleException("role is empty");          // NOI18N
+            throw new InvalidRoleException("role is empty"); // NOI18N
         }
 
         final String ref = buildRef(classKey, objectId);
@@ -1206,9 +1250,11 @@ public class FileSystemEntityCore implements EntityCore {
 
     @Override
     public byte[] getObjectIcon(final User user, final String classKey, final String objectId, final String role) {
-        final String message = "The operation '"
-                    + Thread.currentThread().getStackTrace()[1].getMethodName()
-                    + "' is not yet supported by " + this.getClass().getSimpleName();
+        final String message =
+            "The operation '" +
+            Thread.currentThread().getStackTrace()[1].getMethodName() +
+            "' is not yet supported by " +
+            this.getClass().getSimpleName();
         log.error(message);
         throw new NotImplementedException(message);
     }

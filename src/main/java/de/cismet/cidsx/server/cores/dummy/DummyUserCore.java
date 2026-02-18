@@ -1,19 +1,17 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.cores.dummy;
-
-import org.openide.util.lookup.ServiceProvider;
-
-import java.security.Key;
 
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.UserCore;
+import java.security.Key;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * DOCUMENT ME!

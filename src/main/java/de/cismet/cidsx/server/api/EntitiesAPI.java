@@ -1,53 +1,14 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.openide.util.Lookup;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Variant;
-
 import de.cismet.cidsx.base.types.MediaTypes;
-
 import de.cismet.cidsx.server.annotations.PATCH;
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.CollectionResource;
@@ -55,11 +16,44 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.EntityCore;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.CidsServerException;
-import de.cismet.cidsx.server.exceptions.EntityInfoNotFoundException;
 import de.cismet.cidsx.server.exceptions.EntityNotFoundException;
 import de.cismet.cidsx.server.trigger.CidsTrigger;
 import de.cismet.cidsx.server.trigger.CidsTriggerKey;
 import de.cismet.cidsx.server.trigger.EntityCoreAwareCidsTrigger;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Request;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Variant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.glassfish.jersey.client.ClientResponse;
+import org.openide.util.Lookup;
 
 /**
  * DOCUMENT ME!
@@ -67,14 +61,13 @@ import de.cismet.cidsx.server.trigger.EntityCoreAwareCidsTrigger;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
-@Api(
-    value = "/"
-                + "",
-    description = "Get information about entities. Retrieve, create update and delete objects.",
-    tags = { "entities" }
-
-//    ,listingPath = "/resources/entities"
+@OpenAPIDefinition(
+    info = @Info(
+        title = "Cids entities API",
+        description = "Get information about entities. Retrieve, create update and delete objects."
+    )
 )
+@Tag(name = "entities", description = "Entities within the cids system")
 @Produces("application/json")
 @Path("/")
 @Slf4j
@@ -85,8 +78,7 @@ public class EntitiesAPI extends APIBase {
     private final Collection<? extends CidsTrigger> allTriggers;
     private final Collection<CidsTrigger> generalTriggers = new ArrayList<CidsTrigger>();
     private final Collection<CidsTrigger> crossDomainTrigger = new ArrayList<CidsTrigger>();
-    private final HashMap<CidsTriggerKey, Collection<CidsTrigger>> triggers =
-        new HashMap<CidsTriggerKey, Collection<CidsTrigger>>();
+    private final HashMap<CidsTriggerKey, Collection<CidsTrigger>> triggers = new HashMap<CidsTriggerKey, Collection<CidsTrigger>>();
 
     //~ Constructors -----------------------------------------------------------
 
@@ -123,54 +115,43 @@ public class EntitiesAPI extends APIBase {
      */
     @Path("{domain}.{class}/emptyInstance")
     @GET
-    @ApiOperation(
-        value = "Get an empty instance of a certain class.",
-        notes = "-"
-    )
+    @Operation(summary = "Get an empty instance of a certain class.", description = "-")
     public Response getEmptyInstance(
-            @ApiParam(
-                value = "identifier (domainname) of the domain.",
-                required = true
-            )
-            @PathParam("domain")
-            final String domain,
-            @ApiParam(
-                value = "identifier (classkey) of the class.",
-                required = true
-            )
-            @PathParam("class")
-            final String classKey,
-            @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            @QueryParam("role")
-            final String role,
-            @ApiParam(
-                value = "Basic Auth Authorization String",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString) {
+        @Parameter(description = "identifier (domainname) of the domain.", required = true) @PathParam(
+            "domain"
+        ) final String domain,
+        @Parameter(description = "identifier (classkey) of the class.", required = true) @PathParam(
+            "class"
+        ) final String classKey,
+        @Parameter(
+            description = "role of the user, 'all' role when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "all")
+        ) @QueryParam("role") final String role,
+        @Parameter(description = "Basic Auth Authorization String", required = false) @HeaderParam(
+            "Authorization"
+        ) final String authString
+    ) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            return Response.status(Response.Status.OK)
-                        .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getEntityInfoCore().emptyInstance(user, classKey, role))
-                        .build();
+            return Response
+                .status(Response.Status.OK)
+                .header("Location", getLocation())
+                .entity(RuntimeContainer.getServer().getEntityInfoCore().emptyInstance(user, classKey, role))
+                .build();
         } else {
-            final WebResource delegateCall = Tools.getDomainWebResource(domain);
-            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            final WebTarget delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedHashMap();
             queryParams.add("role", role);
-            final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
-                        .path(domain + "." + classKey)
-                        .path("emptyInstance")
-                        .header("Authorization", authString)
-                        .get(ClientResponse.class);
+            final ClientResponse csiDelegateCall = addParams(delegateCall, queryParams)
+                .path(domain + "." + classKey)
+                .path("emptyInstance")
+                .request()
+                .header("Authorization", authString)
+                .get(ClientResponse.class);
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
     }
@@ -196,119 +177,96 @@ public class EntitiesAPI extends APIBase {
      */
     @Path("{domain}.{class}")
     @GET
-    @ApiOperation(
-        value = "Get all objects of a certain class.",
-        notes = "-"
-    )
+    @Operation(summary = "Get all objects of a certain class.", description = "-")
     public Response getAllObjects(
-            @ApiParam(
-                value = "identifier (domainname) of the domain.",
-                required = true
-            )
-            @PathParam("domain")
-            final String domain,
-            @ApiParam(
-                value = "identifier (classkey) of the class.",
-                required = true
-            )
-            @PathParam("class")
-            final String classKey,
-            @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            @QueryParam("role")
-            final String role,
-            @ApiParam(
-                value = "maximum number of results, 100 when not submitted",
-                required = false,
-                defaultValue = "100"
-            )
-            @DefaultValue("100")
-            @QueryParam("limit")
-            final int limit,
-            @ApiParam(
-                value = "pagination offset, 0 when not submitted",
-                required = false,
-                defaultValue = "0"
-            )
-            @DefaultValue("0")
-            @QueryParam("offset")
-            final int offset,
-            @ApiParam(value = "a list of properties in the resulting objects that should be expanded")
-            @QueryParam("expand")
-            final String expand,
-            @ApiParam(value = "the level of expansion")
-            @QueryParam("level")
-            final String level,
-            @ApiParam(value = "the fields of the resulting object, all fields when not submitted")
-            @QueryParam("fields")
-            final String fields,
-            @ApiParam(value = "profile of the object, 'full' profile when not submitted and no fields are present")
-            @QueryParam("profile")
-            final String profile,
-            @ApiParam(value = "filter string, use 'field:value' as syntax and seperate the expressions with ','")
-            @QueryParam("filter")
-            final String filter,
-            @ApiParam(
-                value = "Omit properties that have 'null' as value",
-                defaultValue = "true"
-            )
-            @QueryParam("omitNullValues")
-            final boolean omitNullValues,
-            @ApiParam(
-                value =
-                    "if you don't want already expanded properties to be expanded again, set this parameter to true",
-                defaultValue = "false"
-            )
-            @QueryParam("deduplicate")
-            final boolean deduplicate,
-            @ApiParam(
-                value = "Basic Auth Authorization String",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString) {
+        @Parameter(description = "identifier (domainname) of the domain.", required = true) @PathParam(
+            "domain"
+        ) final String domain,
+        @Parameter(description = "identifier (classkey) of the class.", required = true) @PathParam(
+            "class"
+        ) final String classKey,
+        @Parameter(
+            description = "role of the user, 'all' role when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "all")
+        ) @QueryParam("role") final String role,
+        @Parameter(
+            description = "maximum number of results, 100 when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "100")
+        ) @DefaultValue("100") @QueryParam("limit") final int limit,
+        @Parameter(
+            description = "pagination offset, 0 when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "0")
+        ) @DefaultValue("0") @QueryParam("offset") final int offset,
+        @Parameter(description = "a list of properties in the resulting objects that should be expanded") @QueryParam(
+            "expand"
+        ) final String expand,
+        @Parameter(description = "the level of expansion") @QueryParam("level") final String level,
+        @Parameter(description = "the fields of the resulting object, all fields when not submitted") @QueryParam(
+            "fields"
+        ) final String fields,
+        @Parameter(
+            description = "profile of the object, 'full' profile when not submitted and no fields are present"
+        ) @QueryParam("profile") final String profile,
+        @Parameter(
+            description = "filter string, use 'field:value' as syntax and seperate the expressions with ','"
+        ) @QueryParam("filter") final String filter,
+        @Parameter(description = "Omit properties that have 'null' as value", schema = @Schema(defaultValue = "true")) @QueryParam(
+            "omitNullValues"
+        ) final boolean omitNullValues,
+        @Parameter(
+            description = "if you don't want already expanded properties to be expanded again, set this parameter to true",
+            schema = @Schema(defaultValue = "false")
+        ) @QueryParam("deduplicate") final boolean deduplicate,
+        @Parameter(description = "Basic Auth Authorization String", required = false) @HeaderParam(
+            "Authorization"
+        ) final String authString
+    ) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final List l = RuntimeContainer.getServer()
-                        .getEntityCore(classKey)
-                        .getAllObjects(
-                            user,
-                            // FIXME: what is the correct class key and format
-                            classKey,
-                            // FIXME: what is the default
-                            (role == null) ? "default" : role,
-                            limit,
-                            offset,
-                            expand,
-                            level,
-                            fields,
-                            profile,
-                            filter,
-                            omitNullValues,
-                            deduplicate);
+            final List l = RuntimeContainer
+                .getServer()
+                .getEntityCore(classKey)
+                .getAllObjects(
+                    user,
+                    // FIXME: what is the correct class key and format
+                    classKey,
+                    // FIXME: what is the default
+                    (role == null) ? "default" : role,
+                    limit,
+                    offset,
+                    expand,
+                    level,
+                    fields,
+                    profile,
+                    filter,
+                    omitNullValues,
+                    deduplicate
+                );
 
-            final List allobjs = RuntimeContainer.getServer()
-                        .getEntityCore(classKey)
-                        .getAllObjects(
-                            user,
-                            classKey,
-                            // FIXME: what is the default
-                            (role == null) ? "default" : role,
-                            Integer.MAX_VALUE,
-                            0,
-                            null,
-                            "0",
-                            null,
-                            null,
-                            filter,
-                            omitNullValues,
-                            deduplicate);
+            final List allobjs = RuntimeContainer
+                .getServer()
+                .getEntityCore(classKey)
+                .getAllObjects(
+                    user,
+                    classKey,
+                    // FIXME: what is the default
+                    (role == null) ? "default" : role,
+                    Integer.MAX_VALUE,
+                    0,
+                    null,
+                    "0",
+                    null,
+                    null,
+                    filter,
+                    omitNullValues,
+                    deduplicate
+                );
 
             final String baseref = domain + "." + classKey;
             // FIXME: maybe has to be done even before sending the data to the core so that the core won't have to
@@ -319,20 +277,22 @@ public class EntitiesAPI extends APIBase {
             final int lastOffset = (_limit == 0) ? 0 : (((allobjs.size() - 1) / _limit) * _limit);
 
             final String first = buildRequestString(
-                    baseref,
-                    _limit,
-                    0,
-                    role,
-                    expand,
-                    level,
-                    fields,
-                    profile,
-                    filter,
-                    omitNullValues);
+                baseref,
+                _limit,
+                0,
+                role,
+                expand,
+                level,
+                fields,
+                profile,
+                filter,
+                omitNullValues
+            );
 
             final String prev;
             if (_offset > 0) {
-                prev = buildRequestString(
+                prev =
+                    buildRequestString(
                         baseref,
                         _limit,
                         (_limit == 0) ? 0 : (_offset - _limit),
@@ -342,52 +302,58 @@ public class EntitiesAPI extends APIBase {
                         fields,
                         profile,
                         filter,
-                        omitNullValues);
+                        omitNullValues
+                    );
             } else {
                 prev = null;
             }
 
             final String next;
             if ((_limit > 0) && ((allobjs.size() - _limit) > _offset)) {
-                next = buildRequestString(
+                next =
+                    buildRequestString(
                         baseref,
                         _limit,
-                        _offset
-                                + _limit,
+                        _offset + _limit,
                         role,
                         expand,
                         level,
                         fields,
                         profile,
                         filter,
-                        omitNullValues);
+                        omitNullValues
+                    );
             } else {
                 next = null;
             }
             final String last = buildRequestString(
-                    baseref,
-                    _limit,
-                    lastOffset,
-                    role,
-                    expand,
-                    level,
-                    fields,
-                    profile,
-                    filter,
-                    omitNullValues);
+                baseref,
+                _limit,
+                lastOffset,
+                role,
+                expand,
+                level,
+                fields,
+                profile,
+                filter,
+                omitNullValues
+            );
 
-            final CollectionResource result = new CollectionResource("/" + baseref,
-                    _offset,
-                    _limit,
-                    first,
-                    prev,
-                    next,
-                    last,
-                    l);
+            final CollectionResource result = new CollectionResource(
+                "/" + baseref,
+                _offset,
+                _limit,
+                first,
+                prev,
+                next,
+                last,
+                l
+            );
             return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
         } else {
-            final WebResource delegateCall = Tools.getDomainWebResource(domain);
-            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            final WebTarget delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedHashMap();
+            
             queryParams.add("role", role);
             queryParams.add("limit", limit);
             queryParams.add("offset", offset);
@@ -397,10 +363,13 @@ public class EntitiesAPI extends APIBase {
             queryParams.add("profile", profile);
             queryParams.add("filter", filter);
             queryParams.add("omitNullValues", omitNullValues);
-            final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
-                        .path(domain + "." + classKey)
-                        .header("Authorization", authString)
-                        .get(ClientResponse.class);
+            
+            final ClientResponse csiDelegateCall = addParams(delegateCall, queryParams)
+                .path(domain + "." + classKey)
+                .request()
+                .header("Authorization", authString)
+                .get(ClientResponse.class);
+            
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
     }
@@ -421,16 +390,18 @@ public class EntitiesAPI extends APIBase {
      *
      * @return  DOCUMENT ME!
      */
-    private String buildRequestString(final String baseref,
-            final int limit,
-            final int offset,
-            final String role,
-            final String expand,
-            final String level,
-            final String fields,
-            final String profile,
-            final String filter,
-            final boolean stripNullVals) {
+    private String buildRequestString(
+        final String baseref,
+        final int limit,
+        final int offset,
+        final String role,
+        final String expand,
+        final String level,
+        final String fields,
+        final String profile,
+        final String filter,
+        final boolean stripNullVals
+    ) {
         assert baseref != null;
 
         final StringBuilder sb = new StringBuilder();
@@ -478,52 +449,30 @@ public class EntitiesAPI extends APIBase {
     @PUT
     @Path("{domain}.{class}/{objectid}")
     @Consumes("application/json")
-    @ApiOperation(
-        value = "Update or creates an object.",
-        notes = "-"
-    )
-    public Response updateObject(@ApiParam(
-                value = "Object to be updated.",
-                required = true
-            ) final String jsonBody,
-            @ApiParam(
-                value = "identifier (domainname) of the domain.",
-                required = true
-            )
-            @PathParam("domain")
-            final String domain,
-            @ApiParam(
-                value = "identifier (classkey) of the class.",
-                required = true
-            )
-            @PathParam("class")
-            final String classKey,
-            @ApiParam(
-                value = "identifier (objectkey) of the object.",
-                required = true
-            )
-            @PathParam("objectid")
-            final String objectId,
-            @ApiParam(
-                value =
-                    "if this parameter is set to true the resulting instance is returned in the response, 'false' when not submitted"
-            )
-            @DefaultValue("false")
-            @QueryParam("requestResultingInstance")
-            final boolean requestResultingInstance,
-            @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            @QueryParam("role")
-            final String role,
-            @ApiParam(
-                value = "Basic Auth Authorization String",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString) {
+    @Operation(summary = "Update or creates an object.", description = "-")
+    public Response updateObject(
+        @Parameter(description = "Object to be updated.", required = true) final String jsonBody,
+        @Parameter(description = "identifier (domainname) of the domain.", required = true) @PathParam(
+            "domain"
+        ) final String domain,
+        @Parameter(description = "identifier (classkey) of the class.", required = true) @PathParam(
+            "class"
+        ) final String classKey,
+        @Parameter(description = "identifier (objectkey) of the object.", required = true) @PathParam(
+            "objectid"
+        ) final String objectId,
+        @Parameter(
+            description = "if this parameter is set to true the resulting instance is returned in the response, 'false' when not submitted"
+        ) @DefaultValue("false") @QueryParam("requestResultingInstance") final boolean requestResultingInstance,
+        @Parameter(
+            description = "role of the user, 'all' role when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "all")
+        ) @QueryParam("role") final String role,
+        @Parameter(description = "Basic Auth Authorization String", required = false) @HeaderParam(
+            "Authorization"
+        ) final String authString
+    ) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
@@ -531,7 +480,7 @@ public class EntitiesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             com.fasterxml.jackson.databind.JsonNode body = null;
             try {
-                body = (com.fasterxml.jackson.databind.JsonNode)MAPPER.readTree(jsonBody);
+                body = (com.fasterxml.jackson.databind.JsonNode) MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
                 log.error(ex.getMessage(), ex);
             }
@@ -539,35 +488,46 @@ public class EntitiesAPI extends APIBase {
             final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
             for (final CidsTrigger ct : rightTriggers) {
                 if (ct instanceof EntityCoreAwareCidsTrigger) {
-                    ((EntityCoreAwareCidsTrigger)ct).setEntityCore(core);
+                    ((EntityCoreAwareCidsTrigger) ct).setEntityCore(core);
                 }
                 ct.beforeUpdate(jsonBody, user);
             }
-            final Response r = Response.status(Response.Status.OK)
-                        .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getEntityCore(classKey).updateObject(
-                                    user,
-                                    classKey,
-                                    objectId,
-                                    body,
-                                    // FIXME: what is the default
-                                    (role == null) ? "default" : role,
-                                    requestResultingInstance))
-                        .build();
+            final Response r = Response
+                .status(Response.Status.OK)
+                .header("Location", getLocation())
+                .entity(
+                    RuntimeContainer
+                        .getServer()
+                        .getEntityCore(classKey)
+                        .updateObject(
+                            user,
+                            classKey,
+                            objectId,
+                            body,
+                            // FIXME: what is the default
+                            (role == null) ? "default" : role,
+                            requestResultingInstance
+                        )
+                )
+                .build();
             for (final CidsTrigger ct : rightTriggers) {
                 ct.afterUpdate(jsonBody, user);
             }
             return r;
         } else {
-            final WebResource delegateCall = Tools.getDomainWebResource(domain);
-            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            final WebTarget delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedHashMap();
+            
             queryParams.add("role", role);
             queryParams.add("requestResultingInstance", requestResultingInstance);
-            final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
-                        .path(domain + "." + classKey)
-                        .path(objectId)
-                        .header("Authorization", authString)
-                        .put(ClientResponse.class, jsonBody);
+            
+            final ClientResponse csiDelegateCall = addParams(delegateCall, queryParams)
+                .path(domain + "." + classKey)
+                .path(objectId)
+                .request()
+                .header("Authorization", authString)
+                .put(Entity.entity(jsonBody, MediaType.APPLICATION_JSON), ClientResponse.class);
+            
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
     }
@@ -588,48 +548,28 @@ public class EntitiesAPI extends APIBase {
     @PATCH
     @Path("{domain}.{class}/{objectid}")
     @Consumes("application/json")
-    @ApiOperation(
-        httpMethod = "PATCH",
-        value = "Patches an object.",
-        notes = "-"
-    )
-    public Response patchObject(@ApiParam(
-                value = "Object to be patched.",
-                required = true
-            ) final String jsonBody,
-            @ApiParam(
-                value = "identifier (domainname) of the domain.",
-                required = true
-            )
-            @PathParam("domain")
-            final String domain,
-            @ApiParam(
-                value = "identifier (classkey) of the class.",
-                required = true
-            )
-            @PathParam("class")
-            final String classKey,
-            @ApiParam(
-                value = "identifier (objectkey) of the object.",
-                required = true
-            )
-            @PathParam("objectid")
-            final String objectId,
-            @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            @DefaultValue("false")
-            @QueryParam("requestResultingInstance")
-            final boolean requestResultingInstance,
-            @QueryParam("role") final String role,
-            @ApiParam(
-                value = "Basic Auth Authorization String",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString) {
+    @Operation(summary = "Patches an object.", description = "-")
+    public Response patchObject(
+        @Parameter(description = "Object to be patched.", required = true) final String jsonBody,
+        @Parameter(description = "identifier (domainname) of the domain.", required = true) @PathParam(
+            "domain"
+        ) final String domain,
+        @Parameter(description = "identifier (classkey) of the class.", required = true) @PathParam(
+            "class"
+        ) final String classKey,
+        @Parameter(description = "identifier (objectkey) of the object.", required = true) @PathParam(
+            "objectid"
+        ) final String objectId,
+        @Parameter(
+            description = "role of the user, 'all' role when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "all")
+        ) @DefaultValue("false") @QueryParam("requestResultingInstance") final boolean requestResultingInstance,
+        @QueryParam("role") final String role,
+        @Parameter(description = "Basic Auth Authorization String", required = false) @HeaderParam(
+            "Authorization"
+        ) final String authString
+    ) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
@@ -637,7 +577,7 @@ public class EntitiesAPI extends APIBase {
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
             JsonNode body = null;
             try {
-                body = (JsonNode)MAPPER.readTree(jsonBody);
+                body = (JsonNode) MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
                 // ProblemHandling
                 log.error(ex.getMessage(), ex);
@@ -646,34 +586,43 @@ public class EntitiesAPI extends APIBase {
             final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
             for (final CidsTrigger ct : rightTriggers) {
                 if (ct instanceof EntityCoreAwareCidsTrigger) {
-                    ((EntityCoreAwareCidsTrigger)ct).setEntityCore(core);
+                    ((EntityCoreAwareCidsTrigger) ct).setEntityCore(core);
                 }
                 ct.beforeUpdate(jsonBody, user);
             }
-            final Response r = Response.status(Response.Status.OK)
-                        .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getEntityCore(classKey).patchObject(
-                                    user,
-                                    classKey,
-                                    objectId,
-                                    body,
-                                    // FIXME: what is the default
-                                    (role == null) ? "default" : role,
-                                    requestResultingInstance))
-                        .build();
+            final Response r = Response
+                .status(Response.Status.OK)
+                .header("Location", getLocation())
+                .entity(
+                    RuntimeContainer
+                        .getServer()
+                        .getEntityCore(classKey)
+                        .patchObject(
+                            user,
+                            classKey,
+                            objectId,
+                            body,
+                            // FIXME: what is the default
+                            (role == null) ? "default" : role,
+                            requestResultingInstance
+                        )
+                )
+                .build();
             for (final CidsTrigger ct : rightTriggers) {
                 ct.afterUpdate(jsonBody, user);
             }
             return r;
         } else {
-            final WebResource delegateCall = Tools.getDomainWebResource(domain);
-            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            final WebTarget delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedHashMap();
             queryParams.add("role", role);
-            final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
-                        .path(domain + "." + classKey)
-                        .path(objectId)
-                        .header("Authorization", authString)
-                        .put(ClientResponse.class, jsonBody);
+            final ClientResponse csiDelegateCall = addParams(delegateCall, queryParams)
+                .path(domain + "." + classKey)
+                .path(objectId)
+                .request()
+                .header("Authorization", authString)
+                .put(Entity.entity(jsonBody, MediaType.APPLICATION_JSON), ClientResponse.class);
+            
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
     }
@@ -693,46 +642,27 @@ public class EntitiesAPI extends APIBase {
     @POST
     @Consumes("application/json")
     @Path("{domain}.{class}")
-    @ApiOperation(
-        value = "Create a new object.",
-        notes = "-"
-    )
-    public Response createObject(@ApiParam(
-                value = "Object to be created.",
-                required = true
-            ) final String jsonBody,
-            @ApiParam(
-                value = "identifier (domainname) of the domain.",
-                required = true
-            )
-            @PathParam("domain")
-            final String domain,
-            @ApiParam(
-                value = "identifier (classkey) of the class.",
-                required = true
-            )
-            @PathParam("class")
-            final String classKey,
-            @ApiParam(
-                value =
-                    "if this parameter is set to true the resulting instance is returned in the response, 'false' when not submitted"
-            )
-            @DefaultValue("false")
-            @QueryParam("requestResultingInstance")
-            final boolean requestResultingInstance,
-            @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            @QueryParam("role")
-            final String role,
-            @ApiParam(
-                value = "Basic Auth Authorization String",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString) {
+    @Operation(summary = "Create a new object.", description = "-")
+    public Response createObject(
+        @Parameter(description = "Object to be created.", required = true) final String jsonBody,
+        @Parameter(description = "identifier (domainname) of the domain.", required = true) @PathParam(
+            "domain"
+        ) final String domain,
+        @Parameter(description = "identifier (classkey) of the class.", required = true) @PathParam(
+            "class"
+        ) final String classKey,
+        @Parameter(
+            description = "if this parameter is set to true the resulting instance is returned in the response, 'false' when not submitted"
+        ) @DefaultValue("false") @QueryParam("requestResultingInstance") final boolean requestResultingInstance,
+        @Parameter(
+            description = "role of the user, 'all' role when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "all")
+        ) @QueryParam("role") final String role,
+        @Parameter(description = "Basic Auth Authorization String", required = false) @HeaderParam(
+            "Authorization"
+        ) final String authString
+    ) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
@@ -742,39 +672,47 @@ public class EntitiesAPI extends APIBase {
             final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
             for (final CidsTrigger ct : rightTriggers) {
                 if (ct instanceof EntityCoreAwareCidsTrigger) {
-                    ((EntityCoreAwareCidsTrigger)ct).setEntityCore(core);
+                    ((EntityCoreAwareCidsTrigger) ct).setEntityCore(core);
                 }
                 ct.beforeInsert(jsonBody, user);
             }
             JsonNode body = null;
             try {
-                body = (JsonNode)MAPPER.readTree(jsonBody);
+                body = (JsonNode) MAPPER.readTree(jsonBody);
             } catch (Exception ex) {
                 log.error(ex.getMessage(), ex);
             }
-            final Response r = Response.status(Response.Status.CREATED)
-                        .header("Location", getLocation())
-                        .entity(RuntimeContainer.getServer().getEntityCore(classKey).createObject(
-                                    user,
-                                    classKey,
-                                    body,
-                                    // FIXME: what is the default
-                                    (role == null) ? "default" : role,
-                                    requestResultingInstance))
-                        .build();
+            final Response r = Response
+                .status(Response.Status.CREATED)
+                .header("Location", getLocation())
+                .entity(
+                    RuntimeContainer
+                        .getServer()
+                        .getEntityCore(classKey)
+                        .createObject(
+                            user,
+                            classKey,
+                            body,
+                            // FIXME: what is the default
+                            (role == null) ? "default" : role,
+                            requestResultingInstance
+                        )
+                )
+                .build();
             for (final CidsTrigger ct : rightTriggers) {
                 ct.afterInsert(jsonBody, user);
             }
             return r;
         } else {
-            final WebResource delegateCall = Tools.getDomainWebResource(domain);
-            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            final WebTarget delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedHashMap();
             queryParams.add("role", role);
             queryParams.add("requestResultingInstance", requestResultingInstance);
-            final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
-                        .path(domain + "." + classKey)
-                        .header("Authorization", authString)
-                        .post(ClientResponse.class, jsonBody);
+            final ClientResponse csiDelegateCall = addParams(delegateCall, queryParams)
+                .path(domain + "." + classKey)
+                .request()
+                .header("Authorization", authString)
+                .post(Entity.entity(jsonBody, MediaType.APPLICATION_JSON), ClientResponse.class);
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
     }
@@ -801,102 +739,85 @@ public class EntitiesAPI extends APIBase {
      */
     @Path("{domain}.{class}/{objectid}")
     @GET
-    @ApiOperation(
-        value = "Get a certain object by its id.",
-        notes = "-x"
-    )
+    @Operation(summary = "Get a certain object by its id.", description = "-x")
     public Response getObject(
-            @ApiParam(
-                value = "identifier (domainname) of the domain.",
-                required = true
-            )
-            @PathParam("domain")
-            final String domain,
-            @ApiParam(
-                value = "identifier (classkey) of the class.",
-                required = true
-            )
-            @PathParam("class")
-            final String classKey,
-            @ApiParam(
-                value = "identifier (objectkey) of the object.",
-                required = true
-            )
-            @PathParam("objectid")
-            final String objectId,
-            @ApiParam(value = "version of the object, 'current' version when not submitted")
-            @QueryParam("version")
-            final String version,
-            @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            @QueryParam("role")
-            final String role,
-            @ApiParam(value = "a list of properties in the resulting objects that should be expanded")
-            @QueryParam("expand")
-            final String expand,
-            @ApiParam(value = "the level of expansion")
-            @QueryParam("level")
-            final String level,
-            @ApiParam(value = "the fields of the resulting object, all fields when not submitted")
-            @QueryParam("fields")
-            final String fields,
-            @ApiParam(value = "profile of the object, 'full' profile when not submitted and no fields are present")
-            @QueryParam("profile")
-            final String profile,
-            @ApiParam(
-                value = "Omit properties that have 'null' as value",
-                defaultValue = "true"
-            )
-            @QueryParam("omitNullValues")
-            final boolean omitNullValues,
-            @ApiParam(
-                value =
-                    "if you don't want already expanded properties to be expanded again, set this parameter to true",
-                defaultValue = "false"
-            )
-            @QueryParam("deduplicate")
-            final boolean deduplicate,
-            @ApiParam(
-                value = "Basic Auth Authorization String",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString) {
+        @Parameter(description = "identifier (domainname) of the domain.", required = true) @PathParam(
+            "domain"
+        ) final String domain,
+        @Parameter(description = "identifier (classkey) of the class.", required = true) @PathParam(
+            "class"
+        ) final String classKey,
+        @Parameter(description = "identifier (objectkey) of the object.", required = true) @PathParam(
+            "objectid"
+        ) final String objectId,
+        @Parameter(description = "version of the object, 'current' version when not submitted") @QueryParam(
+            "version"
+        ) final String version,
+        @Parameter(
+            description = "role of the user, 'all' role when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "all")
+        ) @QueryParam("role") final String role,
+        @Parameter(description = "a list of properties in the resulting objects that should be expanded") @QueryParam(
+            "expand"
+        ) final String expand,
+        @Parameter(description = "the level of expansion") @QueryParam("level") final String level,
+        @Parameter(description = "the fields of the resulting object, all fields when not submitted") @QueryParam(
+            "fields"
+        ) final String fields,
+        @Parameter(
+            description = "profile of the object, 'full' profile when not submitted and no fields are present"
+        ) @QueryParam("profile") final String profile,
+        @Parameter(description = "Omit properties that have 'null' as value", schema = @Schema(defaultValue = "true")) @QueryParam(
+            "omitNullValues"
+        ) final boolean omitNullValues,
+        @Parameter(
+            description = "if you don't want already expanded properties to be expanded again, set this parameter to true",
+            schema = @Schema(defaultValue = "false")
+        ) @QueryParam("deduplicate") final boolean deduplicate,
+        @Parameter(description = "Basic Auth Authorization String", required = false) @HeaderParam(
+            "Authorization"
+        ) final String authString
+    ) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
         if (RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
-            final JsonNode result = RuntimeContainer.getServer()
-                        .getEntityCore(classKey)
-                        .getObject(
-                            user,
-                            classKey,
-                            objectId,
-                            version,
-                            expand,
-                            level,
-                            fields,
-                            profile,
-                            // FIXME: what is the default
-                            (role == null) ? "default" : role,
-                            omitNullValues,
-                            deduplicate);
+            final JsonNode result = RuntimeContainer
+                .getServer()
+                .getEntityCore(classKey)
+                .getObject(
+                    user,
+                    classKey,
+                    objectId,
+                    version,
+                    expand,
+                    level,
+                    fields,
+                    profile,
+                    // FIXME: what is the default
+                    (role == null) ? "default" : role,
+                    omitNullValues,
+                    deduplicate
+                );
             if (result != null) {
                 return Response.status(Response.Status.OK).header("Location", getLocation()).entity(result).build();
             } else {
-                final String message = "entity with id '" + objectId
-                            + "' and class key '" + classKey + "' not found at domain '"
-                            + domain + "'!";
+                final String message =
+                    "entity with id '" +
+                    objectId +
+                    "' and class key '" +
+                    classKey +
+                    "' not found at domain '" +
+                    domain +
+                    "'!";
                 log.warn(message);
                 throw new EntityNotFoundException(message, objectId);
             }
         } else {
-            final WebResource delegateCall = Tools.getDomainWebResource(domain);
-            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            final WebTarget delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedHashMap();
             queryParams.add("role", role);
             queryParams.add("version", version);
             queryParams.add("expand", expand);
@@ -905,11 +826,12 @@ public class EntitiesAPI extends APIBase {
             queryParams.add("profile", profile);
             queryParams.add("omitNullValues", omitNullValues);
 
-            final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
-                        .path(domain + "." + classKey)
-                        .path(objectId)
-                        .header("Authorization", authString)
-                        .get(ClientResponse.class);
+            final ClientResponse csiDelegateCall = addParams(delegateCall, queryParams)
+                .path(domain + "." + classKey)
+                .path(objectId)
+                .request()
+                .header("Authorization", authString)
+                .get(ClientResponse.class);
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
     }
@@ -927,35 +849,20 @@ public class EntitiesAPI extends APIBase {
      */
     @Path("{domain}.{class}/{objectid}")
     @DELETE
-    @ApiOperation(
-        value = "Delete a certain object.",
-        notes = "-"
-    )
+    @Operation(summary = "Delete a certain object.", description = "-")
     public Response deleteObject(
-            @ApiParam(
-                value = "identifier (domainname) of the domain.",
-                required = true
-            )
-            @PathParam("domain")
-            final String domain,
-            @ApiParam(value = "identifier (classkey) of the class.")
-            @PathParam("class")
-            final String classKey,
-            @ApiParam(value = "identifier (objectkey) of the object.")
-            @PathParam("objectid")
-            final String objectId,
-            @ApiParam(
-                value = "role of the user, 'default' role when not submitted",
-                required = false
-            )
-            @QueryParam("role")
-            final String role,
-            @ApiParam(
-                value = "Basic Auth Authorization String",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString) {
+        @Parameter(description = "identifier (domainname) of the domain.", required = true) @PathParam(
+            "domain"
+        ) final String domain,
+        @Parameter(description = "identifier (classkey) of the class.") @PathParam("class") final String classKey,
+        @Parameter(description = "identifier (objectkey) of the object.") @PathParam("objectid") final String objectId,
+        @Parameter(description = "role of the user, 'default' role when not submitted", required = false) @QueryParam(
+            "role"
+        ) final String role,
+        @Parameter(description = "Basic Auth Authorization String", required = false) @HeaderParam(
+            "Authorization"
+        ) final String authString
+    ) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
@@ -965,7 +872,7 @@ public class EntitiesAPI extends APIBase {
             final EntityCore core = RuntimeContainer.getServer().getEntityCore(classKey);
             for (final CidsTrigger ct : rightTriggers) {
                 if (ct instanceof EntityCoreAwareCidsTrigger) {
-                    ((EntityCoreAwareCidsTrigger)ct).setEntityCore(core);
+                    ((EntityCoreAwareCidsTrigger) ct).setEntityCore(core);
                 }
                 ct.beforeDelete(domain, classKey, objectId, user);
             }
@@ -975,20 +882,23 @@ public class EntitiesAPI extends APIBase {
                 classKey,
                 objectId,
                 // FIXME: what is the default
-                (role == null) ? "default" : role);
+                (role == null) ? "default" : role
+            );
             for (final CidsTrigger ct : rightTriggers) {
                 ct.afterDelete(domain, classKey, objectId, user);
             }
             return Response.status(Response.Status.OK).header("Location", getLocation()).build();
         } else {
-            final WebResource delegateCall = Tools.getDomainWebResource(domain);
-            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            final WebTarget delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedHashMap();
             queryParams.add("role", role);
-            final ClientResponse csiDelegateCall = delegateCall.queryParams(queryParams)
-                        .path(domain + "." + classKey)
-                        .path(objectId)
-                        .header("Authorization", authString)
-                        .get(ClientResponse.class);
+            final ClientResponse csiDelegateCall = addParams(delegateCall, queryParams)
+                .path(domain + "." + classKey)
+                .path(objectId)
+                .request()
+                .header("Authorization", authString)
+                .get(ClientResponse.class);
+            
             return Tools.clientResponseToResponse(csiDelegateCall);
         }
     }
@@ -1005,12 +915,12 @@ public class EntitiesAPI extends APIBase {
         final ArrayList<CidsTrigger> list = new ArrayList<CidsTrigger>();
 
         final Collection<CidsTrigger> listForAll = triggers.get(CidsTriggerKey.FORALL);
-        final Collection<CidsTrigger> listAllTablesInOneDomain = triggers.get(new CidsTriggerKey(
-                    domain,
-                    CidsTriggerKey.ALL));
-        final Collection<CidsTrigger> listOneTableInAllDomains = triggers.get(new CidsTriggerKey(
-                    CidsTriggerKey.ALL,
-                    classKey));
+        final Collection<CidsTrigger> listAllTablesInOneDomain = triggers.get(
+            new CidsTriggerKey(domain, CidsTriggerKey.ALL)
+        );
+        final Collection<CidsTrigger> listOneTableInAllDomains = triggers.get(
+            new CidsTriggerKey(CidsTriggerKey.ALL, classKey)
+        );
         final Collection<CidsTrigger> listExplicitTableInDomain = triggers.get(new CidsTriggerKey(domain, classKey));
 
         if (listForAll != null) {
@@ -1057,7 +967,7 @@ public class EntitiesAPI extends APIBase {
     // @Path("/{domain}.{classkey}/{objectid}")
     // @GET
     // @ApiOperation(
-    // value = "Get an object icon.",
+    // description = "Get an object icon.",
     // notes = "-"
     // )
     // @Produces(
@@ -1067,106 +977,96 @@ public class EntitiesAPI extends APIBase {
     // }
     // )
     public Response getIcon(
-            @ApiParam(
-                value = "identifier (domainname) of the domain.",
-                required = true
-            )
-            @PathParam("domain")
-            final String domain,
-            @ApiParam(
-                value = "identifier (classkey) of the class.",
-                required = true
-            )
-            @PathParam("classkey")
-            final String classKey,
-            @ApiParam(value = "identifier (objectkey) of the object.")
-            @PathParam("objectid")
-            final String objectId,
-            @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            @QueryParam("role")
-            final String role,
-            @ApiParam(
-                value = "Basic Auth Authorization String",
-                required = false
-            )
-            @HeaderParam("Authorization")
-            final String authString,
-            @Context final Request request) {
+        @Parameter(description = "identifier (domainname) of the domain.", required = true) @PathParam(
+            "domain"
+        ) final String domain,
+        @Parameter(description = "identifier (classkey) of the class.", required = true) @PathParam(
+            "classkey"
+        ) final String classKey,
+        @Parameter(description = "identifier (objectkey) of the object.") @PathParam("objectid") final String objectId,
+        @Parameter(
+            description = "role of the user, 'all' role when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "all")
+        ) @QueryParam("role") final String role,
+        @Parameter(description = "Basic Auth Authorization String", required = false) @HeaderParam(
+            "Authorization"
+        ) final String authString,
+        @Context final Request request
+    ) {
         final User user = Tools.validationHelper(authString);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
 
         // check if the object exists
-        this.getObject(domain, classKey, objectId, null, null, null, "0",
-            null, null, true, true, authString);
+        this.getObject(domain, classKey, objectId, null, null, null, "0", null, null, true, true, authString);
 
-        if (ServerConstants.LOCAL_DOMAIN.equalsIgnoreCase(domain)
-                    || RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)) {
+        if (
+            ServerConstants.LOCAL_DOMAIN.equalsIgnoreCase(domain) ||
+            RuntimeContainer.getServer().getDomainName().equalsIgnoreCase(domain)
+        ) {
             final Variant acceptedVariant = request.selectVariant(ServerConstants.ICON_VARIANTS);
             final MediaType acceptedMediaType;
             if (acceptedVariant == null) {
-                log.warn("client did not provide a supported mime type, returning '"
-                            + MediaTypes.IMAGE_PNG + "' by default");
+                log.warn(
+                    "client did not provide a supported mime type, returning '" + MediaTypes.IMAGE_PNG + "' by default"
+                );
                 acceptedMediaType = MediaTypes.IMAGE_PNG_TYPE;
             } else {
                 acceptedMediaType = acceptedVariant.getMediaType();
             }
 
-            final byte[] icon = RuntimeContainer.getServer()
-                        .getEntityCore(classKey)
-                        .getObjectIcon(
-                            user,
-                            classKey,
-                            objectId,
-                            role);
+            final byte[] icon = RuntimeContainer
+                .getServer()
+                .getEntityCore(classKey)
+                .getObjectIcon(user, classKey, objectId, role);
 
             if (icon == null) {
-                final String message = "icon for object with id '" + objectId
-                            + "' not found at domain '" + domain + "'!";
+                final String message =
+                    "icon for object with id '" + objectId + "' not found at domain '" + domain + "'!";
                 log.warn(message);
                 throw new EntityNotFoundException(message, classKey);
             }
 
-            return Response.status(Response.Status.OK)
-                        .header("Location", getLocation())
-                        .entity(icon)
-                        .type(acceptedMediaType)
-                        .build();
+            return Response
+                .status(Response.Status.OK)
+                .header("Location", getLocation())
+                .entity(icon)
+                .type(acceptedMediaType)
+                .build();
         } else if (ServerConstants.ALL_DOMAINS.equalsIgnoreCase(domain)) {
             final String message = "domain 'all' is not supported by this web service operation";
             log.error(message);
-            throw new CidsServerException(message, message,
-                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            throw new CidsServerException(message, message, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
             final Variant acceptedVariant = request.selectVariant(ServerConstants.ICON_VARIANTS);
             final MediaType acceptedMediaType;
             if (acceptedVariant == null) {
-                log.warn("client did not provide a supported mime type, returning '"
-                            + MediaTypes.IMAGE_PNG + "' by default");
+                log.warn(
+                    "client did not provide a supported mime type, returning '" + MediaTypes.IMAGE_PNG + "' by default"
+                );
                 acceptedMediaType = MediaTypes.IMAGE_PNG_TYPE;
             } else {
                 acceptedMediaType = acceptedVariant.getMediaType();
             }
 
-            final WebResource delegateCall = Tools.getDomainWebResource(domain);
-            final MultivaluedMap queryParams = new MultivaluedMapImpl();
+            final WebTarget delegateCall = Tools.getDomainWebResource(domain);
+            final MultivaluedMap queryParams = new MultivaluedHashMap();
             queryParams.add("domain", domain);
             queryParams.add("role", role);
-            final ClientResponse crDelegateCall = delegateCall.queryParams(queryParams)
-                        .path(domain + "." + classKey)
-                        .path(objectId)
-                        .header("Authorization", authString)
-                        .accept(acceptedMediaType)
-                        .get(ClientResponse.class);
-            return Response.status(Response.Status.OK)
-                        .entity(crDelegateCall.getEntity(byte[].class))
-                        .type(acceptedMediaType)
-                        .build();
+            final ClientResponse crDelegateCall = addParams(delegateCall, queryParams)
+                .path(domain + "." + classKey)
+                .path(objectId)
+                .request()
+                .header("Authorization", authString)
+                .accept(acceptedMediaType)
+                .get(ClientResponse.class);
+            return Response
+                .status(Response.Status.OK)
+                .entity(crDelegateCall.readEntity(byte[].class))
+                .type(acceptedMediaType)
+                .build();
         }
     }
 }

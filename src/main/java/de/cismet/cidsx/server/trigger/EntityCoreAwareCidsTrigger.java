@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.trigger;
 
 import de.cismet.cidsx.server.cores.EntityCore;
@@ -16,7 +16,6 @@ import de.cismet.cidsx.server.cores.EntityCore;
  * @version  $Revision$, $Date$
  */
 public interface EntityCoreAwareCidsTrigger extends CidsTrigger {
-
     //~ Methods ----------------------------------------------------------------
 
     /**

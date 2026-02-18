@@ -1,22 +1,16 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 package de.cismet.cidsx.server.data;
-
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 import de.cismet.cidsx.server.cores.ActionCore;
 import de.cismet.cidsx.server.cores.CidsServerCore;
@@ -39,6 +33,10 @@ import de.cismet.cidsx.server.cores.noop.NoOpNodeCore;
 import de.cismet.cidsx.server.cores.noop.NoOpSearchCore;
 import de.cismet.cidsx.server.cores.noop.NoOpWebdavCore;
 import de.cismet.cidsx.server.data.unused.CustomAttributeCore;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DOCUMENT ME!
@@ -83,29 +81,29 @@ public class SimpleServer implements Server {
      */
     public void feedCore(final CidsServerCore core) {
         if (core instanceof EntityInfoCore) {
-            setEntityInfoCore((EntityInfoCore)core);
+            setEntityInfoCore((EntityInfoCore) core);
         } else if (core instanceof PermissionCore) {
-            setPermissionCore((PermissionCore)core);
+            setPermissionCore((PermissionCore) core);
         } else if (core instanceof EntityCore) {
-            entityCores.put("*", (EntityCore)core);
+            entityCores.put("*", (EntityCore) core);
         } else if (core instanceof CustomAttributeCore) {
-            setCustomAttributeCore((CustomAttributeCore)core);
+            setCustomAttributeCore((CustomAttributeCore) core);
         } else if (core instanceof NodeCore) {
-            setNodeCore((NodeCore)core);
+            setNodeCore((NodeCore) core);
         } else if (core instanceof ConfigAttributesCore) {
-            setConfigAttributesCore((ConfigAttributesCore)core);
+            setConfigAttributesCore((ConfigAttributesCore) core);
         } else if (core instanceof ActionCore) {
-            setActionCore((ActionCore)core);
+            setActionCore((ActionCore) core);
         } else if (core instanceof SearchCore) {
-            setSearchCore((SearchCore)core);
+            setSearchCore((SearchCore) core);
         } else if (core instanceof UserCore) {
-            setUserCore((UserCore)core);
+            setUserCore((UserCore) core);
         } else if (core instanceof GraphQlCore) {
-            setGraphQlCore((GraphQlCore)core);
+            setGraphQlCore((GraphQlCore) core);
         } else if (core instanceof SecresCore) {
-            setSecresCore((SecresCore)core);
+            setSecresCore((SecresCore) core);
         } else if (core instanceof InfrastructureCore) {
-            setInfrastructureCore((InfrastructureCore)core);
+            setInfrastructureCore((InfrastructureCore) core);
         } else {
             log.warn("unsupported cids server core: '" + core.getCoreKey() + "'");
         }

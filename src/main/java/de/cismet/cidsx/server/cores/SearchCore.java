@@ -1,19 +1,17 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.cores;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import java.util.List;
-
 import de.cismet.cidsx.server.api.types.SearchInfo;
 import de.cismet.cidsx.server.api.types.SearchParameter;
 import de.cismet.cidsx.server.api.types.User;
+import java.util.List;
 
 /**
  * DOCUMENT ME!
@@ -22,7 +20,6 @@ import de.cismet.cidsx.server.api.types.User;
  * @version  1.0
  */
 public interface SearchCore extends CidsServerCore {
-
     //~ Methods ----------------------------------------------------------------
 
     /**
@@ -58,10 +55,12 @@ public interface SearchCore extends CidsServerCore {
      *
      * @return  DOCUMENT ME!
      */
-    List<JsonNode> executeSearch(User user,
-            String searchKey,
-            List<SearchParameter> params,
-            int limit,
-            int offset,
-            String role);
+    List<JsonNode> executeSearch(
+        User user,
+        String searchKey,
+        List<SearchParameter> params,
+        int limit,
+        int offset,
+        String role
+    );
 }

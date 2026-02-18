@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.cores;
 
 import de.cismet.cidsx.server.api.types.User;
@@ -16,7 +16,6 @@ import de.cismet.cidsx.server.api.types.User;
  * @version  1.0
  */
 public interface PermissionCore extends CidsServerCore {
-
     //~ Methods ----------------------------------------------------------------
 
     /**

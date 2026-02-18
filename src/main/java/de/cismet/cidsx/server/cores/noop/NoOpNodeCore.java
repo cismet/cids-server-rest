@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -13,15 +13,12 @@
 package de.cismet.cidsx.server.cores.noop;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import org.openide.util.lookup.ServiceProvider;
-
-import java.util.List;
-
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.NodeCore;
 import de.cismet.cidsx.server.exceptions.NotImplementedException;
+import java.util.List;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * DOCUMENT ME!

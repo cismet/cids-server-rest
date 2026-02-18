@@ -1,30 +1,30 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.api;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.RuntimeContainer;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
 /**
  * DOCUMENT ME!
@@ -32,12 +32,13 @@ import de.cismet.cidsx.server.data.RuntimeContainer;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
-@Api(
-    value = "/secres",
-    description = "Sends secured server resources",
-    tags = { "secres" }
-//    ,listingPath = "/resources/secres"
+@OpenAPIDefinition(
+    info = @Info(
+        title = "Secres API",
+        description = "Sends secured server resources"
+    )
 )
+@Tag(name = "secres", description = "Sends secured server resources")
 @Path("/secres")
 @Produces("application/json")
 public class SecresAPI extends APIBase {
@@ -57,52 +58,30 @@ public class SecresAPI extends APIBase {
      */
     @Path("/{jwt}/{name}/{url:.+}")
     @GET
-    @ApiOperation(
-        value = "Sends server resources",
-        notes = "-"
-    )
+    @Operation(summary = "Sends server resources", description = "-")
     @ApiResponses(
         value = {
-                @ApiResponse(
-                    code = 400,
-                    message = "Invalid user supplied"
-                ),
-                @ApiResponse(
-                    code = 404,
-                    message = "User not found"
-                )
-            }
+            @ApiResponse(responseCode = "400", description = "Invalid user supplied"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+        }
     )
     public Response executeQuery(
-            @ApiParam(
-                value = "The jwt to identity the user",
-                required = true
-            )
-            @PathParam("jwt")
-            final String jwt,
-            @ApiParam(
-                value = "The name of the service",
-                required = true
-            )
-            @PathParam("name")
-            final String name,
-            @ApiParam(
-                value = "the url of the file to send back",
-                required = true
-            )
-            @PathParam("url")
-            final String url,
-            @Context final UriInfo info,
-            @HeaderParam("Authorization") final String authString) {
+        @Parameter(description = "The jwt to identity the user", required = true) @PathParam("jwt") final String jwt,
+        @Parameter(description = "The name of the service", required = true) @PathParam("name") final String name,
+        @Parameter(description = "the url of the file to send back", required = true) @PathParam("url") final String url,
+        @Context final UriInfo info,
+        @HeaderParam("Authorization") final String authString
+    ) {
         final User user = Tools.validationHelper(User.BEARER_AUTH_PREFIX + jwt);
         if (Tools.canHazUserProblems(user)) {
             return Tools.getUserProblemResponse();
         }
 
-        return RuntimeContainer.getServer()
-                    .getSecresCore()
-                    .executeQuery(user, name, url, info.getQueryParameters(), authString)
-                    .header("Location", getLocation())
-                    .build();
+        return RuntimeContainer
+            .getServer()
+            .getSecresCore()
+            .executeQuery(user, name, url, info.getQueryParameters(), authString)
+            .header("Location", getLocation())
+            .build();
     }
 }

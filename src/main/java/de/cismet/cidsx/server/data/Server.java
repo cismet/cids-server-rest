@@ -1,13 +1,11 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.data;
-
-import java.util.List;
 
 import de.cismet.cidsx.server.cores.ActionCore;
 import de.cismet.cidsx.server.cores.CidsServerCore;
@@ -22,6 +20,7 @@ import de.cismet.cidsx.server.cores.SearchCore;
 import de.cismet.cidsx.server.cores.SecresCore;
 import de.cismet.cidsx.server.cores.UserCore;
 import de.cismet.cidsx.server.data.unused.CustomAttributeCore;
+import java.util.List;
 
 /**
  * DOCUMENT ME!
@@ -31,7 +30,6 @@ import de.cismet.cidsx.server.data.unused.CustomAttributeCore;
  */
 
 public interface Server {
-
     //~ Methods ----------------------------------------------------------------
 
     /**

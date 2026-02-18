@@ -1,23 +1,24 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.api;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Response;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 /**
  * DOCUMENT ME!
@@ -25,12 +26,13 @@ import javax.ws.rs.core.Response.Status;
  * @author   thorsten
  * @version  $Revision$, $Date$
  */
-@Api(
-    value = "/permissions",
-    description = "Show, run and maintain custom actions within the cids system.",
-    tags = { "permissions" }
-//    ,listingPath = "/resources/permissions"
+@OpenAPIDefinition(
+    info = @Info(
+        title = "Permissions API",
+        description = "Show, run and maintain permissions within the cids system."
+    )
 )
+@Tag(name = "permissions", description = "Permissions within the cids system")
 @Path("/permissions")
 @Produces("application/json")
 public class PermissionsAPI {
@@ -46,19 +48,15 @@ public class PermissionsAPI {
      */
     @GET
     @Produces("application/json")
-    @ApiOperation(
-        value = "Get all permissions.",
-        notes = "-"
-    )
+    @Operation(summary = "Get all permissions.", description = "-")
     public Response getPermissions(
-            @DefaultValue("default")
-            @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            final String role) {
-        return Response.status(Status.SERVICE_UNAVAILABLE).build();
+        @DefaultValue("default") @Parameter(
+            description = "role of the user, 'all' role when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "all")
+        ) final String role
+    ) {
+        return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
     }
 
     /**
@@ -72,18 +70,15 @@ public class PermissionsAPI {
     @Path("/{permission}")
     @GET
     @Produces("application/json")
-    @ApiOperation(
-        value = "Get a certain permission.",
-        notes = "-"
-    )
-    public Response getPermission(@PathParam("permission") final String permission,
-            @DefaultValue("default")
-            @ApiParam(
-                value = "role of the user, 'all' role when not submitted",
-                required = false,
-                defaultValue = "all"
-            )
-            final String role) {
-        return Response.status(Status.SERVICE_UNAVAILABLE).build();
+    @Operation(summary = "Get a certain permission.", description = "-")
+    public Response getPermission(
+        @Parameter(description = "permission") final String permission,
+        @DefaultValue("default") @Parameter(
+            description = "role of the user, 'all' role when not submitted",
+            required = false,
+            schema = @Schema(defaultValue = "all")
+        ) final String role
+    ) {
+        return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
     }
 }

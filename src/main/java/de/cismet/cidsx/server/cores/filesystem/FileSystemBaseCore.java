@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -17,14 +17,10 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.openide.util.lookup.ServiceProvider;
-
-import java.io.File;
-
 import de.cismet.cidsx.server.cores.CidsServerCore;
+import java.io.File;
+import lombok.extern.slf4j.Slf4j;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * DOCUMENT ME!
@@ -44,8 +40,8 @@ public class FileSystemBaseCore implements CidsServerCore {
         names = { "-core.fs.basedir", "--core.fs.basedir" },
         required = true,
         description = "base directory of the cids file system cores"
-//            ,
-//        converter = FileSystemBaseCore.BaseDirConverter.class
+        //            ,
+        //        converter = FileSystemBaseCore.BaseDirConverter.class
     )
     static String baseDir;
 
@@ -102,11 +98,12 @@ public class FileSystemBaseCore implements CidsServerCore {
         public void validate(final String name, final String value) throws ParameterException {
             if (!isCaseSensitiveFS()) {
                 if (allowCaseInsensitiveFilesystem) {
-                    throw new IllegalStateException("FS Core implementation cannot be used on a case-insensitive FS");                  // NOI18N
+                    throw new IllegalStateException("FS Core implementation cannot be used on a case-insensitive FS"); // NOI18N
                 } else {
                     if (log.isWarnEnabled()) {
                         log.warn(
-                            "FS is not case-sensitive, FS Core implementation will not be fully compliant to interface specification"); // NOI18N
+                            "FS is not case-sensitive, FS Core implementation will not be fully compliant to interface specification"
+                        ); // NOI18N
                     }
                 }
             }

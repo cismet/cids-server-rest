@@ -1,17 +1,15 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.cores;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import java.util.List;
-
 import de.cismet.cidsx.server.api.types.User;
+import java.util.List;
 
 /**
  * DOCUMENT ME!
@@ -20,7 +18,6 @@ import de.cismet.cidsx.server.api.types.User;
  * @version  1.0
  */
 public interface ConfigAttributesCore extends CidsServerCore {
-
     //~ Methods ----------------------------------------------------------------
 
     /**

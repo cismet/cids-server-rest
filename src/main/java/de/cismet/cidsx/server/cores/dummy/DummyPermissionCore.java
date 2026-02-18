@@ -1,17 +1,16 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.cores.dummy;
-
-import org.openide.util.lookup.ServiceProvider;
 
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.cores.PermissionCore;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * DOCUMENT ME!
@@ -40,34 +39,42 @@ public class DummyPermissionCore implements PermissionCore {
     }
 
     @Override
-    public boolean hasObjectReadPermission(final User user,
-            final String role,
-            final String classKey,
-            final String objectKey) {
+    public boolean hasObjectReadPermission(
+        final User user,
+        final String role,
+        final String classKey,
+        final String objectKey
+    ) {
         return true;
     }
 
     @Override
-    public boolean hasObjectWritePermission(final User user,
-            final String role,
-            final String classKey,
-            final String objectKey) {
+    public boolean hasObjectWritePermission(
+        final User user,
+        final String role,
+        final String classKey,
+        final String objectKey
+    ) {
         return true;
     }
 
     @Override
-    public boolean hasAttributeReadPermission(final User user,
-            final String role,
-            final String classKey,
-            final String attributeKey) {
+    public boolean hasAttributeReadPermission(
+        final User user,
+        final String role,
+        final String classKey,
+        final String attributeKey
+    ) {
         return true;
     }
 
     @Override
-    public boolean hasAttributeWritePermission(final User user,
-            final String role,
-            final String classKey,
-            final String attributeKey) {
+    public boolean hasAttributeWritePermission(
+        final User user,
+        final String role,
+        final String classKey,
+        final String attributeKey
+    ) {
         return true;
     }
 

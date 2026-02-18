@@ -1,15 +1,14 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.exceptions;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
-
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * DOCUMENT ME!
@@ -25,7 +24,8 @@ public class EntityNotFoundException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter private final String objectId;
+    @Getter
+    private final String objectId;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -47,8 +47,7 @@ public class EntityNotFoundException extends CidsServerException {
      * @param  cause             DOCUMENT ME!
      * @param  objectId          DOCUMENT ME!
      */
-    public EntityNotFoundException(final String developerMessage,
-            final Throwable cause, final String objectId) {
+    public EntityNotFoundException(final String developerMessage, final Throwable cause, final String objectId) {
         super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_FOUND, cause);
         this.objectId = objectId;
     }

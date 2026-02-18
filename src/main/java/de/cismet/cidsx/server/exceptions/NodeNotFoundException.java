@@ -1,15 +1,14 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.exceptions;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
-
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * DOCUMENT ME!
@@ -25,7 +24,8 @@ public class NodeNotFoundException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter private final String nodeKey;
+    @Getter
+    private final String nodeKey;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -47,8 +47,7 @@ public class NodeNotFoundException extends CidsServerException {
      * @param  cause             DOCUMENT ME!
      * @param  nodeKey           DOCUMENT ME!
      */
-    public NodeNotFoundException(final String developerMessage,
-            final Throwable cause, final String nodeKey) {
+    public NodeNotFoundException(final String developerMessage, final Throwable cause, final String nodeKey) {
         super(developerMessage, USER_MESSAGE, HttpServletResponse.SC_NOT_FOUND, cause);
         this.nodeKey = nodeKey;
     }

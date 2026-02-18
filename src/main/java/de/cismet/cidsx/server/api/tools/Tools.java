@@ -1,14 +1,12 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.api.tools;
 
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
@@ -38,6 +36,21 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.CidsServerInfo;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.CidsServerException;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import org.glassfish.jersey.client.ClientResponse;
 
 /**
  * DOCUMENT ME!
@@ -57,8 +70,7 @@ public class Tools {
     /**
      * Creates a new Tools object.
      */
-    private Tools() {
-    }
+    private Tools() {}
 
     //~ Methods ----------------------------------------------------------------
 
@@ -96,30 +108,31 @@ public class Tools {
      *
      * @throws  CidsServerException  DOCUMENT ME!
      */
-    public static WebResource getDomainWebResource(final String domain) {
+    public static WebTarget getDomainWebResource(final String domain) {
         if (!RuntimeContainer.getServer().getRegistry().equals(ServerConstants.STANDALONE)) {
-            final WebResource registryLookup = RuntimeContainer.getClient()
-                        .resource(RuntimeContainer.getServer().getRegistry());
-            final ClientResponse response = registryLookup.path(domain.toLowerCase())
-                        .type(MediaType.APPLICATION_JSON)
-                        .get(ClientResponse.class);
-            final ClientResponse.Status status = response.getClientResponseStatus();
-            if (status.equals(ClientResponse.Status.OK)
-                        || status.equals(ClientResponse.Status.ACCEPTED)) {
-                final CidsServerInfo csiRegistryLookup = response.getEntity(CidsServerInfo.class);
-                return RuntimeContainer.getClient().resource(csiRegistryLookup.getUri());
+            final WebTarget registryLookup = RuntimeContainer
+                .getClient()
+                .target(RuntimeContainer.getServer().getRegistry());
+            final ClientResponse response = registryLookup
+                .path(domain.toLowerCase())
+                .request(MediaType.APPLICATION_JSON)
+                .get(ClientResponse.class);
+            final Response.StatusType status = response.getStatusInfo();
+            
+            if (status.equals(Response.Status.OK) || status.equals(Response.Status.ACCEPTED)) {
+                final CidsServerInfo csiRegistryLookup = response.readEntity(CidsServerInfo.class);
+                return RuntimeContainer.getClient().target(csiRegistryLookup.getUri());
             } else {
                 final String message = "domain '" + domain + "' not found in service registry";
                 log.error(message);
 
-                throw new CidsServerException(message, message,
-                    HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                throw new CidsServerException(message, message, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             }
         } else {
             final String url = Starter.friendlyDomains.get(domain);
 
             if (url != null) {
-                return RuntimeContainer.getClient().resource(url);
+                return RuntimeContainer.getClient().target(url);
             } else {
                 final String message = "server is standalone, cannot ask registry for domain '" + domain + "'";
                 log.error(message);
@@ -147,32 +160,46 @@ public class Tools {
 
         if ((authString == null) && (RuntimeContainer.getServer().getServerOptions().getAnonymousUser() == null)) {
             return User.NONE;
-        } else if ((authString == null) && (RuntimeContainer.getServer().getServerOptions().getAnonymousUser() != null)
-                    && (RuntimeContainer.getServer().getServerOptions().getAnonymousPassword() != null)) {
-            user = new User(getBasicAuthString(
+        } else if (
+            (authString == null) &&
+            (RuntimeContainer.getServer().getServerOptions().getAnonymousUser() != null) &&
+            (RuntimeContainer.getServer().getServerOptions().getAnonymousPassword() != null)
+        ) {
+            user =
+                new User(
+                    getBasicAuthString(
                         RuntimeContainer.getServer().getServerOptions().getAnonymousUser(),
-                        RuntimeContainer.getServer().getServerOptions().getAnonymousPassword()));
+                        RuntimeContainer.getServer().getServerOptions().getAnonymousPassword()
+                    )
+                );
         } else {
             user = new User(authString);
         }
         // Check whether the user is whitelisted
-        if ((RuntimeContainer.getServer().getServerOptions().getAllowedUsers() != null)
-                    && (RuntimeContainer.getServer().getServerOptions().getAllowedUsers().size() > 0)) {
+        if (
+            (RuntimeContainer.getServer().getServerOptions().getAllowedUsers() != null) &&
+            (!RuntimeContainer.getServer().getServerOptions().getAllowedUsers().isEmpty())
+        ) {
             if (!RuntimeContainer.getServer().getServerOptions().getAllowedUsers().contains(user.getUser())) {
                 return User.NONE;
             }
         }
 
-        if ((user.getDomain() == null) || user.getDomain().equalsIgnoreCase("local")
-                    || user.getDomain().equalsIgnoreCase(RuntimeContainer.getServer().getDomainName())) {
+        if (
+            (user.getDomain() == null) ||
+            user.getDomain().equalsIgnoreCase("local") ||
+            user.getDomain().equalsIgnoreCase(RuntimeContainer.getServer().getDomainName())
+        ) {
             RuntimeContainer.getServer().getUserCore().validate(user);
         } else {
-            final WebResource delegateCall = Tools.getDomainWebResource(user.getDomain());
-            final ClientResponse crValidationCall = delegateCall.path("/users")
-                        .header("Authorization", authString)
-                        .get(ClientResponse.class);
+            final WebTarget delegateCall = Tools.getDomainWebResource(user.getDomain());
+            final ClientResponse crValidationCall = delegateCall
+                .path("/users")
+                .request()
+                .header("Authorization", authString)
+                .get(ClientResponse.class);
             try {
-                user = crValidationCall.getEntity(User.class);
+                user = crValidationCall.readEntity(User.class);
                 if (user != null) {
                     user.setValidated(true);
                 } else {
@@ -202,10 +229,17 @@ public class Tools {
      * @return  DOCUMENT ME!
      */
     public static boolean canHazUserProblems(final User user) {
-        return (user == null) || !user.isValidated()
-                    || ((user == User.NONE)
-                        && ((RuntimeContainer.getServer().getUserCore() != null)
-                            && !RuntimeContainer.getServer().getUserCore().isNoneUserAllowed()));
+        return (
+            (user == null) ||
+            !user.isValidated() ||
+            (
+                (user == User.NONE) &&
+                (
+                    (RuntimeContainer.getServer().getUserCore() != null) &&
+                    !RuntimeContainer.getServer().getUserCore().isNoneUserAllowed()
+                )
+            )
+        );
     }
 
     /**
@@ -227,9 +261,10 @@ public class Tools {
      * @return  DOCUMENT ME!
      */
     public static Response getUserProblemResponse() {
-        return Response.status(Response.Status.UNAUTHORIZED)
-                    .header("WWW-Authenticate", "Basic realm=\"Please Authenticate with cids Credentials\"")
-                    .build();
+        return Response
+            .status(Response.Status.UNAUTHORIZED)
+            .header("WWW-Authenticate", "Basic realm=\"Please Authenticate with cids Credentials\"")
+            .build();
     }
 
     /**
@@ -241,15 +276,17 @@ public class Tools {
      */
     public static Response clientResponseToResponse(final ClientResponse r) {
         // copy the status code
-        final ResponseBuilder rb = Response.status(r.getStatus());
+        final Response.ResponseBuilder rb = Response.status(r.getStatus());
         // copy all the headers
-        for (final Entry<String, List<String>> entry : r.getHeaders().entrySet()) {
+        MultivaluedMap<String, String> headers = r.getHeaders();
+        
+        for (final Entry<String, List<String>> entry : headers.entrySet()) {
             for (final String value : entry.getValue()) {
                 rb.header(entry.getKey(), value);
             }
         }
         // copy the entity
-        rb.entity(r.getEntityInputStream());
+        rb.entity(r.readEntity(InputStream.class));
         // return the response
         return rb.build();
     }
@@ -287,7 +324,7 @@ public class Tools {
                     if (log.isDebugEnabled()) {
                         log.debug("Detected pid: " + value);
                     }
-                    return (Integer)value;
+                    return (Integer) value;
                 }
             }
         } catch (SecurityException sx) {
@@ -312,8 +349,10 @@ public class Tools {
      * @see     http://www.golesny.de/p/code/javagetpid
      */
     static Integer windowsProcessId(final Process process) {
-        if (process.getClass().getName().equals("java.lang.Win32Process")
-                    || process.getClass().getName().equals("java.lang.ProcessImpl")) {
+        if (
+            process.getClass().getName().equals("java.lang.Win32Process") ||
+            process.getClass().getName().equals("java.lang.ProcessImpl")
+        ) {
             /* determine the pid on windows plattforms */
             try {
                 final Field f = process.getClass().getDeclaredField("handle");

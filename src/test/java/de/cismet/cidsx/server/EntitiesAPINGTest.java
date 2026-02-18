@@ -4,16 +4,17 @@
  */
 package de.cismet.cidsx.server;
 
-import com.sun.jersey.api.client.ClientResponse;
+import static org.testng.Assert.*;
+
 import de.cismet.cidsx.server.api.EntitiesAPI;
+import jakarta.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.URI;
-import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
-import static org.testng.Assert.*;
+import org.glassfish.jersey.client.ClientResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -26,18 +27,16 @@ import org.testng.annotations.Test;
  */
 public class EntitiesAPINGTest {
 
-    private static int port=0;
+    private static int port = 0;
 
     // FIXME: this is not the way to go, the server should be able to create his cores on his own (or at least with proper config)
     private static File fscoreDir;
     static Starter starter = new Starter();
 
-    public EntitiesAPINGTest() {
-    }
+    public EntitiesAPINGTest() {}
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-
         for (int i = 38279; i < 48279; ++i) {
             if (available(i)) {
                 port = i;
@@ -49,12 +48,14 @@ public class EntitiesAPINGTest {
         }
 
         String portString = String.valueOf(port);
-        fscoreDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "fscore" + System.currentTimeMillis());
+        fscoreDir =
+            new File(System.getProperty("java.io.tmpdir") + File.separator + "fscore" + System.currentTimeMillis());
         fscoreDir.mkdir();
         String[] args = {
             "-domain=testDomain",
             "-standalone",
-            "-port", portString,
+            "-port",
+            portString,
             "-enableCore = core.dummy.user",
             "-enableCore = core.dummy.permission",
             "-enableCore = core.fs.action",
@@ -62,11 +63,11 @@ public class EntitiesAPINGTest {
             "-enableCore = core.fs.entity",
             "-enableCore = core.fs.entityInfo",
             "-enableCore = core.fs.node",
-            "-core.fs.basedir="+ fscoreDir.getAbsolutePath(),
-            "-core.fs.allow-case-insensitive"};
+            "-core.fs.basedir=" + fscoreDir.getAbsolutePath(),
+            "-core.fs.allow-case-insensitive",
+        };
         starter.init(args);
         System.out.println("Test Server started on " + port);
-
     }
 
     @AfterClass
@@ -76,22 +77,19 @@ public class EntitiesAPINGTest {
             starter.server.stop();
         }
         if (starter.client != null) {
-            starter.client.destroy();
+            starter.client.close();
         }
         if (fscoreDir != null) {
             FileUtils.deleteDirectory(fscoreDir);
         }
         System.out.println("tearDown done");
-
     }
 
     @BeforeMethod
-    public void setUpMethod() throws Exception {
-    }
+    public void setUpMethod() throws Exception {}
 
     @AfterMethod
-    public void tearDownMethod() throws Exception {
-    }
+    public void tearDownMethod() throws Exception {}
 
     /**
      * Test of getEmptyInstance method, of class EntitiesAPI.
@@ -120,7 +118,7 @@ public class EntitiesAPINGTest {
 
         // FIXME: the domain should be configurable
         final URI uri = new URI("http", null, "localhost", port, "/testDomain.testclass", null, null);
-        final ClientResponse cr = starter.client.resource(uri).queryParam("level", "11").get(ClientResponse.class);
+        final ClientResponse cr = starter.client.target(uri).queryParam("level", "11").request().get(ClientResponse.class);
         assertTrue(cr.getStatus() >= 400);
     }
 
@@ -139,7 +137,15 @@ public class EntitiesAPINGTest {
         String authString = "";
         EntitiesAPI instance = new EntitiesAPI();
         Response expResult = null;
-        Response result = instance.updateObject(jsonBody, domain, classKey, objectId, requestResultingInstance, role, authString);
+        Response result = instance.updateObject(
+            jsonBody,
+            domain,
+            classKey,
+            objectId,
+            requestResultingInstance,
+            role,
+            authString
+        );
         assertEquals(result, expResult);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -174,7 +180,7 @@ public class EntitiesAPINGTest {
 
         // FIXME: the domain should be configurable
         final URI uri = new URI("http", null, "localhost", port, "/testDomain.testclass/9", null, null);
-        final ClientResponse cr = starter.client.resource(uri).get(ClientResponse.class);
+        final ClientResponse cr = starter.client.target(uri).request().get(ClientResponse.class);
         assertTrue(cr.getStatus() >= 400);
     }
 
@@ -206,8 +212,7 @@ public class EntitiesAPINGTest {
             ds = new DatagramSocket(port);
             ds.setReuseAddress(true);
             return true;
-        } catch (IOException e) {
-        } finally {
+        } catch (IOException e) {} finally {
             if (ds != null) {
                 ds.close();
             }
@@ -223,5 +228,4 @@ public class EntitiesAPINGTest {
 
         return false;
     }
-
 }

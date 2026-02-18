@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.trigger;
 
 /**
@@ -86,7 +86,7 @@ public class CidsTriggerKey {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final CidsTriggerKey other = (CidsTriggerKey)obj;
+        final CidsTriggerKey other = (CidsTriggerKey) obj;
         if ((this.domain == null) ? (other.domain != null) : (!this.domain.equals(other.domain))) {
             return false;
         }

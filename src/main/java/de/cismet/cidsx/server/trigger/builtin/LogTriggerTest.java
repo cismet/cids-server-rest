@@ -1,19 +1,17 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.trigger.builtin;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.openide.util.lookup.ServiceProvider;
 
 import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.trigger.CidsTrigger;
 import de.cismet.cidsx.server.trigger.CidsTriggerKey;
+import lombok.extern.slf4j.Slf4j;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * DOCUMENT ME!

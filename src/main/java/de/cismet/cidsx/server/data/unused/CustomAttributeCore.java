@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.data.unused;
 
 import de.cismet.cidsx.server.cores.CidsServerCore;
@@ -15,5 +15,4 @@ import de.cismet.cidsx.server.cores.CidsServerCore;
  * @author   thorsten
  * @version  1.0
  */
-public interface CustomAttributeCore extends CidsServerCore {
-}
+public interface CustomAttributeCore extends CidsServerCore {}

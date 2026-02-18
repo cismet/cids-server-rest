@@ -1,15 +1,14 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.exceptions;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
-
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * DOCUMENT ME!
@@ -27,7 +26,8 @@ public final class InvalidLevelException extends CidsServerException {
 
     //~ Instance fields --------------------------------------------------------
 
-    @Getter private final Integer level;
+    @Getter
+    private final Integer level;
 
     //~ Constructors -----------------------------------------------------------
 

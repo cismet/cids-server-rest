@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -13,32 +13,8 @@ package de.cismet.cidsx.server.cores.filesystem;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
-
-import org.openide.util.lookup.ServiceProvider;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-
-import javax.servlet.http.HttpServletResponse;
-
 import de.cismet.cidsx.server.api.tools.Tools;
 import de.cismet.cidsx.server.api.types.Action;
 import de.cismet.cidsx.server.api.types.ActionResultInfo;
@@ -49,8 +25,23 @@ import de.cismet.cidsx.server.cores.ActionCore;
 import de.cismet.cidsx.server.cores.CidsServerCore;
 import de.cismet.cidsx.server.exceptions.CidsServerException;
 import de.cismet.cidsx.server.exceptions.NotImplementedException;
-
 import de.cismet.commons.concurrency.CismetExecutors;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * DOCUMENT ME!
@@ -73,20 +64,16 @@ public class FileSystemActionCore implements ActionCore {
     )
     static String actionExtension = ".sh";
 
-    @Parameter(
-        names = { "-core.fs.action.os", "--core.fs.action.os" },
-        description = "Server OS [Unix, Win]"
-    )
+    @Parameter(names = { "-core.fs.action.os", "--core.fs.action.os" }, description = "Server OS [Unix, Win]")
     static String os = "Unix";
+
     @Parameter(
         names = { "-core.fs.action.output.encoding", "--core.fs.action.output.encoding" },
-        description =
-            "Encoding of the output of the action (on windows it is most likely \"Cp1252\" or \"ISO-8859-1\" or \"ISO-850\")"
+        description = "Encoding of the output of the action (on windows it is most likely \"Cp1252\" or \"ISO-8859-1\" or \"ISO-850\")"
     )
     static String outputEncoding = "UTF-8";
 
-    static ConcurrentHashMap<String, ExecutorService> actionExecutorServices =
-        new ConcurrentHashMap<String, ExecutorService>();
+    static ConcurrentHashMap<String, ExecutorService> actionExecutorServices = new ConcurrentHashMap<String, ExecutorService>();
 
     //~ Instance fields --------------------------------------------------------
 
@@ -97,8 +84,7 @@ public class FileSystemActionCore implements ActionCore {
     /**
      * Creates a new FileSystemActionCore object.
      */
-    public FileSystemActionCore() {
-    }
+    public FileSystemActionCore() {}
 
     //~ Methods ----------------------------------------------------------------
 
@@ -118,7 +104,7 @@ public class FileSystemActionCore implements ActionCore {
         for (final File fileEntry : folder.listFiles()) {
             if (!fileEntry.isHidden() && !fileEntry.isDirectory() && fileEntry.getAbsolutePath().endsWith(".json")) {
                 try {
-                    final JsonNode on = (JsonNode)mapper.readTree(fileEntry);
+                    final JsonNode on = (JsonNode) mapper.readTree(fileEntry);
                     all.add(on);
                 } catch (IOException ex) {
                     log.error(ex.getMessage(), ex);
@@ -131,8 +117,7 @@ public class FileSystemActionCore implements ActionCore {
     @Override
     public JsonNode getAction(final User user, final String actionKey, final String role) {
         try {
-            final JsonNode ret = mapper.readTree(
-                    new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json"));
+            final JsonNode ret = mapper.readTree(new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json"));
             return ret;
         } catch (IOException ex) {
             log.error(ex.getMessage(), ex);
@@ -147,7 +132,7 @@ public class FileSystemActionCore implements ActionCore {
         for (final File fileEntry : folder.listFiles()) {
             if (!fileEntry.isHidden() && !fileEntry.isDirectory() && fileEntry.getAbsolutePath().endsWith(".json")) {
                 try {
-                    final JsonNode on = (JsonNode)mapper.readTree(fileEntry);
+                    final JsonNode on = (JsonNode) mapper.readTree(fileEntry);
                     all.add(on);
                 } catch (IOException ex) {
                     log.error(ex.getMessage(), ex);
@@ -158,19 +143,20 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public JsonNode createNewActionTask(final User user,
-            final String actionKey,
-            ActionTask actionTask,
-            final String role,
-            final boolean requestResultingInstance,
-            final InputStream attachmentIS) {
+    public JsonNode createNewActionTask(
+        final User user,
+        final String actionKey,
+        ActionTask actionTask,
+        final String role,
+        final boolean requestResultingInstance,
+        final InputStream attachmentIS
+    ) {
         Action action = null;
         final ObjectMapper m = new ObjectMapper();
         if (role != null) {
             final String message = "role not supported yet.";
             log.warn(message);
-            throw new CidsServerException(message, message,
-                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            throw new CidsServerException(message, message, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
         if (actionTask == null) {
             actionTask = new ActionTask();
@@ -182,8 +168,9 @@ public class FileSystemActionCore implements ActionCore {
             actionTask.setStatus(ActionTask.Status.STARTING);
             actionTask.setActionKey(actionKey);
             final File taskFile;
-            final File f = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
-                            + ".json");
+            final File f = new File(
+                getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + ".json"
+            );
             /*
              * It can happen, that the time in ms is not a unique key, especially when creating multiple ActionTasks in
              * parallell. We must check if there is already a file that has the same key, and append a large unique
@@ -191,29 +178,36 @@ public class FileSystemActionCore implements ActionCore {
              */
             if (f.exists()) {
                 actionTask.setKey(actionTask.getKey() + "_" + Math.floor(Math.random() * 100000));
-                taskFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
-                                + ".json");
+                taskFile =
+                    new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + ".json");
             } else {
                 taskFile = f;
             }
             final File actionFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + ".json");
-            final File pidFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey()
-                            + SEP
-                            + "pid.txt");
+            final File pidFile = new File(
+                getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP + "pid.txt"
+            );
             final String resultDir = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey();
-            final String stderr = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP
-                        + "stderr.txt";
-            final String stdout = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP
-                        + "stdout.txt";
+            final String stderr =
+                getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP + "stderr.txt";
+            final String stdout =
+                getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + actionTask.getKey() + SEP + "stdout.txt";
 
             final File resultDirFile = new File(resultDir);
             final File stderrFile = new File(stderr);
             final File stdoutFile = new File(stdout);
             if (attachmentIS != null) {
-                final File attachmentFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP
-                                + actionTask.getKey()
-                                + SEP
-                                + "attachment.file");
+                final File attachmentFile = new File(
+                    getBaseDir() +
+                    SEP +
+                    "actions" +
+                    SEP +
+                    actionKey +
+                    SEP +
+                    actionTask.getKey() +
+                    SEP +
+                    "attachment.file"
+                );
 
                 FileUtils.copyInputStreamToFile(attachmentIS, attachmentFile);
             }
@@ -244,97 +238,91 @@ public class FileSystemActionCore implements ActionCore {
                 } else {
                     actionExecutorServices.putIfAbsent(
                         actionKey,
-                        CismetExecutors.newFixedThreadPool(action.getMaxConcurrentThreads()));
+                        CismetExecutors.newFixedThreadPool(action.getMaxConcurrentThreads())
+                    );
                 }
                 es = actionExecutorServices.get(actionKey);
             }
 
             final Runnable actionRunner = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        FileUtils.forceMkdir(resultDirFile);
+                        fixedTask.setStatus(ActionTask.Status.RUNNING);
+                        mapper.writeValue(taskFile, fixedTask);
+                        final ProcessBuilder pb = new ProcessBuilder(commandWithParam);
 
-                    @Override
-                    public void run() {
+                        pb.directory(new File(resultDir));
+                        final Map<String, String> env = pb.environment();
+                        env.put("cidsActionDirectory", resultDir);
+                        final Process p = pb.start();
+
+                        final Integer i = Tools.processId(p);
+                        String s = String.valueOf(i);
+
+                        FileUtils.writeStringToFile(pidFile, s);
+                        final BufferedReader stdInput = new BufferedReader(
+                            new InputStreamReader(p.getInputStream(), outputEncoding)
+                        );
+                        final BufferedReader stdError = new BufferedReader(
+                            new InputStreamReader(p.getErrorStream(), outputEncoding)
+                        );
+
+                        // read the output from the command
+                        final StringBuilder out = new StringBuilder();
+                        while ((s = stdInput.readLine()) != null) {
+                            out.append(s).append(System.getProperty("line.separator"));
+                        }
+
+                        // read any errors from the attempted command
+                        final StringBuilder err = new StringBuilder();
+                        while ((s = stdError.readLine()) != null) {
+                            err.append(s).append(System.getProperty("line.separator"));
+                        }
+                        if (taskFile.exists()) {
+                            if (out.length() > 0) {
+                                FileUtils.writeStringToFile(stdoutFile, out.toString(), FileSystemBaseCore.fsEncoding);
+                            }
+
+                            if (err.length() > 0) {
+                                FileUtils.writeStringToFile(stderrFile, err.toString(), FileSystemBaseCore.fsEncoding);
+                            }
+                        }
+                        p.waitFor();
+                        if (taskFile.exists()) {
+                            final ActionTask checkForStopped = m.readValue(taskFile, ActionTask.class);
+                            if (!checkForStopped.getStatus().equals(ActionTask.Status.CANCELING)) {
+                                fixedTask.setStatus(ActionTask.Status.FINISHED);
+                                m.writeValue(taskFile, fixedTask);
+                            }
+                        }
+                        if (pidFile.exists()) {
+                            FileUtils.forceDelete(pidFile);
+                        }
+                        if (stderrFile.exists() && (FileUtils.sizeOf(stderrFile) == 0)) {
+                            FileUtils.forceDelete(stderrFile);
+                        }
+                        if (stdoutFile.exists() && (FileUtils.sizeOf(stdoutFile) == 0)) {
+                            FileUtils.forceDelete(stdoutFile);
+                        }
+                        if (resultDirFile.exists() && (FileUtils.sizeOfDirectory(resultDirFile) == 0)) {
+                            FileUtils.forceDelete(resultDirFile);
+                        }
+                    } catch (Exception e) {
+                        log.error(e.getMessage(), e);
+                        fixedTask.setStatus(ActionTask.Status.ERROR);
                         try {
-                            FileUtils.forceMkdir(resultDirFile);
-                            fixedTask.setStatus(ActionTask.Status.RUNNING);
-                            mapper.writeValue(taskFile, fixedTask);
-                            final ProcessBuilder pb = new ProcessBuilder(commandWithParam);
-
-                            pb.directory(new File(resultDir));
-                            final Map<String, String> env = pb.environment();
-                            env.put("cidsActionDirectory", resultDir);
-                            final Process p = pb.start();
-
-                            final Integer i = Tools.processId(p);
-                            String s = String.valueOf(i);
-
-                            FileUtils.writeStringToFile(pidFile, s);
-                            final BufferedReader stdInput = new BufferedReader(new InputStreamReader(
-                                        p.getInputStream(),
-                                        outputEncoding));
-                            final BufferedReader stdError = new BufferedReader(new InputStreamReader(
-                                        p.getErrorStream(),
-                                        outputEncoding));
-
-                            // read the output from the command
-                            final StringBuilder out = new StringBuilder();
-                            while ((s = stdInput.readLine()) != null) {
-                                out.append(s).append(System.getProperty("line.separator"));
-                            }
-
-                            // read any errors from the attempted command
-                            final StringBuilder err = new StringBuilder();
-                            while ((s = stdError.readLine()) != null) {
-                                err.append(s).append(System.getProperty("line.separator"));
-                            }
-                            if (taskFile.exists()) {
-                                if (out.length() > 0) {
-                                    FileUtils.writeStringToFile(
-                                        stdoutFile,
-                                        out.toString(),
-                                        FileSystemBaseCore.fsEncoding);
-                                }
-
-                                if (err.length() > 0) {
-                                    FileUtils.writeStringToFile(
-                                        stderrFile,
-                                        err.toString(),
-                                        FileSystemBaseCore.fsEncoding);
-                                }
-                            }
-                            p.waitFor();
-                            if (taskFile.exists()) {
-                                final ActionTask checkForStopped = m.readValue(taskFile, ActionTask.class);
-                                if (!checkForStopped.getStatus().equals(ActionTask.Status.CANCELING)) {
-                                    fixedTask.setStatus(ActionTask.Status.FINISHED);
-                                    m.writeValue(taskFile, fixedTask);
-                                }
-                            }
+                            m.writeValue(taskFile, fixedTask);
                             if (pidFile.exists()) {
                                 FileUtils.forceDelete(pidFile);
                             }
-                            if (stderrFile.exists() && (FileUtils.sizeOf(stderrFile) == 0)) {
-                                FileUtils.forceDelete(stderrFile);
-                            }
-                            if (stdoutFile.exists() && (FileUtils.sizeOf(stdoutFile) == 0)) {
-                                FileUtils.forceDelete(stdoutFile);
-                            }
-                            if (resultDirFile.exists() && (FileUtils.sizeOfDirectory(resultDirFile) == 0)) {
-                                FileUtils.forceDelete(resultDirFile);
-                            }
-                        } catch (Exception e) {
-                            log.error(e.getMessage(), e);
-                            fixedTask.setStatus(ActionTask.Status.ERROR);
-                            try {
-                                m.writeValue(taskFile, fixedTask);
-                                if (pidFile.exists()) {
-                                    FileUtils.forceDelete(pidFile);
-                                }
-                            } catch (Exception ex) {
-                                throw new RuntimeException();
-                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeException();
                         }
                     }
-                };
+                }
+            };
             es.execute(actionRunner);
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
@@ -357,7 +345,8 @@ public class FileSystemActionCore implements ActionCore {
     public JsonNode getTask(final User user, final String actionKey, final String taskKey, final String role) {
         try {
             final JsonNode ret = mapper.readTree(
-                    new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json"));
+                new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json")
+            );
             return ret;
         } catch (IOException ex) {
             log.error(ex.getMessage(), ex);
@@ -369,8 +358,9 @@ public class FileSystemActionCore implements ActionCore {
     public void deleteTask(final User user, final String actionKey, final String taskKey, final String role) {
         try {
             final File taskFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + ".json");
-            final File pidFile = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + SEP
-                            + "pid.txt");
+            final File pidFile = new File(
+                getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey + SEP + "pid.txt"
+            );
             final String resultDir = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey;
             final File resultDirFile = new File(resultDir);
 
@@ -398,10 +388,12 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public List<ActionResultInfo> getResults(final User user,
-            final String actionKey,
-            final String taskKey,
-            final String role) {
+    public List<ActionResultInfo> getResults(
+        final User user,
+        final String actionKey,
+        final String taskKey,
+        final String role
+    ) {
         final File folder = new File(getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey);
         final ArrayList all = new ArrayList();
         for (final File fileEntry : folder.listFiles()) {
@@ -413,11 +405,13 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public GenericResourceWithContentType getResult(final User user,
-            final String actionKey,
-            final String taskKey,
-            final String resultKey,
-            final String role) {
+    public GenericResourceWithContentType getResult(
+        final User user,
+        final String actionKey,
+        final String taskKey,
+        final String resultKey,
+        final String role
+    ) {
         // Weakness: only one result per key
         final String resultDir = getBaseDir() + SEP + "actions" + SEP + actionKey + SEP + taskKey;
         final File folder = new File(resultDir);
@@ -462,8 +456,9 @@ public class FileSystemActionCore implements ActionCore {
             info.setContentType("image/png");
         } else if (extension.equalsIgnoreCase("gif")) {
             info.setContentType("image/gif");
-        } else if (extension.equalsIgnoreCase("jpg") || extension.equalsIgnoreCase("jpeg")
-                    || extension.equalsIgnoreCase("jpe")) {
+        } else if (
+            extension.equalsIgnoreCase("jpg") || extension.equalsIgnoreCase("jpeg") || extension.equalsIgnoreCase("jpe")
+        ) {
             info.setContentType("image/jpeg");
         } else if (extension.length() > 0) {
             info.setContentType("unknown/" + extension);
@@ -479,15 +474,19 @@ public class FileSystemActionCore implements ActionCore {
     }
 
     @Override
-    public GenericResourceWithContentType executeNewAction(final User user,
-            final String actionKey,
-            final ActionTask body,
-            final String role,
-            final String domain,
-            final InputStream fileAttachement) {
-        final String message = "The operation '"
-                    + Thread.currentThread().getStackTrace()[1].getMethodName()
-                    + "' is not yet supported by " + this.getClass().getSimpleName();
+    public GenericResourceWithContentType executeNewAction(
+        final User user,
+        final String actionKey,
+        final ActionTask body,
+        final String role,
+        final String domain,
+        final InputStream fileAttachement
+    ) {
+        final String message =
+            "The operation '" +
+            Thread.currentThread().getStackTrace()[1].getMethodName() +
+            "' is not yet supported by " +
+            this.getClass().getSimpleName();
         log.error(message);
         throw new NotImplementedException(message);
     }

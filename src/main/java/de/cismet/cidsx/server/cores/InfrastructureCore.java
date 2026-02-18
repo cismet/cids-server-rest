@@ -1,10 +1,10 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -12,9 +12,8 @@
  */
 package de.cismet.cidsx.server.cores;
 
-import java.util.List;
-
 import de.cismet.cidsx.server.api.types.ServerStatus;
+import java.util.List;
 
 /**
  * Core Interface for the Infrastructure API.
@@ -23,7 +22,6 @@ import de.cismet.cidsx.server.api.types.ServerStatus;
  * @version  $Revision$, $Date$
  */
 public interface InfrastructureCore extends CidsServerCore {
-
     //~ Methods ----------------------------------------------------------------
 
     /**

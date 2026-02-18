@@ -1,13 +1,15 @@
 /***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ *
+ *              ... and it just works.
+ *
+ ****************************************************/
 package de.cismet.cidsx.server.data;
 
-import com.sun.jersey.api.client.Client;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 /**
  * DOCUMENT ME!
@@ -47,6 +49,6 @@ public class RuntimeContainer {
      * @return  DOCUMENT ME!
      */
     public static Client getClient() {
-        return new Client();
+        return ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
     }
 }
