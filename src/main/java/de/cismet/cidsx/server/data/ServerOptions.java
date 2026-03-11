@@ -37,6 +37,8 @@ public class ServerOptions {
     @Getter @Setter private List<String> allowedUsers = null;
     @Getter @Setter private List<String> allowedSearches = null;
 
+    @Getter @Setter private Boolean jwtCacheActive = false;
+
     //~ Constructors -----------------------------------------------------------
 
     /**

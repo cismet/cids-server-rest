@@ -19,8 +19,10 @@ import java.lang.reflect.Field;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -45,6 +47,10 @@ import de.cismet.cidsx.server.exceptions.CidsServerException;
  */
 @Slf4j
 public class Tools {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static Map<String, User> validatedUser = new HashMap<>();
 
     //~ Constructors -----------------------------------------------------------
 
@@ -133,6 +139,12 @@ public class Tools {
      */
     public static User validationHelper(final String authString) {
         User user;
+
+        if (RuntimeContainer.getServer().getServerOptions().getJwtCacheActive()
+                    && (validatedUser.get(authString) != null)) {
+            return validatedUser.get(authString);
+        }
+
         if ((authString == null) && (RuntimeContainer.getServer().getServerOptions().getAnonymousUser() == null)) {
             return User.NONE;
         } else if ((authString == null) && (RuntimeContainer.getServer().getServerOptions().getAnonymousUser() != null)
@@ -174,6 +186,11 @@ public class Tools {
                 throw new CidsServerException(message, message, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             }
         }
+
+        if (RuntimeContainer.getServer().getServerOptions().getJwtCacheActive()) {
+            validatedUser.put(authString, user);
+        }
+
         return user;
     }
 
