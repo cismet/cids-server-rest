@@ -19,7 +19,6 @@ import java.lang.reflect.Field;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +37,7 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.CidsServerInfo;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.CidsServerException;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DOCUMENT ME!
@@ -50,7 +50,7 @@ public class Tools {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static Map<String, User> validatedUser = new HashMap<>();
+    private static Map<String, User> validatedUser = new ConcurrentHashMap<>();
 
     //~ Constructors -----------------------------------------------------------
 
