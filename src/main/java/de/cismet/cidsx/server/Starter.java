@@ -183,6 +183,14 @@ public class Starter {
     private boolean sslClientAuth;
 
     @Parameter(
+        names = { "-jwtCacheActive" },
+        description = "If set to true the server will cache the received jwt, after they were validated once.",
+        arity = 1
+    )
+    @SuppressWarnings("FieldMayBeFinal")
+    private boolean jwtCacheActive;
+
+    @Parameter(
         names = { "-sslKeystoreClient" },
         description = "Path to the keystore holding the certificates of the trusted clients. Only clients with the key "
                     + "corresponding to one of the accepted certificates are allowed to connect."
@@ -291,6 +299,7 @@ public class Starter {
         sslKeystoreServerPassword = null;
         sslKeystoreServerKeyPassword = null;
         sslClientAuth = false;
+        jwtCacheActive = false;
         sslKeystoreClient = null;
         sslKeystoreClientPassword = null;
     }
@@ -437,6 +446,8 @@ public class Starter {
                     }
                 }
             }
+
+            cidsCoreHolder.getServerOptions().setJwtCacheActive(jwtCacheActive);
 
             RuntimeContainer.setServer(cidsCoreHolder);
             SwaggerSerializers.setPrettyPrint(true);
