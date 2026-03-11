@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -37,7 +38,6 @@ import de.cismet.cidsx.server.api.types.User;
 import de.cismet.cidsx.server.data.CidsServerInfo;
 import de.cismet.cidsx.server.data.RuntimeContainer;
 import de.cismet.cidsx.server.exceptions.CidsServerException;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DOCUMENT ME!
