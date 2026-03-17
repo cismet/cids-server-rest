@@ -140,7 +140,7 @@ public class Tools {
     public static User validationHelper(final String authString) {
         User user;
 
-        if (RuntimeContainer.getServer().getServerOptions().getJwtCacheActive()
+        if (RuntimeContainer.getServer().getServerOptions().getJwtCacheActive() && (authString != null)
                     && (validatedUser.get(authString) != null)) {
             return validatedUser.get(authString);
         }
@@ -187,7 +187,7 @@ public class Tools {
             }
         }
 
-        if (RuntimeContainer.getServer().getServerOptions().getJwtCacheActive()) {
+        if (RuntimeContainer.getServer().getServerOptions().getJwtCacheActive() && (authString != null)) {
             validatedUser.put(authString, user);
         }
 
