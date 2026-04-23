@@ -116,10 +116,16 @@ public class EntitiesAPINGTest {
     public void testGetAllObjects() throws Exception {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
 
-        // FIXME: the domain should be configurable
-        final URI uri = new URI("http", null, "localhost", port, "/testDomain.testclass", null, null);
-        final ClientResponse cr = starter.client.target(uri).queryParam("level", "11").request().get(ClientResponse.class);
-        assertTrue(cr.getStatus() >= 400);
+        try {
+            // FIXME: the domain should be configurable
+            final URI uri = new URI("http", null, "localhost", port, "/testDomain.testclass", null, null);
+            final ClientResponse cr = starter.client.target(uri).queryParam("level", "11").request().get(ClientResponse.class);
+            assertTrue(cr.getStatus() >= 400);
+        } catch (jakarta.ws.rs.NotFoundException e) {
+            assertTrue(e.getResponse().getStatus() >= 400);
+            
+            return;
+        }
     }
 
     /**
@@ -178,10 +184,16 @@ public class EntitiesAPINGTest {
     public void testGetObject() throws Exception {
         System.out.println("TEST " + new Throwable().getStackTrace()[0].getMethodName());
 
-        // FIXME: the domain should be configurable
-        final URI uri = new URI("http", null, "localhost", port, "/testDomain.testclass/9", null, null);
-        final ClientResponse cr = starter.client.target(uri).request().get(ClientResponse.class);
-        assertTrue(cr.getStatus() >= 400);
+        try {
+            // FIXME: the domain should be configurable
+            final URI uri = new URI("http", null, "localhost", port, "/testDomain.testclass/9", null, null);
+            final ClientResponse cr = starter.client.target(uri).request().get(ClientResponse.class);
+            assertTrue(cr.getStatus() >= 400);
+        } catch (jakarta.ws.rs.NotFoundException e) {
+            assertTrue(e.getResponse().getStatus() >= 400);
+            
+            return;
+        }
     }
 
     /**
